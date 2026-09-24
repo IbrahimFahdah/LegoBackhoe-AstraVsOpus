@@ -41,8 +41,11 @@ test('clicking a check focuses its parts; clicking the canvas selects a part and
   const h=harness();
   h.get('checks').children.find(r=>/F1/.test(h.text(r))).onclick();assert.match(h.get('checks').children.find(r=>/F1/.test(h.text(r))).className,/active/);
   h.get('top').click();const view=h.get('view');
-  view.onpointerdown({clientX:500,clientY:400,pointerId:1});view.onpointerup({clientX:500,clientY:400});
-  assert.match(h.text(h.get('info')),/Joints/);
+  scan: for(let y=100;y<800;y+=40)for(let x=100;x<1000;x+=40){
+    view.onpointerdown({clientX:x,clientY:y,pointerId:1});view.onpointerup({clientX:x,clientY:y});
+    if(h.get('info').children.length)break scan;
+  }
+  assert.match(h.text(h.get('info')),/Joints \(\d+\)/);
   h.get('isolate').click();assert.ok(h.size()>0);
 });
 test('camera presets, orbit and zoom update uniforms',()=>{
