@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Backhoe Studio · Astra vs Opus</title>
+<meta name="description" content="Two AI models rebuild the LEGO Technic 42197 backhoe loader as a 3D assembly. Open each result in the browser viewer.">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.55 system-ui,sans-serif;color:#23272d;background:#eceeef}
+a{color:inherit}
+.wrap{max-width:960px;margin:0 auto;padding:48px 16px 64px}
+.eyebrow{text-transform:uppercase;font-size:11px;letter-spacing:.08em;color:#6b7178;font-weight:600}
+h1{font-size:34px;line-height:1.15;margin:6px 0 12px;font-weight:700}
+h1 span{color:#e8590c}
+.lead{max-width:640px;color:#454b52;margin:0 0 28px}
+.hero{display:block;width:100%;height:auto;border-radius:12px;border:1px solid #d9dcdf;background:#fff}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:28px 0}
+.card{display:flex;flex-direction:column;gap:10px;background:#fafafa;border:1px solid #d9dcdf;border-radius:12px;padding:20px;text-decoration:none;transition:border-color .15s,transform .15s}
+.card:hover,.card:focus-visible{border-color:#e8590c;transform:translateY(-2px);outline:none}
+.card h2{margin:0;font-size:20px}
+.card .score{font-size:26px;font-weight:650}
+.card .score small{font-size:13px;font-weight:400;color:#6b7178}
+.card dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0;font-size:13px}
+.card dt{color:#6b7178}.card dd{margin:0}
+.card .go{margin-top:auto;font-weight:600;color:#e8590c}
+.review{background:#fff;border:1px solid #d9dcdf;border-left:4px solid #e8590c;border-radius:8px;padding:14px 18px;margin:0 0 28px}
+.review strong{display:block;margin-bottom:2px}
+footer{font-size:12px;color:#6b7178;border-top:1px solid #d9dcdf;padding-top:16px}
+footer a{color:#454b52}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Technic benchmark · set 42197</div>
+  <h1>Backhoe <span>Studio</span>: Astra vs Opus</h1>
+  <p class="lead">Two AI models were given the LEGO Technic 42197 building instructions and an exact 104-piece inventory. Each one had to rebuild the whole backhoe loader as a 3D assembly, with its parts, joints and working mechanisms. Open a result to orbit the model, inspect parts and see the automated checks.</p>
+
+  <img class="hero" src="docs/images/finished-model.png" alt="Finished LEGO Technic 42197 backhoe loader from the instruction booklet" width="798" height="603">
+
+  <div class="cards">
+    <a class="card" href="output/Astra/GPT_Astra.html">
+      <div class="eyebrow">Model output</div>
+      <h2>GPT Astra</h2>
+      <div class="score">12 <small>pass · 1 warn · 4 fail</small></div>
+      <dl><dt>Time</dt><dd>~20 minutes</dd><dt>Connections</dt><dd>132</dd></dl>
+      <span class="go">Open in 3D viewer →</span>
+    </a>
+    <a class="card" href="output/Opus5.5/opus5.5.html">
+      <div class="eyebrow">Model output</div>
+      <h2>Claude Opus 5.5</h2>
+      <div class="score">13 <small>pass · 0 warn · 4 fail</small></div>
+      <dl><dt>Time</dt><dd>~40 minutes</dd><dt>Connections</dt><dd>123</dd></dl>
+      <span class="go">Open in 3D viewer →</span>
+    </a>
+    <a class="card" href="viewer/technic-viewer.html">
+      <div class="eyebrow">Try your own</div>
+      <h2>Blank viewer</h2>
+      <p style="margin:0;font-size:13px;color:#454b52">Paste or load any model JSON that follows the <a href="inputPrompt/prompt.md">benchmark prompt</a> and check it against the same rules.</p>
+      <span class="go">Open viewer →</span>
+    </a>
+  </div>
+
+  <div class="review"><strong>Human review</strong>The outputs from both models are very close and both are good, but Astra seems to produce the better output.</div>
+
+  <footer>
+    Everything runs in your browser, with no uploads. Source, prompt and full results: <a href="https://github.com/IbrahimFahdah/LegoBackhoe-AstraVsOpus">GitHub repository</a>.<br>
+    LEGO® and Technic are trademarks of the LEGO Group, which does not sponsor or endorse this project.
+  </footer>
+</div>
+</body>
+</html>

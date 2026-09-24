@@ -2,6 +2,8 @@
 
 A benchmark that tests how well AI models can reason about 3D mechanical assembly. Each model gets the building instructions for **LEGO Technic set 42197 (Backhoe Loader)** and a strict parts brief. It must rebuild the whole machine as a JSON assembly graph: every part's position and orientation, every pin and axle joint, and the working mechanisms.
 
+**▶ Try it online: https://ibrahimfahdah.github.io/LegoBackhoe-AstraVsOpus/**
+
 This repo contains the prompt, the reference booklet, the outputs of two models (**GPT Astra** and **Claude Opus 5.5**), and a browser viewer that renders each model in 3D and scores it automatically.
 
 ![Finished model from the instruction booklet](docs/images/finished-model.png)
@@ -65,7 +67,7 @@ Both outputs were scored with the automated checker in [viewer/technic-core.js](
 
 GPT Astra finished in about 20 minutes. Opus 5.5 took about 40 minutes, roughly twice as long.
 
-To view a model in 3D, open the self-contained viewer page for it:
+To view a model in 3D, open its viewer page online ([GPT Astra](https://ibrahimfahdah.github.io/LegoBackhoe-AstraVsOpus/output/Astra/GPT_Astra.html) · [Opus 5.5](https://ibrahimfahdah.github.io/LegoBackhoe-AstraVsOpus/output/Opus5.5/opus5.5.html)), or open the self-contained HTML file locally:
 
 - [output/Astra/GPT_Astra.html](output/Astra/GPT_Astra.html)
 - [output/Opus5.5/opus5.5.html](output/Opus5.5/opus5.5.html)
