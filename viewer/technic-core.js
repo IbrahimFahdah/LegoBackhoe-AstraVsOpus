@@ -1,0 +1,463 @@
+/* Technic backhoe benchmark: parts catalog, geometry, and quality checks. No DOM or external dependencies. */
+(function (root) {
+  'use strict';
+  const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]], sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]], mul=(a,s)=>[a[0]*s,a[1]*s,a[2]*s];
+  const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+  const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+  const len=a=>Math.hypot(a[0],a[1],a[2]);
+  function unit(a){const l=len(a);return l<1e-9?null:mul(a,1/l);}
+  function basis(u){const p=unit(cross(u,Math.abs(u[0])<.9?[1,0,0]:[0,1,0]));return [p,cross(u,p)];}
+  const r2=n=>Math.round(n*100)/100, fmt=v=>`[${v.map(r2).join(', ')}]`;
+
+  const SUBASSEMBLIES=['chassis','drive_tower','cab','loader_gearbox','loader','backhoe','stabilizers','wheels'];
+  const TYPES=['axle','pin','axle_pin','socket','stud','tyre','ball','clip','mesh','contact'];
+  const MOTIONS=['fixed','rotates','swivels'];
+  const COLORS={yellow:'#f2cd37',black:'#2c2f34',red:'#c91a09',blue:'#0055bf',tan:'#e4cd9e',reddish_brown:'#6a2e14',light_bluish_gray:'#a0a5a9',dark_bluish_gray:'#6c6e68',trans_clear:'#dcecf2'};
+
+  // Feature and body helpers. Local frames follow the prompt: shafts along +x, liftarm holes along +z.
+  const X=[1,0,0],Y=[0,1,0],Z=[0,0,1];
+  const H=(c,axis,depth,profile,approx=false)=>({type:'hole',c,axis,depth,profile,approx});
+  const S=(a,b,profile,approx=false)=>({type:'shaft',a,b,profile,approx});
+  const P=(kind,c,axis,approx=false)=>({type:'point',kind,c,axis,approx});
+  const box=(min,max)=>({shape:'box',min,max});
+  const bar=(a,b,hw,hz,ext=hw)=>({shape:'bar',a,b,hw,hz,ext});
+  const cyl=(a,b,r,n=14)=>({shape:'cyl',a,b,r,n});
+  const plus=(a,b,r=.24)=>({shape:'plus',a,b,r});
+  function liftarm(holes,depth,bars,extra=[]){
+    const features={};holes.forEach(([x,y,p],i)=>{features['h'+i]=H([x,y,0],Z,depth,p);});
+    return {features,bodies:[...bars.map(([a,b,hw=.45,ext])=>bar(a,b,hw,depth/2,ext??hw)),...extra]};
+  }
+  const straight=(profiles,depth)=>liftarm([...profiles].map((p,i)=>[i,0,p]),depth,[[[0,0],[profiles.length-1,0]]]);
+  const axle=(n,stop)=>({features:{s0:S([0,0,0],[n,0,0],'axle')},bodies:[plus([0,0,0],[n,0,0]),...(stop?[cyl([0,0,0],[.14,0,0],.34,12)]:[])]});
+  const pin=n=>({features:{s0:S([0,0,0],[1,0,0],'pin'),s1:S([1,0,0],[n,0,0],'pin')},bodies:[cyl([0,0,0],[n,0,0],.24,12),cyl([.9,0,0],[1.1,0,0],.31,12)]});
+  function quarterEllipse(){
+    const arc=[];for(let i=0;i<=6;i++){const t=i/6*Math.PI/2;arc.push([4-4*Math.cos(t),2*Math.sin(t)]);}
+    return liftarm([[0,0,'A'],[1,0,'P'],[2,0,'P'],[3,0,'P'],[4,0,'A'],[4,1,'P'],[4,2,'A']],.5,
+      [[[0,0],[4,0]],[[4,0],[4,2]],...arc.slice(1).map((p,i)=>[arc[i],p,.16,0])]);
+  }
+  function worm(){const bore=H([1,0,0],X,2,'A');return {features:{h0:bore,bore},bodies:[cyl([.05,0,0],[1.95,0,0],.5,12)],gear:{type:'worm',r:.5,center:[1,0,0],axis:X,span:[0,2]}};}
+  const fairing=side=>({approxBody:true,features:{h0:H([0,0,0],Z,1,'A',true)},bodies:[cyl([0,0,-.45],[0,0,.45],.42,12),box(side>0?[.35,-.7,.25]:[-1.9,-.7,.25],side>0?[1.9,.7,.45]:[-.35,.7,.45])]});
+  const GEOMETRY={
+    pin3:()=>pin(3), pin2:()=>pin(2),
+    axlepin:()=>({features:{s0:S([0,0,0],[1,0,0],'pin'),s1:S([1,0,0],[2,0,0],'axle')},bodies:[cyl([0,0,0],[1,0,0],.24,12),cyl([.9,0,0],[1.1,0,0],.31,12),plus([1,0,0],[2,0,0])]}),
+    pinhalf:()=>({features:{s0:S([0,0,0],[.5,0,0],'pin'),stud:P('stud',[.85,0,0],X)},bodies:[cyl([0,0,0],[.5,0,0],.24,12),cyl([.5,0,0],[.85,0,0],.3,12)]}),
+    axle2:()=>axle(2), axle3:()=>axle(3), axle5:()=>axle(5), axle3stop:()=>axle(3,true), axle4stop:()=>axle(4,true), axle5stop:()=>axle(5,true),
+    beam9:()=>straight('PPPPPPPPP',1), beam5:()=>straight('PPPPP',1),
+    thin5:()=>straight('APPPA',.5), thin3:()=>straight('APA',.5), thin2:()=>straight('AA',.5),
+    l24:()=>liftarm([[0,0,'A'],[1,0,'P'],[2,0,'P'],[3,0,'P'],[3,1,'P']],1,[[[0,0],[3,0]],[[3,0],[3,1]]]),
+    bent7:()=>liftarm([[0,0,'A'],[1,0,'P'],[2,0,'P'],[3,0,'P'],[3.6,.8,'P'],[4.2,1.6,'P'],[4.8,2.4,'A']],1,[[[0,0],[3,0]],[[3,0],[4.8,2.4]]]),
+    qe:quarterEllipse,
+    crank:()=>straight('APPP',.5),
+    crossblock:()=>({features:{h0:H([0,0,0],Z,1,'A'),h1:H([1,0,0],Y,1,'P')},bodies:[box([-.45,-.45,-.45],[1.45,.45,.45])]}),
+    perp3:()=>({features:{h0:H([0,0,0],Z,1,'A'),h1:H([1,0,0],Y,1,'P'),h2:H([2,0,0],Z,1,'A')},bodies:[box([-.45,-.45,-.45],[2.45,.45,.45])]}),
+    perp2:()=>({features:{h0:H([0,0,0],Z,1,'A'),h1:H([1,0,0],Y,1,'A')},bodies:[box([-.45,-.45,-.45],[1.45,.45,.45])]}),
+    conn3:()=>({features:{b0:H([-1,0,0],X,1,'A'),b1:H([1,0,0],X,1,'A'),h0:H([0,0,0],Z,1,'P')},bodies:[cyl([-1.45,0,0],[1.45,0,0],.38,12),cyl([0,0,-.45],[0,0,.45],.45,12)]}),
+    conn2:()=>({features:{b0:H([.5,0,0],X,1,'A'),b1:H([1.5,0,0],X,1,'A')},bodies:[cyl([.05,0,0],[1.95,0,0],.38,12)]}),
+    round1:()=>({features:{h0:H([0,0,0],Z,1,'P')},bodies:[cyl([0,0,-.45],[0,0,.45],.45,14)]}),
+    halfbush:()=>({features:{h0:H([0,0,0],Z,.5,'A')},bodies:[cyl([0,0,-.22],[0,0,.22],.42,14)]}),
+    hub:()=>({features:{h0:H([0,0,0],X,1,'P'),s0:S([0,0,.45],[0,0,1.5],'axle'),s1:S([0,.45,0],[0,1.5,0],'axle')},bodies:[cyl([-.45,0,0],[.45,0,0],.42,12),plus([0,0,.45],[0,0,1.5]),plus([0,.45,0],[0,1.5,0])]}),
+    gear8:()=>({features:{h0:H([0,0,0],Z,.5,'A')},bodies:[cyl([0,0,-.22],[0,0,.22],.62,16)],gear:{type:'spur',r:.5}}),
+    gear12:()=>({features:{h0:H([0,0,0],Z,1,'A')},bodies:[cyl([0,0,-.45],[0,0,.45],.85,18)],gear:{type:'bevel',r:.75}}),
+    knob:()=>({features:{h0:H([0,0,0],Z,1,'A')},bodies:[cyl([0,0,-.45],[0,0,.45],.38,12),box([.3,-.22,-.4],[.95,.22,.4]),box([-.95,-.22,-.4],[-.3,.22,.4]),box([-.22,.3,-.4],[.22,.95,.4]),box([-.22,-.95,-.4],[.22,-.3,.4])],gear:{type:'knob',r:1}}),
+    worm,
+    ballsocket:()=>({approxBody:true,features:{h0:H([0,0,0],Z,1,'A',true),h1:H([1,0,0],Y,1,'A',true),socket:P('socket',[2,0,0],Z,true)},bodies:[box([-.45,-.45,-.45],[1.45,.45,.45]),cyl([2,0,-.45],[2,0,.45],.55,12)]}),
+    ballarm:()=>({approxBody:true,features:{h0:H([0,0,0],Z,1,'A',true),h1:H([1,0,0],Z,1,'P',true),ball:P('ball',[2.5,0,0],null,true)},bodies:[bar([0,0],[1,0],.45,.5),box([1.45,-.2,-.25],[2.1,.2,.25]),cyl([2.5,0,-.4],[2.5,0,.4],.42,12)]}),
+    panel:()=>({approxBody:true,features:{bore:H([0,0,0],X,3,'A',true),h0:H([0,1,-.3],Z,.5,'A',true)},bodies:[cyl([-1.5,0,0],[1.5,0,0],.42,12),box([-1.5,.35,-.12],[1.5,2.1,.12])]}),
+    fairing7:()=>fairing(1), fairing8:()=>fairing(-1),
+    bracket:()=>({approxBody:true,features:{pa:S([0,0,0],[0,0,-1],'pin',true),pb:S([1,0,0],[1,0,-1],'pin',true),mount:P('mount',[.5,0,1.1],X,true)},bodies:[box([-.45,-.45,0],[1.45,.45,.9]),cyl([0,0,-1],[0,0,0],.24,10),cyl([1,0,-1],[1,0,0],.24,10)]}),
+    bucket:()=>({approxBody:true,features:{mount:P('mount',[0,0,1.4],X,true)},bodies:[box([-3.5,0,0],[3.5,4,.2]),box([-3.5,0,.2],[3.5,.2,2.5]),box([-3.5,.2,.2],[-3.3,4,2]),box([3.3,.2,.2],[3.5,4,2])]}),
+    rim:()=>({features:{h0:H([0,0,0],Z,1,'P'),seat:P('seat',[0,0,0],Z)},bodies:[cyl([0,0,-.875],[0,0,.875],1.1,18)]}),
+    tyre:()=>({features:{bore:P('bore',[0,0,0],Z)},bodies:[{shape:'ring',r0:1.15,r1:1.9,w:1.75,n:20}]}),
+    lens:()=>({features:{anti_stud:P('anti_stud',[0,0,0],Z)},bodies:[cyl([0,0,0],[0,0,.33],.5,16)]}),
+  };
+  const INVENTORY=[
+    ['6321305',4,'tan','pin 3L without friction','pin3'],['4142865',5,'red','axle 2L notched','axle2'],
+    ['4206482',6,'blue','axle-pin with friction','axlepin'],['6299413',1,'blue','pin 3L with friction','pin3'],
+    ['6510995',1,'yellow','small fairing #7','fairing7'],['6513879',1,'yellow','small fairing #8','fairing8'],
+    ['6130007',8,'yellow','axle 3L','axle3'],['6344174',2,'yellow','thin liftarm 1x3','thin3'],
+    ['6344325',2,'yellow','axle connector 3L, centre pin hole','conn3'],['6334491',1,'yellow','curved panel 3x1 (roof)','panel'],
+    ['6522621',2,'yellow','quarter-ellipse frame 3x5','qe'],['6371968',2,'yellow','thin liftarm 1x5','thin5'],
+    ['4142133',2,'yellow','thick beam 1x5','beam5'],['6271828',2,'yellow','thick L-liftarm 2x4','l24'],
+    ['6278131',4,'yellow','thick liftarm 1x7 bent','bent7'],['6115616',2,'yellow','thick beam 1x9','beam9'],
+    ['6121485',3,'black','round pin connector 1L','round1'],['4177431',1,'black','gear 12T double bevel (knob)','gear12'],
+    ['6261371',8,'black','cross block 2L','crossblock'],['6279875',4,'black','pin 2L with friction','pin2'],
+    ['6099801',1,'black','pin hub, 2 perpendicular axles','hub'],['6331716',1,'black','perpendicular connector 2L','perp2'],
+    ['6284188',2,'black','knob wheel','knob'],['6331026',1,'black','curved panel 3x1 (digger)','panel'],
+    ['6338171',1,'black','ball-joint arm','ballarm'],['4619323',4,'black','tyre 30.4x14','tyre'],
+    ['6327162',2,'black','quarter-ellipse frame 3x5','qe'],['6327028',2,'black','thin liftarm 1x5','thin5'],
+    ['6311434',1,'black','loader bucket','bucket'],['6135494',1,'reddish_brown','axle 3L with stop','axle3stop'],
+    ['6159763',1,'reddish_brown','axle 5L with stop','axle5stop'],['6271165',2,'light_bluish_gray','half bush','halfbush'],
+    ['4211483',2,'light_bluish_gray','pin 1/2','pinhalf'],['6185471',1,'light_bluish_gray','worm gear','worm'],
+    ['6413107',1,'light_bluish_gray','bucket bracket','bracket'],['6109684',4,'light_bluish_gray','wheel rim 18x14','rim'],
+    ['6331574',2,'light_bluish_gray','thin crank liftarm','crank'],['6514191',2,'trans_clear','round 1x1 lens','lens'],
+    ['6012451',1,'dark_bluish_gray','gear 8T','gear8'],['6338422',2,'dark_bluish_gray','thin liftarm 1x2','thin2'],
+    ['6276984',1,'dark_bluish_gray','perpendicular connector 3L','perp3'],['6391550',2,'dark_bluish_gray','axle connector 2L','conn2'],
+    ['6360824',1,'dark_bluish_gray','ball-socket connector','ballsocket'],['6083620',1,'dark_bluish_gray','axle 4L with stop','axle4stop'],
+    ['4211639',4,'light_bluish_gray','axle 5L','axle5'],
+  ];
+  const TOTAL=INVENTORY.reduce((n,r)=>n+r[1],0);
+  const CATALOG=Object.fromEntries(INVENTORY.map(([element,qty,color,name,key])=>[element,{element,qty,color,name,key,geometry:GEOMETRY[key]()}]));
+
+  // Geometry: local bodies become convex world polyhedra for rendering, picking, and collisions.
+  const frameOf=(o,x,z)=>({o,X:x,Y:cross(z,x),Z:z});
+  const toWorld=(f,p)=>add(f.o,add(add(mul(f.X,p[0]),mul(f.Y,p[1])),mul(f.Z,p[2])));
+  const toWorldDir=(f,d)=>add(add(mul(f.X,d[0]),mul(f.Y,d[1])),mul(f.Z,d[2]));
+  const hexa=pts=>({pts,faces:[[0,3,2,1],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]],kind:'hexa'});
+  function prism(bottom,top){const n=bottom.length,idx=[...Array(n).keys()];return {pts:[...bottom,...top],faces:[idx.slice().reverse(),idx.map(i=>i+n),...idx.map(i=>[i,(i+1)%n,(i+1)%n+n,i+n])],kind:'prism'};}
+  function localPolys(b,coarse){
+    if(b.shape==='box'){const [a,c]=[b.min,b.max];return [hexa([[a[0],a[1],a[2]],[c[0],a[1],a[2]],[c[0],c[1],a[2]],[a[0],c[1],a[2]],[a[0],a[1],c[2]],[c[0],a[1],c[2]],[c[0],c[1],c[2]],[a[0],c[1],c[2]]])];}
+    if(b.shape==='bar'){
+      const d=unit([b.b[0]-b.a[0],b.b[1]-b.a[1],0])||X,n=[-d[1],d[0],0];
+      const p0=add([b.a[0],b.a[1],0],mul(d,-b.ext)),p1=add([b.b[0],b.b[1],0],mul(d,b.ext));
+      const q=[add(p0,mul(n,-b.hw)),add(p1,mul(n,-b.hw)),add(p1,mul(n,b.hw)),add(p0,mul(n,b.hw))];
+      return [hexa([...q.map(p=>[p[0],p[1],-b.hz]),...q.map(p=>[p[0],p[1],b.hz])])];
+    }
+    if(b.shape==='cyl'){
+      const u=unit(sub(b.b,b.a)),[p,q]=basis(u),n=coarse?Math.min(b.n,10):b.n;
+      const at=c=>Array.from({length:n},(_,i)=>{const t=2*Math.PI*i/n;return add(c,add(mul(p,b.r*Math.cos(t)),mul(q,b.r*Math.sin(t))));});
+      return [prism(at(b.a),at(b.b))];
+    }
+    if(b.shape==='plus'){
+      const [p,q]=basis(unit(sub(b.b,b.a)));
+      return [[p,q],[q,p]].map(([w,t])=>{const c=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([i,j])=>add(mul(w,i*b.r),mul(t,j*.085)));return hexa([...c.map(v=>add(b.a,v)),...c.map(v=>add(b.b,v))]);});
+    }
+    const n=coarse?12:b.n,out=[];
+    for(let i=0;i<n;i++){
+      const q=[[b.r0,i],[b.r1,i],[b.r1,i+1],[b.r0,i+1]].map(([r,k])=>[r*Math.cos(2*Math.PI*k/n),r*Math.sin(2*Math.PI*k/n)]);
+      out.push({...hexa([...q.map(([x,y])=>[x,y,-b.w/2]),...q.map(([x,y])=>[x,y,b.w/2])]),kind:'ring'});
+    }
+    return out;
+  }
+  function finalize(pts,faces,kind){
+    const c=mul(pts.reduce(add,[0,0,0]),1/pts.length),outFaces=[],normals=[],planes=[],edges=[];
+    for(let f of faces){
+      let n=[0,0,0];
+      for(let i=0;i<f.length;i++){const a=pts[f[i]],b=pts[f[(i+1)%f.length]];n=add(n,[(a[1]-b[1])*(a[2]+b[2]),(a[2]-b[2])*(a[0]+b[0]),(a[0]-b[0])*(a[1]+b[1])]);}
+      n=unit(n);if(!n)continue;
+      if(dot(n,sub(pts[f[0]],c))<0){n=mul(n,-1);f=[...f].reverse();}
+      outFaces.push(f);normals.push(n);planes.push(dot(n,pts[f[0]]));
+    }
+    for(const f of outFaces)for(let i=0;i<f.length;i++){const e=unit(sub(pts[f[(i+1)%f.length]],pts[f[i]]));if(e&&!edges.some(d=>Math.abs(dot(d,e))>.999))edges.push(e);}
+    return {pts,faces:outFaces,normals,planes,edges,kind,min:[0,1,2].map(i=>Math.min(...pts.map(p=>p[i]))),max:[0,1,2].map(i=>Math.max(...pts.map(p=>p[i])))};
+  }
+  function partPolys(part,coarse){
+    const bodies=part.cat?part.cat.geometry.bodies:[box([-.45,-.45,-.45],[.45,.45,.45])];
+    return bodies.flatMap(b=>localPolys(b,coarse)).map(l=>finalize(l.pts.map(p=>toWorld(part.frame,p)),l.faces,l.kind));
+  }
+  function intersects(a,b,eps=.02){
+    for(let i=0;i<3;i++)if(a.max[i]<=b.min[i]+eps||b.max[i]<=a.min[i]+eps)return false;
+    const axes=[...a.normals,...b.normals];
+    for(const e of a.edges)for(const f of b.edges){const x=unit(cross(e,f));if(x)axes.push(x);}
+    for(const ax of axes){
+      let a0=Infinity,a1=-Infinity,b0=Infinity,b1=-Infinity;
+      for(const p of a.pts){const v=dot(p,ax);if(v<a0)a0=v;if(v>a1)a1=v;}
+      for(const p of b.pts){const v=dot(p,ax);if(v<b0)b0=v;if(v>b1)b1=v;}
+      if(a1<=b0+eps||b1<=a0+eps)return false;
+    }
+    return true;
+  }
+  function rayHit(poly,o,d){
+    let t0=-Infinity,t1=Infinity;
+    for(let i=0;i<poly.normals.length;i++){
+      const n=poly.normals[i],den=dot(n,d),dist=dot(n,o)-poly.planes[i];
+      if(Math.abs(den)<1e-12){if(dist>0)return null;continue;}
+      const t=-dist/den;if(den<0){if(t>t0)t0=t;}else if(t<t1)t1=t;
+      if(t0>t1)return null;
+    }
+    return t1<0?null:Math.max(t0,0);
+  }
+  function worldFeature(part,name){
+    const f=part.cat&&name?part.cat.geometry.features[name]:null;if(!f)return null;
+    if(f.type==='shaft')return {...f,name,A:toWorld(part.frame,f.a),B:toWorld(part.frame,f.b)};
+    return {...f,name,C:toWorld(part.frame,f.c),N:f.axis?unit(toWorldDir(part.frame,f.axis)):null};
+  }
+  function holeMarkers(part){
+    if(!part.cat)return [];
+    return Object.entries(part.cat.geometry.features).filter(([n,f])=>f.type==='hole'&&!f.approx&&n!=='bore').map(([n])=>worldFeature(part,n));
+  }
+  function segmentDistance(p,a,b){const d=sub(b,a),l=dot(d,d),t=l?Math.max(0,Math.min(1,dot(sub(p,a),d)/l)):0;return len(sub(p,add(a,mul(d,t))));}
+  function lineClosest(p1,d1,p2,d2){
+    const r=sub(p1,p2),a=dot(d1,d1),e=dot(d2,d2),b=dot(d1,d2),c=dot(d1,r),f=dot(d2,r),den=a*e-b*b;
+    if(Math.abs(den)<1e-9)return null;
+    const s=(b*f-c*e)/den,t=(a*f-b*c)/den,q1=add(p1,mul(d1,s)),q2=add(p2,mul(d2,t));
+    return {q1,q2,distance:len(sub(q1,q2))};
+  }
+  function gearWorld(part){const g=part.cat?.geometry.gear;if(!g)return null;return {...g,c:toWorld(part.frame,g.center||[0,0,0]),n:unit(toWorldDir(part.frame,g.axis||Z))};}
+  function meshCheck(pa,pb){
+    const A=gearWorld(pa),B=gearWorld(pb);
+    if(!A||!B)return {ok:false,msg:`${!A?pa.id:pb.id} is not a gear.`};
+    const kinds=[A.type,B.type].sort().join('+'),cosine=Math.abs(dot(A.n,B.n)),point=mul(add(A.c,B.c),.5);
+    if(kinds==='knob+knob'){
+      if(cosine>.2)return {ok:false,point,msg:'Knob wheel axes must be perpendicular.'};
+      const cl=lineClosest(A.c,A.n,B.c,B.n);
+      if(!cl||cl.distance>.4)return {ok:false,point,msg:`Knob wheel axes miss each other by ${cl?r2(cl.distance):'∞'}.`};
+      const da=len(sub(A.c,cl.q1)),db=len(sub(B.c,cl.q2));
+      if(Math.abs(da-1)>.35||Math.abs(db-1)>.35)return {ok:false,point,msg:`Each knob wheel centre should be ~1 from the axis crossing (found ${r2(da)} and ${r2(db)}).`};
+      return {ok:true,point};
+    }
+    if(kinds==='spur+worm'){
+      const W=A.type==='worm'?A:B,G=A.type==='worm'?B:A;
+      if(cosine>.2)return {ok:false,point,msg:'Worm and gear axes must be perpendicular.'};
+      const cl=lineClosest(W.c,W.n,G.c,G.n);
+      if(!cl||Math.abs(cl.distance-(W.r+G.r))>.25)return {ok:false,point,msg:`Worm-to-gear axis distance should be ${W.r+G.r} (found ${cl?r2(cl.distance):'∞'}).`};
+      if(Math.abs(dot(sub(G.c,W.c),W.n))>1.3)return {ok:false,point,msg:'The gear is beyond the end of the worm.'};
+      return {ok:true,point};
+    }
+    if(['spur','bevel'].includes(A.type)&&['spur','bevel'].includes(B.type)){
+      const d=len(sub(A.c,B.c));
+      if(cosine<.97||Math.abs(d-A.r-B.r)>.25)return {ok:false,point,msg:`Parallel gears need centre distance ${A.r+B.r} (found ${r2(d)}).`};
+      return {ok:true,point};
+    }
+    return {ok:false,point,msg:`A ${A.type} cannot mesh with a ${B.type}.`};
+  }
+
+  function analyze(data){
+    if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Expected a JSON object with a "parts" array.');
+    if(!Array.isArray(data.parts)||!data.parts.length)throw Error('Expected a nonempty "parts" array.');
+    if(data.parts.length>400)throw Error('Too many parts: maximum 400.');
+    const schema=[],ids=new Set();
+    if(typeof data.title!=='string'||!data.title.trim())schema.push('Missing title.');
+    if(data.units?.length!=='module')schema.push('units.length should be "module".');
+    const parts=data.parts.map((p,index)=>{
+      const fail=m=>{throw Error(`Part ${index+1}${p&&typeof p.id==='string'?` (${p.id})`:''}: ${m}`);};
+      if(!p||typeof p!=='object'||Array.isArray(p))fail('expected an object.');
+      if(typeof p.id!=='string'||!p.id.trim()||p.id.length>80)fail('id must be a string of 1–80 characters.');
+      if(p.id.includes('.'))fail('id must not contain "." because feature references use it.');
+      if(ids.has(p.id))fail('duplicate id.');ids.add(p.id);
+      const vec=(v,name)=>{if(!Array.isArray(v)||v.length!==3||!v.every(n=>typeof n==='number'&&Number.isFinite(n)&&Math.abs(n)<=1000))fail(`${name} needs three finite numbers.`);return [...v];};
+      const position=vec(p.position,'position'),rx=vec(p.x_axis,'x_axis'),rz=vec(p.z_axis,'z_axis');
+      const x=unit(rx),zr=unit(rz);if(!x||!zr)fail('x_axis and z_axis must be nonzero.');
+      const skew=Math.abs(dot(x,zr));if(skew>.1)fail('x_axis and z_axis must be perpendicular.');
+      if(Math.abs(len(rx)-1)>.02||Math.abs(len(rz)-1)>.02||skew>.02)schema.push(`${p.id}: axes were not orthonormal; normalized for display.`);
+      const z=unit(sub(zr,mul(x,dot(x,zr)))),element=String(p.element??'');
+      const cat=CATALOG[element]||null;if(!cat)schema.push(`${p.id}: unknown element "${element}".`);
+      const subassembly=SUBASSEMBLIES.includes(p.subassembly)?p.subassembly:'other';
+      if(subassembly==='other')schema.push(`${p.id}: unknown subassembly "${p.subassembly}".`);
+      return {id:p.id,index,element,color:typeof p.color==='string'?p.color:'',subassembly,position,x,z,cat,frame:frameOf(position,x,z)};
+    });
+    const byId=new Map(parts.map(p=>[p.id,p]));
+    const renderPolys=parts.map(p=>partPolys(p,false)),collide=parts.map(p=>partPolys(p,true));
+    const partBox=collide.map(ps=>({min:[0,1,2].map(i=>Math.min(...ps.map(q=>q.min[i]))),max:[0,1,2].map(i=>Math.max(...ps.map(q=>q.max[i])))}));
+    const centroid=partBox.map(b=>mul(add(b.min,b.max),.5));
+
+    const conns=[],connIds=new Set(),vec3=v=>Array.isArray(v)&&v.length===3&&v.every(n=>typeof n==='number'&&Number.isFinite(n))?v:null;
+    const ref=r=>{if(typeof r!=='string'||!r)return {text:String(r),part:null,name:null};const k=r.lastIndexOf('.'),pid=k<0?r:r.slice(0,k);return {text:r,pid,part:byId.get(pid)||null,name:k<0?null:r.slice(k+1)};};
+    if(!Array.isArray(data.connections))schema.push('connections must be an array.');
+    else data.connections.slice(0,3000).forEach((c,i)=>{
+      if(!c||typeof c!=='object'){schema.push(`Connection ${i+1}: expected an object.`);return;}
+      let id=typeof c.id==='string'&&c.id?c.id:`#${i+1}`;
+      if(connIds.has(id)){schema.push(`${id}: duplicate connection id.`);id+=`#${i+1}`;}connIds.add(id);
+      if(!TYPES.includes(c.type))schema.push(`${id}: unknown type "${c.type}".`);
+      if(c.type!=='mesh'&&!MOTIONS.includes(c.motion))schema.push(`${id}: unknown motion "${c.motion}".`);
+      if(c.type!=='mesh'&&!vec3(c.at))schema.push(`${id}: missing or invalid "at" point.`);
+      conns.push({id,a:ref(c.a),b:ref(c.b),type:c.type,motion:c.motion,at:vec3(c.at),state:'ok',ref:[],geom:[],compat:[],warn:[]});
+    });
+
+    const checks=[],bad=new Set(),partNotes=new Map();
+    const note=(pid,msg)=>{if(!pid)return;if(!partNotes.has(pid))partNotes.set(pid,[]);const l=partNotes.get(pid);if(l.length<15)l.push(msg);};
+    function check(id,label,status,summary,details=[],flagged=[]){
+      const list=[...new Set(flagged.filter(Boolean))];checks.push({id,label,status,summary,details,parts:list});
+      if(status==='fail')list.forEach(p=>bad.add(p));
+    }
+    check('schema','Schema',schema.length?'warn':'pass',schema.length?`${schema.length} note${schema.length>1?'s':''}`:'Valid structure',schema);
+
+    const counts=new Map();for(const p of parts)counts.set(p.element,(counts.get(p.element)||0)+1);
+    const inventory=INVENTORY.map(([element,expected,color,name])=>({element,name,color,expected,got:counts.get(element)||0}));
+    for(const [element,got] of counts)if(!CATALOG[element])inventory.push({element,name:'not in this set',color:'',expected:0,got});
+    const offCount=inventory.filter(r=>r.got!==r.expected);
+    const overIds=parts.filter(p=>!p.cat||counts.get(p.element)>p.cat.qty).map(p=>p.id);
+    offCount.forEach(r=>parts.filter(p=>p.element===r.element&&r.got>r.expected).forEach(p=>note(p.id,`Inventory: ${r.got} used, ${r.expected} in the set.`)));
+    check('inventory',`Inventory (${TOTAL} parts)`,offCount.length?'fail':'pass',`${parts.length}/${TOTAL} parts; ${offCount.length?`${offCount.length} element types off`:'every count exact'}`,offCount.map(r=>`${r.element} ${r.name}: expected ${r.expected}, got ${r.got}`),overIds);
+
+    const wrongColor=parts.filter(p=>p.cat&&p.color!==p.cat.color);
+    wrongColor.forEach(p=>note(p.id,`Colour should be ${p.cat.color}.`));
+    check('colors','Colours',wrongColor.length?'fail':'pass',wrongColor.length?`${wrongColor.length} parts off-colour`:'All colours match',wrongColor.map(p=>`${p.id} (${p.element}): "${p.color}" should be "${p.cat.color}"`),wrongColor.map(p=>p.id));
+
+    // Resolve and evaluate every joint.
+    const shaftUse=new Map();
+    for(const c of conns){
+      for(const side of [c.a,c.b]){
+        if(!side.part)c.ref.push(`unknown part "${side.pid??side.text}"`);
+        else if(side.name===null){if(!['mesh','contact'].includes(c.type))c.ref.push(`${side.text}: feature name missing`);}
+        else if(side.part.cat&&!side.part.cat.geometry.features[side.name])c.ref.push(`${side.text}: no feature "${side.name}" on ${side.part.element}`);
+        side.f=side.part?worldFeature(side.part,side.name):null;
+      }
+      const A=c.a.part,B=c.b.part;
+      if(A&&B&&A===B)c.ref.push('joins a part to itself');
+      if(c.ref.length||!A||!B)continue;
+      if(c.type==='mesh'){const m=meshCheck(A,B);c.expected='mesh';c.point=m.point||centroid[A.index];if(!m.ok)c.geom.push(m.msg);continue;}
+      const fa=c.a.f,fb=c.b.f;
+      if(c.type==='contact'||!fa||!fb){
+        const ba=partBox[A.index],bb=partBox[B.index],gap=Math.max(0,...[0,1,2].map(i=>Math.max(ba.min[i]-bb.max[i],bb.min[i]-ba.max[i])));
+        c.expected=c.motion;c.point=c.at||mul(add(centroid[A.index],centroid[B.index]),.5);
+        if(gap>.3)c.geom.push(`the parts are ${r2(gap)} apart`);
+        continue;
+      }
+      const approx=fa.approx||fb.approx;
+      if((fa.type==='shaft')!==(fb.type==='shaft')&&(fa.type==='hole'||fb.type==='hole')){
+        const [s,h,sp,hp]=fa.type==='shaft'?[fa,fb,A,B]:[fb,fa,B,A];
+        const d=unit(sub(s.B,s.A)),L=len(sub(s.B,s.A)),t=dot(sub(h.C,s.A),d),off=len(sub(h.C,add(s.A,mul(d,t)))),par=Math.abs(dot(d,h.N));
+        c.point=h.C;
+        if(approx){if(segmentDistance(h.C,s.A,s.B)>1.2)c.geom.push(`${hp.id}.${h.name} is ${r2(segmentDistance(h.C,s.A,s.B))} from the shaft`);}
+        else{
+          if(par<.97)c.geom.push(`shaft and hole are ${Math.round(Math.acos(Math.min(1,par))*180/Math.PI)}° out of line`);
+          if(off>.15)c.geom.push(`hole centre is ${r2(off)} off the shaft axis`);
+          if(t<-.1||t>L+.1)c.geom.push('hole lies beyond the end of the shaft');
+          const key=`${sp.id}.${s.name}`;if(!shaftUse.has(key))shaftUse.set(key,[]);
+          shaftUse.get(key).push({t,half:par>.9?h.depth/2:.5,part:hp.id,conn:c.id});
+        }
+        if(s.profile==='pin'&&h.profile==='A')c.compat.push('a round pin cannot enter a cross-axle hole');
+        c.expected=s.profile==='axle'&&h.profile==='A'?'fixed':'rotates';
+      }else if(fa.type==='point'&&fb.type==='point'){
+        const pair=[fa.kind,fb.kind].sort().join('+'),allowed={'anti_stud+stud':'fixed','bore+seat':'fixed','ball+socket':'swivels','mount+mount':null};
+        c.point=mul(add(fa.C,fb.C),.5);
+        if(!(pair in allowed))c.compat.push(`${fa.kind} cannot join ${fb.kind}`);
+        else{
+          c.expected=allowed[pair]??c.motion;
+          const gap=len(sub(fa.C,fb.C));if(gap>(approx?1.2:.25))c.geom.push(`${fa.kind} and ${fb.kind} are ${r2(gap)} apart`);
+          if(!approx&&fa.N&&fb.N&&Math.abs(dot(fa.N,fb.N))<.95)c.geom.push(`${fa.kind} and ${fb.kind} axes are not aligned`);
+        }
+      }else{c.point=centroid[A.index];c.compat.push(`a ${fa.type} cannot join a ${fb.type}`);}
+      if(c.expected&&MOTIONS.includes(c.motion)&&c.motion!==c.expected&&!(c.expected==='fixed'&&fa.kind==='stud'))c.warn.push(`declared "${c.motion}" but the joint ${c.expected==='fixed'?'is locked':c.expected==='rotates'?'turns freely':'swivels'}`);
+      if(c.at&&c.point&&len(sub(c.at,c.point))>(approx?1.5:.5))c.warn.push(`"at" ${fmt(c.at)} is ${r2(len(sub(c.at,c.point)))} from the joint`);
+    }
+    const capacity=[];
+    for(const [key,list] of shaftUse){
+      list.sort((a,b)=>a.t-b.t);
+      for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++){
+        const a=list[i],b=list[j];if(a.part===b.part)continue;
+        const overlap=Math.min(a.t+a.half,b.t+b.half)-Math.max(a.t-a.half,b.t-b.half);
+        if(overlap>.12){capacity.push({msg:`${key}: ${a.part} and ${b.part} occupy the same ${r2(overlap)} of shaft`,parts:[a.part,b.part,key.split('.')[0]]});for(const c of conns)if(c.id===a.conn||c.id===b.conn)c.geom.push('shares shaft space with another part');}
+      }
+    }
+    for(const c of conns){
+      c.state=c.ref.length||c.geom.length||c.compat.length?'fail':c.warn.length?'warn':'ok';
+      const msgs=[...c.ref,...c.geom,...c.compat,...c.warn];
+      for(const side of [c.a,c.b])if(side.part&&msgs.length)note(side.part.id,`${c.id}: ${msgs[0]}`);
+    }
+    const listed=(key)=>conns.filter(c=>c[key].length);
+    const connParts=cs=>cs.flatMap(c=>[c.a.part?.id,c.b.part?.id]);
+    const refBad=listed('ref'),geomBad=conns.filter(c=>!c.ref.length&&c.geom.length),compatBad=listed('compat'),motionWarn=conns.filter(c=>!c.compat.length&&c.warn.length);
+    check('references','Feature references',refBad.length?'fail':'pass',refBad.length?`${refBad.length} broken references`:`${conns.length} connections resolve`,refBad.map(c=>`${c.id}: ${c.ref.join('; ')}`),connParts(refBad));
+    check('geometry','Joint geometry',geomBad.length?'fail':'pass',geomBad.length?`${geomBad.length} joints do not line up`:'Shafts, holes and gears line up',geomBad.map(c=>`${c.id} (${c.a.text} ↔ ${c.b.text}): ${c.geom.join('; ')}`),connParts(geomBad));
+    check('compat','Joint types & motion',compatBad.length?'fail':motionWarn.length?'warn':'pass',compatBad.length?`${compatBad.length} impossible joints`:motionWarn.length?`${motionWarn.length} motion/"at" notes`:'Joint types and motions agree',[...compatBad.map(c=>`${c.id}: ${c.compat.join('; ')}`),...motionWarn.map(c=>`${c.id}: ${c.warn.join('; ')}`)],connParts(compatBad));
+    check('capacity','Shaft occupancy',capacity.length?'fail':'pass',capacity.length?`${capacity.length} crowded shafts`:'No two parts share shaft space',capacity.map(c=>c.msg),capacity.flatMap(c=>c.parts));
+
+    const root=parts.map((_,i)=>i),find=i=>root[i]===i?i:(root[i]=find(root[i]));
+    for(const c of conns)if(c.type!=='mesh'&&c.a.part&&c.b.part)root[find(c.a.part.index)]=find(c.b.part.index);
+    const groups=new Map();parts.forEach((p,i)=>{const r=find(i);if(!groups.has(r))groups.set(r,[]);groups.get(r).push(p.id);});
+    const comps=[...groups.values()].sort((a,b)=>b.length-a.length),loose=comps.slice(1);
+    loose.forEach(g=>g.forEach(id=>note(id,'Not connected to the main assembly.')));
+    check('connectivity','Connected assembly',loose.length?'fail':'pass',loose.length?`${comps.length} separate groups; ${loose.flat().length} parts detached`:'One connected assembly',loose.slice(0,20).map(g=>`Loose group of ${g.length}: ${g.slice(0,8).join(', ')}${g.length>8?' …':''}`),loose.flat());
+
+    const tyres=parts.filter(p=>p.element==='4619323');
+    const low=t=>t.position[2]-1.9*Math.sqrt(Math.max(0,1-t.z[2]**2));
+    const floating=tyres.filter(t=>Math.abs(low(t))>.15),below=parts.filter(p=>p.element!=='4619323'&&partBox[p.index].min[2]<-.1);
+    floating.forEach(t=>note(t.id,`Tyre bottom at z=${r2(low(t))}, should be 0.`));below.forEach(p=>note(p.id,'Below the ground.'));
+    check('ground','Ground contact',!tyres.length||floating.length||below.length?'fail':'pass',!tyres.length?'No tyres':floating.length||below.length?`${floating.length} tyres off the ground, ${below.length} parts below it`:'All tyres rest on z=0',[...floating.map(t=>`${t.id}: bottom at z=${r2(low(t))}`),...below.map(p=>`${p.id}: reaches z=${r2(partBox[p.index].min[2])}`)],[...floating,...below].map(p=>p.id));
+
+    const wb=[];
+    if(tyres.length!==4)wb.push(`Expected 4 tyres, found ${tyres.length}.`);
+    else{
+      const sorted=[...tyres].sort((a,b)=>a.position[0]-b.position[0]);
+      for(const [name,pair] of [['Left',sorted.slice(0,2)],['Right',sorted.slice(2)]]){
+        const dy=Math.abs(pair[0].position[1]-pair[1].position[1]),dx=Math.abs(pair[0].position[0]-pair[1].position[0]);
+        if(Math.abs(dy-6)>.3||dx>.5)wb.push(`${name} wheels ${pair.map(p=>p.id).join(' & ')}: ${r2(dy)} apart along y (expected 6), ${r2(dx)} across.`);
+      }
+    }
+    check('wheelbase','Wheelbase (6 modules)',wb.length?'fail':'pass',wb.length?wb[0]:'Both sides 6 modules',wb,wb.length?tyres.map(t=>t.id):[]);
+
+    const direct=new Set(conns.filter(c=>c.a.part&&c.b.part).map(c=>[c.a.part.id,c.b.part.id].sort().join('|')));
+    const collisions=[];
+    scan: for(let i=0;i<parts.length;i++)for(let j=i+1;j<parts.length;j++){
+      const a=partBox[i],b=partBox[j];
+      if([0,1,2].some(k=>a.max[k]<=b.min[k]+.02||b.max[k]<=a.min[k]+.02))continue;
+      if(direct.has([parts[i].id,parts[j].id].sort().join('|')))continue;
+      if(collide[i].some(p=>collide[j].some(q=>intersects(p,q)))){collisions.push([parts[i],parts[j]]);if(collisions.length>=500)break scan;}
+    }
+    collisions.forEach(([a,b])=>{note(a.id,`Overlaps ${b.id}.`);note(b.id,`Overlaps ${a.id}.`);});
+    const hard=collisions.filter(([a,b])=>!a.cat?.geometry.approxBody&&!b.cat?.geometry.approxBody);
+    check('collisions','Collisions',hard.length?'fail':collisions.length?'warn':'pass',collisions.length?`${collisions.length} overlapping pairs${collisions.length>=500?' (stopped at 500)':''}${hard.length<collisions.length?`; ${collisions.length-hard.length} involve approximate shapes`:''}`:'No unconnected bodies overlap',collisions.slice(0,40).map(([a,b])=>`${a.id} (${a.cat?.name??a.element}) overlaps ${b.id} (${b.cat?.name??b.element})`),hard.flat().map(p=>p.id));
+
+    // Functions F1–F5 and layout.
+    const mech=new Map();
+    if(Array.isArray(data.mechanisms))for(const m of data.mechanisms)if(m&&typeof m.function==='string'&&Array.isArray(m.chain))mech.set(m.function,m.chain.map(String));
+    const involves=(c,id)=>c.a.part?.id===id||c.b.part?.id===id;
+    const other=(c,id)=>c.a.part?.id===id?c.b.part:c.a.part;
+    const between=(a,b)=>conns.filter(c=>involves(c,a)&&involves(c,b)&&a!==b);
+    function fn(id,label,run){const r={issues:[],parts:[]};const ok=run(r);check(id,label,r.issues.length?'fail':'pass',r.issues[0]||ok,r.issues,r.parts);}
+    fn('F1','F1 knob raises loader',r=>{
+      const chain=mech.get('F1');if(!chain){r.issues.push('No F1 chain in "mechanisms".');return;}
+      const ps=chain.map(id=>byId.get(id)),missing=chain.filter((_,i)=>!ps[i]);
+      if(missing.length){r.issues.push(`F1 chain has unknown ids: ${missing.join(', ')}.`);return;}
+      const els=ps.map(p=>p.element);
+      if(els[0]!=='4177431')r.issues.push('Chain must start at the 12-tooth knob gear (4177431).');
+      if(els.at(-1)!=='6278131')r.issues.push('Chain must end at a loader arm (6278131).');
+      for(const [el,n,name] of [['6284188',2,'knob wheels'],['6185471',1,'worm'],['6012451',1,'8-tooth gear']])if(els.filter(e=>e===el).length<n)r.issues.push(`Chain needs ${n} ${name} (${el}).`);
+      for(let i=0;i+1<ps.length;i++){
+        const [a,b]=[ps[i],ps[i+1]],links=between(a.id,b.id);
+        if(!links.length){r.issues.push(`${a.id} → ${b.id}: not connected.`);r.parts.push(a.id,b.id);continue;}
+        if(!links.some(c=>c.state!=='fail'&&(c.type==='mesh'||c.expected==='fixed'))){
+          const c=links[0];r.issues.push(`${a.id} → ${b.id}: ${c.state==='fail'?'the joint fails its checks':`turns freely (${c.expected}), so the drive slips`}.`);r.parts.push(a.id,b.id);
+        }
+      }
+      if(!conns.some(c=>c.type==='mesh'&&c.state!=='fail'&&c.a.part?.element==='6185471'&&c.b.part?.element==='6012451'))r.issues.push('No valid mesh with the worm (a) driving the 8-tooth gear (b).');
+      return `Drive train of ${ps.length} parts is continuous and self-locking`;
+    });
+    fn('F2','F2 wheels roll',r=>{
+      if(tyres.length!==4)r.issues.push(`Expected 4 tyres, found ${tyres.length}.`);
+      for(const t of tyres){
+        const seat=conns.find(c=>c.state!=='fail'&&involves(c,t.id)&&other(c,t.id)?.element==='6109684');
+        if(!seat){r.issues.push(`${t.id}: not mounted on a rim.`);r.parts.push(t.id);continue;}
+        const rim=other(seat,t.id),turn=conns.find(c=>c.state!=='fail'&&involves(c,rim.id)&&c.expected==='rotates');
+        if(!turn){r.issues.push(`${t.id}: rim ${rim.id} has no free-turning pin or axle.`);r.parts.push(t.id,rim.id);continue;}
+        const s=other(turn,rim.id);
+        if(!conns.some(c=>involves(c,s.id)&&other(c,s.id)&&other(c,s.id).id!==rim.id)){r.issues.push(`${t.id}: ${s.id} holds the rim but is attached to nothing else.`);r.parts.push(s.id);}
+      }
+      return 'Four wheels turn on free pins';
+    });
+    fn('F3','F3 backhoe swivels',r=>{
+      const ball=conns.find(c=>c.a.f&&c.b.f&&[c.a.f.kind,c.b.f.kind].sort().join('+')==='ball+socket');
+      if(!ball)r.issues.push('No ball-to-socket joint between 6338171 and 6360824.');
+      else if(ball.state==='fail'){r.issues.push(`${ball.id}: the ball joint fails its checks.`);r.parts.push(ball.a.part.id,ball.b.part.id);}
+      else if(ball.motion!=='swivels')r.issues.push(`${ball.id}: motion should be "swivels".`);
+      return 'Ball joint in place';
+    });
+    fn('F4','F4 stabilizers pivot',r=>{
+      const legs=parts.filter(p=>p.element==='4142133');if(legs.length!==2)r.issues.push(`Expected 2 stabilizer beams (4142133), found ${legs.length}.`);
+      for(const leg of legs){
+        const cs=conns.filter(c=>c.type!=='mesh'&&involves(c,leg.id)&&other(c,leg.id)),holes=new Set(cs.map(c=>c.a.part.id===leg.id?c.a.name:c.b.name));
+        if(!cs.length){r.issues.push(`${leg.id}: not attached.`);r.parts.push(leg.id);}
+        else if(holes.size>1){r.issues.push(`${leg.id}: held at ${holes.size} holes, so it cannot pivot.`);r.parts.push(leg.id);}
+        else if(cs.some(c=>c.expected!=='rotates')){r.issues.push(`${leg.id}: its joint is locked.`);r.parts.push(leg.id);}
+      }
+      return 'Both legs pivot on a single pin';
+    });
+    fn('F5','F5 bucket tilts',r=>{
+      const bucket=parts.find(p=>p.element==='6311434');if(!bucket){r.issues.push('No loader bucket (6311434).');return;}
+      const cs=conns.filter(c=>involves(c,bucket.id));
+      if(!cs.length){r.issues.push(`${bucket.id}: not attached.`);r.parts.push(bucket.id);}
+      else if(!cs.some(c=>['rotates','swivels'].includes(c.motion))){r.issues.push(`${bucket.id}: every joint is fixed, so it cannot tilt.`);r.parts.push(bucket.id);}
+      return 'Bucket has a hinged mount';
+    });
+    fn('layout','Layout',r=>{
+      const meanY=centroid.reduce((s,c)=>s+c[1],0)/centroid.length,bucket=parts.find(p=>p.element==='6311434');
+      const hoe=parts.filter(p=>p.subassembly==='backhoe'||p.element==='6338171');
+      if(!bucket)r.issues.push('No loader bucket to locate.');
+      else if(centroid[bucket.index][1]<meanY+1){r.issues.push('The loader bucket should be at the front (+y).');r.parts.push(bucket.id);}
+      if(!hoe.length)r.issues.push('No backhoe parts to locate.');
+      else if(hoe.reduce((s,p)=>s+centroid[p.index][1],0)/hoe.length>meanY-1){r.issues.push('The backhoe should be at the rear (−y).');r.parts.push(...hoe.map(p=>p.id));}
+      return 'Loader in front, backhoe behind';
+    });
+
+    const score={pass:checks.filter(c=>c.status==='pass').length,warn:checks.filter(c=>c.status==='warn').length,fail:checks.filter(c=>c.status==='fail').length,total:checks.length};
+    return {title:typeof data.title==='string'&&data.title.trim()?data.title.trim().slice(0,120):'Untitled model',data,parts,byId,conns,checks,bad,partNotes,renderPolys,collide,partBox,centroid,inventory,score,collisions};
+  }
+  function parse(text){
+    if(text.length>3000000)throw Error('JSON exceeds the 3 MB input limit.');
+    return analyze(JSON.parse(text.trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'')));
+  }
+  const api={SUBASSEMBLIES,TYPES,MOTIONS,COLORS,INVENTORY,TOTAL,CATALOG,add,sub,mul,dot,cross,unit,len,basis,toWorld,worldFeature,holeMarkers,partPolys,intersects,rayHit,meshCheck,analyze,parse};
+  if(typeof module!=='undefined'&&module.exports)module.exports=api;
+  else root.TechnicCore=api;
+})(globalThis);
