@@ -61,11 +61,18 @@ Both outputs were scored with the automated checker in [viewer/technic-core.js](
 | F5 bucket tilts | ✅ | ❌ bucket joints all fixed |
 | Layout | ✅ | ✅ |
 | **Score (pass / warn / fail)** | **12 / 1 / 4** | **13 / 0 / 4** |
+| **Time to finish** | **~20 minutes** | **~40 minutes** |
+
+GPT Astra finished in about 20 minutes. Opus 5.5 took about 40 minutes, roughly twice as long.
 
 To view a model in 3D, open the self-contained viewer page for it:
 
 - [output/Astra/GPT_Astra.html](output/Astra/GPT_Astra.html)
 - [output/Opus5.5/opus5.5.html](output/Opus5.5/opus5.5.html)
+
+## Human review
+
+The outputs from both models are very close and both are good, but Astra seems to produce the better output.
 
 ## Repository layout
 
