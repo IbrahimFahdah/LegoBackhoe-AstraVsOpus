@@ -6,7 +6,7 @@ Do not use external tools or files inside this folder or outside to complete the
 
 THE MODEL
 
-A compact yellow backhoe loader, about 105 Technic pieces, with:
+A compact yellow backhoe loader, about 104 Technic pieces, with:
 - Chassis: two yellow 1x9 thick beams as the left and right side rails.
   Each rail carries two tan 3L pins (at holes h1 and h7, so the wheelbase
   is 6 modules) on which the wheels spin freely.
@@ -57,7 +57,7 @@ Pose the model as in the finished-model picture: loader bucket lowered
 in front, backhoe raised behind the cab, stabilizers angled down toward
 the rear, and wheels on the ground.
 
-EXACT INVENTORY (105 pieces, 45 element types)
+EXACT INVENTORY (104 pieces, 45 element types)
 
 Use every piece exactly once. Add no other parts. Colors are fixed.
 Format: element | qty | color | part.
@@ -240,14 +240,14 @@ OUTPUT SCHEMA
 The example shows syntax only. Return the complete model.
 - subassembly is one of: chassis, drive_tower, cab, loader_gearbox,
   loader, backhoe, stabilizers, wheels.
-- The parts array has exactly 105 entries, each with a unique id. The
+- The parts array has exactly 104 entries, each with a unique id. The
   per-element counts and colors match the inventory exactly.
 - mechanisms lists F1-F5. Each chain is the ordered part ids, from the
   input to the output.
 - Do not use loops, references, placeholders, comments, or omitted
   sections.
 
-Before returning JSON, check the following: 105 parts, with every
+Before returning JSON, check the following: 104 parts, with every
 element count and color correct; unique IDs; every connection references
 an existing feature; the assembly is fully connected; all four tyres rest
 on z=0; the worm drive train is complete from knob to loader arms; the
