@@ -1,1128 +1,692 @@
 <!doctype html>
 <html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>opus5.5 · Backhoe Studio</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 system-ui,sans-serif;color:#23272d;background:#eceeef}button,input,textarea{font:inherit}button{cursor:pointer;border:1px solid #cfd3d7;border-radius:7px;padding:8px 12px;background:white;color:#23272d}button:hover{background:#eef0f2}button.primary{background:#2f343b;color:white;border-color:#2f343b}button.primary:hover{background:#454b54}a{color:#2f343b}
+main{display:grid;grid-template-columns:380px 1fr;height:100vh}aside{background:#fafafa;border-right:1px solid #d9dcdf;padding:22px;overflow:auto}.eyebrow{text-transform:uppercase;font-size:10px;letter-spacing:2px;color:#7b8189}h1{font-size:26px;margin:6px 0}h1 span{background:#f2cd37;padding:0 6px;border-radius:4px}p{color:#6a7079}.intro{margin:0 0 16px}
+textarea{width:100%;height:170px;resize:vertical;border:1px solid #cfd3d7;border-radius:7px;background:white;padding:10px;font:11px/1.5 monospace;margin-top:6px}.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+#status{white-space:pre-wrap;font-size:12px;background:#eef0f2;padding:11px 13px;border-radius:7px;margin-top:14px}#score{font-size:22px;font-weight:650}#score small{font-size:12px;font-weight:400;color:#6a7079}
+#checks{margin-top:10px;display:grid;gap:5px}.check{border:1px solid #e0e3e6;border-radius:7px;background:white;padding:7px 9px;cursor:pointer}.check.active{outline:2px solid #e8590c}.check-head{display:flex;gap:8px;align-items:baseline}.badge{font:600 10px/1 system-ui;letter-spacing:.5px;padding:3px 6px;border-radius:4px;color:white;flex:none}.pass .badge{background:#2f9e5b}.fail .badge{background:#d23c2c}.warn .badge{background:#d59600}.check-label{font-weight:600}.check-summary{font-size:12px;color:#6a7079}.check ul{margin:6px 0 0;padding-left:18px;font-size:11px;color:#50565e;max-height:160px;overflow:auto}.check:not(.open) ul{display:none}
+fieldset{border:0;padding:0;margin:18px 0 8px}legend{font-weight:600;margin-bottom:6px}#groups{display:grid;grid-template-columns:1fr 1fr;gap:5px}label{cursor:pointer}input[type=checkbox]{accent-color:#2f343b}.options{display:grid;gap:4px}input[type=range]{width:100%}
+details{margin-top:14px}summary{cursor:pointer;font-weight:600}table{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}td,th{padding:3px 4px;border-bottom:1px solid #e6e8ea;text-align:left}tr.off td{background:#fdecea}.sw{display:inline-block;width:10px;height:10px;border-radius:2px;border:1px solid #0003;vertical-align:-1px;margin-right:4px}
+.stage{position:relative;min-width:0;overflow:hidden}canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}.stage-title{position:absolute;top:22px;left:26px;pointer-events:none}.stage-title h2{font-size:19px;margin:3px 0}#piece-count{color:#7b8189;font-size:12px}.hint{position:absolute;top:24px;right:22px;font-size:11px;color:#7b8189}
+.view-controls{position:absolute;bottom:20px;left:20px;right:20px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}#error-banner{position:absolute;top:96px;left:28px;right:28px;background:#fff1e6;padding:14px;border-radius:8px}#error-banner:empty{display:none}
+#info{position:absolute;right:20px;bottom:74px;width:330px;max-height:55%;overflow:auto;background:#ffffffee;border:1px solid #d9dcdf;border-radius:9px;padding:12px 14px;font-size:12px;box-shadow:0 4px 18px #0001}#info:empty{display:none}#info h3{margin:0 0 4px;font-size:14px}#info ul{margin:4px 0 8px;padding-left:16px}#info .bad{color:#c0392b}#info .ok{color:#2f9e5b}#info .warnc{color:#b07d00}.small{font-size:11px}
+@media(max-width:860px){main{height:auto;grid-template-columns:1fr}aside{overflow:visible}.stage{height:640px}.hint{display:none}#info{left:16px;right:16px;width:auto}}
+</style></head>
+<body><main><aside><div class="eyebrow">Local Technic benchmark · set 42197</div>
+<label for="json">Construction JSON</label><textarea id="json" spellcheck="false"></textarea>
+<div class="row" style="display:none"><button class="primary" id="render">Render &amp; check</button><button id="load">Load JSON file</button><input id="file" type="file" accept=".json,application/json" hidden><button id="report">Save report</button></div><fieldset><legend>Subassemblies</legend><div id="groups"></div></fieldset>
+<fieldset><legend>Display</legend><div class="options">
+<label><input id="highlight" type="checkbox" checked> Highlight failing parts in red</label>
+<label><input id="holes" type="checkbox" checked> Show hole markers</label>
+<label><input id="joints" type="checkbox"> Show joints (green ok · amber note · red fail)</label>
+<label for="explode">Explode view</label><input id="explode" type="range" min="0" max="100" value="0">
+</div></fieldset>
+<div id="status" role="status">Loading model…</div>
+<div id="checks"></div>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>opus5.5 · Backhoe Studio</title>
-  <style>
-    * {
-      box-sizing: border-box
+<details><summary>Inventory</summary><table><thead><tr><th>Element</th><th>Part</th><th>Set</th><th>Used</th></tr></thead><tbody id="inventory"></tbody></table></details>
+<p class="small">Click a check to highlight the parts involved. Click a part to see its joints and problems. Shapes of special parts (buckets, fairings, ball joints, panels) are approximate, so their joints and collisions are checked loosely. The catalog geometry comes from the prompt, not from official LEGO dimensions.</p>
+<p class="small">Offline. No accounts, uploads, or installation. Single file with the opus5.5 model built in.</p>
+</aside><section class="stage"><canvas id="view" tabindex="0" aria-label="Technic model. Drag to orbit, scroll to zoom, click a part to inspect it."></canvas><div class="stage-title"><div class="eyebrow">Model preview</div><h2 id="title">Backhoe loader</h2><div id="piece-count"></div></div><div class="hint">Drag to orbit · Scroll to zoom · Click a part</div><div id="error-banner" role="alert"></div><div id="info"></div>
+<div class="view-controls"><button id="assembled">Show all</button><button id="isolate">Isolate part</button><button id="front">Front</button><button id="side">Side</button><button id="rear">Rear</button><button id="top">Top</button><button id="reset">Reset view</button></div></section></main>
+<script>
+/* Technic backhoe benchmark: parts catalog, geometry, and quality checks. No DOM or external dependencies. */
+(function (root) {
+  'use strict';
+  const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]], sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]], mul=(a,s)=>[a[0]*s,a[1]*s,a[2]*s];
+  const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+  const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+  const len=a=>Math.hypot(a[0],a[1],a[2]);
+  function unit(a){const l=len(a);return l<1e-9?null:mul(a,1/l);}
+  function basis(u){const p=unit(cross(u,Math.abs(u[0])<.9?[1,0,0]:[0,1,0]));return [p,cross(u,p)];}
+  const r2=n=>Math.round(n*100)/100, fmt=v=>`[${v.map(r2).join(', ')}]`;
+
+  const SUBASSEMBLIES=['chassis','drive_tower','cab','loader_gearbox','loader','backhoe','stabilizers','wheels'];
+  const TYPES=['axle','pin','axle_pin','socket','stud','tyre','ball','clip','mesh','contact'];
+  const MOTIONS=['fixed','rotates','swivels'];
+  const COLORS={yellow:'#f2cd37',black:'#2c2f34',red:'#c91a09',blue:'#0055bf',tan:'#e4cd9e',reddish_brown:'#6a2e14',light_bluish_gray:'#a0a5a9',dark_bluish_gray:'#6c6e68',trans_clear:'#dcecf2'};
+
+  // Feature and body helpers. Local frames follow the prompt: shafts along +x, liftarm holes along +z.
+  const X=[1,0,0],Y=[0,1,0],Z=[0,0,1];
+  const H=(c,axis,depth,profile,approx=false)=>({type:'hole',c,axis,depth,profile,approx});
+  const S=(a,b,profile,approx=false)=>({type:'shaft',a,b,profile,approx});
+  const P=(kind,c,axis,approx=false)=>({type:'point',kind,c,axis,approx});
+  const box=(min,max)=>({shape:'box',min,max});
+  const bar=(a,b,hw,hz,ext=hw)=>({shape:'bar',a,b,hw,hz,ext});
+  const cyl=(a,b,r,n=14)=>({shape:'cyl',a,b,r,n});
+  const plus=(a,b,r=.24)=>({shape:'plus',a,b,r});
+  function liftarm(holes,depth,bars,extra=[]){
+    const features={};holes.forEach(([x,y,p],i)=>{features['h'+i]=H([x,y,0],Z,depth,p);});
+    return {features,bodies:[...bars.map(([a,b,hw=.45,ext])=>bar(a,b,hw,depth/2,ext??hw)),...extra]};
+  }
+  const straight=(profiles,depth)=>liftarm([...profiles].map((p,i)=>[i,0,p]),depth,[[[0,0],[profiles.length-1,0]]]);
+  const axle=(n,stop)=>({features:{s0:S([0,0,0],[n,0,0],'axle')},bodies:[plus([0,0,0],[n,0,0]),...(stop?[cyl([0,0,0],[.14,0,0],.34,12)]:[])]});
+  const pin=n=>({features:{s0:S([0,0,0],[1,0,0],'pin'),s1:S([1,0,0],[n,0,0],'pin')},bodies:[cyl([0,0,0],[n,0,0],.24,12),cyl([.9,0,0],[1.1,0,0],.31,12)]});
+  function quarterEllipse(){
+    const arc=[];for(let i=0;i<=6;i++){const t=i/6*Math.PI/2;arc.push([4-4*Math.cos(t),2*Math.sin(t)]);}
+    return liftarm([[0,0,'A'],[1,0,'P'],[2,0,'P'],[3,0,'P'],[4,0,'A'],[4,1,'P'],[4,2,'A']],.5,
+      [[[0,0],[4,0]],[[4,0],[4,2]],...arc.slice(1).map((p,i)=>[arc[i],p,.16,0])]);
+  }
+  function worm(){const bore=H([1,0,0],X,2,'A');return {features:{h0:bore,bore},bodies:[cyl([.05,0,0],[1.95,0,0],.5,12)],gear:{type:'worm',r:.5,center:[1,0,0],axis:X,span:[0,2]}};}
+  const fairing=side=>({approxBody:true,features:{h0:H([0,0,0],Z,1,'A',true)},bodies:[cyl([0,0,-.45],[0,0,.45],.42,12),box(side>0?[.35,-.7,.25]:[-1.9,-.7,.25],side>0?[1.9,.7,.45]:[-.35,.7,.45])]});
+  const GEOMETRY={
+    pin3:()=>pin(3), pin2:()=>pin(2),
+    axlepin:()=>({features:{s0:S([0,0,0],[1,0,0],'pin'),s1:S([1,0,0],[2,0,0],'axle')},bodies:[cyl([0,0,0],[1,0,0],.24,12),cyl([.9,0,0],[1.1,0,0],.31,12),plus([1,0,0],[2,0,0])]}),
+    pinhalf:()=>({features:{s0:S([0,0,0],[.5,0,0],'pin'),stud:P('stud',[.85,0,0],X)},bodies:[cyl([0,0,0],[.5,0,0],.24,12),cyl([.5,0,0],[.85,0,0],.3,12)]}),
+    axle2:()=>axle(2), axle3:()=>axle(3), axle5:()=>axle(5), axle3stop:()=>axle(3,true), axle4stop:()=>axle(4,true), axle5stop:()=>axle(5,true),
+    beam9:()=>straight('PPPPPPPPP',1), beam5:()=>straight('PPPPP',1),
+    thin5:()=>straight('APPPA',.5), thin3:()=>straight('APA',.5), thin2:()=>straight('AA',.5),
+    l24:()=>liftarm([[0,0,'A'],[1,0,'P'],[2,0,'P'],[3,0,'P'],[3,1,'P']],1,[[[0,0],[3,0]],[[3,0],[3,1]]]),
+    bent7:()=>liftarm([[0,0,'A'],[1,0,'P'],[2,0,'P'],[3,0,'P'],[3.6,.8,'P'],[4.2,1.6,'P'],[4.8,2.4,'A']],1,[[[0,0],[3,0]],[[3,0],[4.8,2.4]]]),
+    qe:quarterEllipse,
+    crank:()=>straight('APPP',.5),
+    crossblock:()=>({features:{h0:H([0,0,0],Z,1,'A'),h1:H([1,0,0],Y,1,'P')},bodies:[box([-.45,-.45,-.45],[1.45,.45,.45])]}),
+    perp3:()=>({features:{h0:H([0,0,0],Z,1,'A'),h1:H([1,0,0],Y,1,'P'),h2:H([2,0,0],Z,1,'A')},bodies:[box([-.45,-.45,-.45],[2.45,.45,.45])]}),
+    perp2:()=>({features:{h0:H([0,0,0],Z,1,'A'),h1:H([1,0,0],Y,1,'A')},bodies:[box([-.45,-.45,-.45],[1.45,.45,.45])]}),
+    conn3:()=>({features:{b0:H([-1,0,0],X,1,'A'),b1:H([1,0,0],X,1,'A'),h0:H([0,0,0],Z,1,'P')},bodies:[cyl([-1.45,0,0],[1.45,0,0],.38,12),cyl([0,0,-.45],[0,0,.45],.45,12)]}),
+    conn2:()=>({features:{b0:H([.5,0,0],X,1,'A'),b1:H([1.5,0,0],X,1,'A')},bodies:[cyl([.05,0,0],[1.95,0,0],.38,12)]}),
+    round1:()=>({features:{h0:H([0,0,0],Z,1,'P')},bodies:[cyl([0,0,-.45],[0,0,.45],.45,14)]}),
+    halfbush:()=>({features:{h0:H([0,0,0],Z,.5,'A')},bodies:[cyl([0,0,-.22],[0,0,.22],.42,14)]}),
+    hub:()=>({features:{h0:H([0,0,0],X,1,'P'),s0:S([0,0,.45],[0,0,1.5],'axle'),s1:S([0,.45,0],[0,1.5,0],'axle')},bodies:[cyl([-.45,0,0],[.45,0,0],.42,12),plus([0,0,.45],[0,0,1.5]),plus([0,.45,0],[0,1.5,0])]}),
+    gear8:()=>({features:{h0:H([0,0,0],Z,.5,'A')},bodies:[cyl([0,0,-.22],[0,0,.22],.62,16)],gear:{type:'spur',r:.5}}),
+    gear12:()=>({features:{h0:H([0,0,0],Z,1,'A')},bodies:[cyl([0,0,-.45],[0,0,.45],.85,18)],gear:{type:'bevel',r:.75}}),
+    knob:()=>({features:{h0:H([0,0,0],Z,1,'A')},bodies:[cyl([0,0,-.45],[0,0,.45],.38,12),box([.3,-.22,-.4],[.95,.22,.4]),box([-.95,-.22,-.4],[-.3,.22,.4]),box([-.22,.3,-.4],[.22,.95,.4]),box([-.22,-.95,-.4],[.22,-.3,.4])],gear:{type:'knob',r:1}}),
+    worm,
+    ballsocket:()=>({approxBody:true,features:{h0:H([0,0,0],Z,1,'A',true),h1:H([1,0,0],Y,1,'A',true),socket:P('socket',[2,0,0],Z,true)},bodies:[box([-.45,-.45,-.45],[1.45,.45,.45]),cyl([2,0,-.45],[2,0,.45],.55,12)]}),
+    ballarm:()=>({approxBody:true,features:{h0:H([0,0,0],Z,1,'A',true),h1:H([1,0,0],Z,1,'P',true),ball:P('ball',[2.5,0,0],null,true)},bodies:[bar([0,0],[1,0],.45,.5),box([1.45,-.2,-.25],[2.1,.2,.25]),cyl([2.5,0,-.4],[2.5,0,.4],.42,12)]}),
+    panel:()=>({approxBody:true,features:{bore:H([0,0,0],X,3,'A',true),h0:H([0,1,-.3],Z,.5,'A',true)},bodies:[cyl([-1.5,0,0],[1.5,0,0],.42,12),box([-1.5,.35,-.12],[1.5,2.1,.12])]}),
+    fairing7:()=>fairing(1), fairing8:()=>fairing(-1),
+    bracket:()=>({approxBody:true,features:{pa:S([0,0,0],[0,0,-1],'pin',true),pb:S([1,0,0],[1,0,-1],'pin',true),mount:P('mount',[.5,0,1.1],X,true)},bodies:[box([-.45,-.45,0],[1.45,.45,.9]),cyl([0,0,-1],[0,0,0],.24,10),cyl([1,0,-1],[1,0,0],.24,10)]}),
+    bucket:()=>({approxBody:true,features:{mount:P('mount',[0,0,1.4],X,true)},bodies:[box([-3.5,0,0],[3.5,4,.2]),box([-3.5,0,.2],[3.5,.2,2.5]),box([-3.5,.2,.2],[-3.3,4,2]),box([3.3,.2,.2],[3.5,4,2])]}),
+    rim:()=>({features:{h0:H([0,0,0],Z,1,'P'),seat:P('seat',[0,0,0],Z)},bodies:[cyl([0,0,-.875],[0,0,.875],1.1,18)]}),
+    tyre:()=>({features:{bore:P('bore',[0,0,0],Z)},bodies:[{shape:'ring',r0:1.15,r1:1.9,w:1.75,n:20}]}),
+    lens:()=>({features:{anti_stud:P('anti_stud',[0,0,0],Z)},bodies:[cyl([0,0,0],[0,0,.33],.5,16)]}),
+  };
+  const INVENTORY=[
+    ['6321305',4,'tan','pin 3L without friction','pin3'],['4142865',5,'red','axle 2L notched','axle2'],
+    ['4206482',6,'blue','axle-pin with friction','axlepin'],['6299413',1,'blue','pin 3L with friction','pin3'],
+    ['6510995',1,'yellow','small fairing #7','fairing7'],['6513879',1,'yellow','small fairing #8','fairing8'],
+    ['6130007',8,'yellow','axle 3L','axle3'],['6344174',2,'yellow','thin liftarm 1x3','thin3'],
+    ['6344325',2,'yellow','axle connector 3L, centre pin hole','conn3'],['6334491',1,'yellow','curved panel 3x1 (roof)','panel'],
+    ['6522621',2,'yellow','quarter-ellipse frame 3x5','qe'],['6371968',2,'yellow','thin liftarm 1x5','thin5'],
+    ['4142133',2,'yellow','thick beam 1x5','beam5'],['6271828',2,'yellow','thick L-liftarm 2x4','l24'],
+    ['6278131',4,'yellow','thick liftarm 1x7 bent','bent7'],['6115616',2,'yellow','thick beam 1x9','beam9'],
+    ['6121485',3,'black','round pin connector 1L','round1'],['4177431',1,'black','gear 12T double bevel (knob)','gear12'],
+    ['6261371',8,'black','cross block 2L','crossblock'],['6279875',4,'black','pin 2L with friction','pin2'],
+    ['6099801',1,'black','pin hub, 2 perpendicular axles','hub'],['6331716',1,'black','perpendicular connector 2L','perp2'],
+    ['6284188',2,'black','knob wheel','knob'],['6331026',1,'black','curved panel 3x1 (digger)','panel'],
+    ['6338171',1,'black','ball-joint arm','ballarm'],['4619323',4,'black','tyre 30.4x14','tyre'],
+    ['6327162',2,'black','quarter-ellipse frame 3x5','qe'],['6327028',2,'black','thin liftarm 1x5','thin5'],
+    ['6311434',1,'black','loader bucket','bucket'],['6135494',1,'reddish_brown','axle 3L with stop','axle3stop'],
+    ['6159763',1,'reddish_brown','axle 5L with stop','axle5stop'],['6271165',2,'light_bluish_gray','half bush','halfbush'],
+    ['4211483',2,'light_bluish_gray','pin 1/2','pinhalf'],['6185471',1,'light_bluish_gray','worm gear','worm'],
+    ['6413107',1,'light_bluish_gray','bucket bracket','bracket'],['6109684',4,'light_bluish_gray','wheel rim 18x14','rim'],
+    ['6331574',2,'light_bluish_gray','thin crank liftarm','crank'],['6514191',2,'trans_clear','round 1x1 lens','lens'],
+    ['6012451',1,'dark_bluish_gray','gear 8T','gear8'],['6338422',2,'dark_bluish_gray','thin liftarm 1x2','thin2'],
+    ['6276984',1,'dark_bluish_gray','perpendicular connector 3L','perp3'],['6391550',2,'dark_bluish_gray','axle connector 2L','conn2'],
+    ['6360824',1,'dark_bluish_gray','ball-socket connector','ballsocket'],['6083620',1,'dark_bluish_gray','axle 4L with stop','axle4stop'],
+    ['4211639',4,'light_bluish_gray','axle 5L','axle5'],
+  ];
+  const TOTAL=INVENTORY.reduce((n,r)=>n+r[1],0);
+  const CATALOG=Object.fromEntries(INVENTORY.map(([element,qty,color,name,key])=>[element,{element,qty,color,name,key,geometry:GEOMETRY[key]()}]));
+
+  // Geometry: local bodies become convex world polyhedra for rendering, picking, and collisions.
+  const frameOf=(o,x,z)=>({o,X:x,Y:cross(z,x),Z:z});
+  const toWorld=(f,p)=>add(f.o,add(add(mul(f.X,p[0]),mul(f.Y,p[1])),mul(f.Z,p[2])));
+  const toWorldDir=(f,d)=>add(add(mul(f.X,d[0]),mul(f.Y,d[1])),mul(f.Z,d[2]));
+  const hexa=pts=>({pts,faces:[[0,3,2,1],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]],kind:'hexa'});
+  function prism(bottom,top){const n=bottom.length,idx=[...Array(n).keys()];return {pts:[...bottom,...top],faces:[idx.slice().reverse(),idx.map(i=>i+n),...idx.map(i=>[i,(i+1)%n,(i+1)%n+n,i+n])],kind:'prism'};}
+  function localPolys(b,coarse){
+    if(b.shape==='box'){const [a,c]=[b.min,b.max];return [hexa([[a[0],a[1],a[2]],[c[0],a[1],a[2]],[c[0],c[1],a[2]],[a[0],c[1],a[2]],[a[0],a[1],c[2]],[c[0],a[1],c[2]],[c[0],c[1],c[2]],[a[0],c[1],c[2]]])];}
+    if(b.shape==='bar'){
+      const d=unit([b.b[0]-b.a[0],b.b[1]-b.a[1],0])||X,n=[-d[1],d[0],0];
+      const p0=add([b.a[0],b.a[1],0],mul(d,-b.ext)),p1=add([b.b[0],b.b[1],0],mul(d,b.ext));
+      const q=[add(p0,mul(n,-b.hw)),add(p1,mul(n,-b.hw)),add(p1,mul(n,b.hw)),add(p0,mul(n,b.hw))];
+      return [hexa([...q.map(p=>[p[0],p[1],-b.hz]),...q.map(p=>[p[0],p[1],b.hz])])];
     }
-
-    body {
-      margin: 0;
-      font: 14px/1.5 system-ui, sans-serif;
-      color: #23272d;
-      background: #eceeef
+    if(b.shape==='cyl'){
+      const u=unit(sub(b.b,b.a)),[p,q]=basis(u),n=coarse?Math.min(b.n,10):b.n;
+      const at=c=>Array.from({length:n},(_,i)=>{const t=2*Math.PI*i/n;return add(c,add(mul(p,b.r*Math.cos(t)),mul(q,b.r*Math.sin(t))));});
+      return [prism(at(b.a),at(b.b))];
     }
-
-    button,
-    input,
-    textarea {
-      font: inherit
+    if(b.shape==='plus'){
+      const [p,q]=basis(unit(sub(b.b,b.a)));
+      return [[p,q],[q,p]].map(([w,t])=>{const c=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([i,j])=>add(mul(w,i*b.r),mul(t,j*.085)));return hexa([...c.map(v=>add(b.a,v)),...c.map(v=>add(b.b,v))]);});
     }
-
-    button {
-      cursor: pointer;
-      border: 1px solid #cfd3d7;
-      border-radius: 7px;
-      padding: 8px 12px;
-      background: white;
-      color: #23272d
+    const n=coarse?12:b.n,out=[];
+    for(let i=0;i<n;i++){
+      const q=[[b.r0,i],[b.r1,i],[b.r1,i+1],[b.r0,i+1]].map(([r,k])=>[r*Math.cos(2*Math.PI*k/n),r*Math.sin(2*Math.PI*k/n)]);
+      out.push({...hexa([...q.map(([x,y])=>[x,y,-b.w/2]),...q.map(([x,y])=>[x,y,b.w/2])]),kind:'ring'});
     }
-
-    button:hover {
-      background: #eef0f2
+    return out;
+  }
+  function finalize(pts,faces,kind){
+    const c=mul(pts.reduce(add,[0,0,0]),1/pts.length),outFaces=[],normals=[],planes=[],edges=[];
+    for(let f of faces){
+      let n=[0,0,0];
+      for(let i=0;i<f.length;i++){const a=pts[f[i]],b=pts[f[(i+1)%f.length]];n=add(n,[(a[1]-b[1])*(a[2]+b[2]),(a[2]-b[2])*(a[0]+b[0]),(a[0]-b[0])*(a[1]+b[1])]);}
+      n=unit(n);if(!n)continue;
+      if(dot(n,sub(pts[f[0]],c))<0){n=mul(n,-1);f=[...f].reverse();}
+      outFaces.push(f);normals.push(n);planes.push(dot(n,pts[f[0]]));
     }
-
-    button.primary {
-      background: #2f343b;
-      color: white;
-      border-color: #2f343b
+    for(const f of outFaces)for(let i=0;i<f.length;i++){const e=unit(sub(pts[f[(i+1)%f.length]],pts[f[i]]));if(e&&!edges.some(d=>Math.abs(dot(d,e))>.999))edges.push(e);}
+    return {pts,faces:outFaces,normals,planes,edges,kind,min:[0,1,2].map(i=>Math.min(...pts.map(p=>p[i]))),max:[0,1,2].map(i=>Math.max(...pts.map(p=>p[i])))};
+  }
+  function partPolys(part,coarse){
+    const bodies=part.cat?part.cat.geometry.bodies:[box([-.45,-.45,-.45],[.45,.45,.45])];
+    return bodies.flatMap(b=>localPolys(b,coarse)).map(l=>finalize(l.pts.map(p=>toWorld(part.frame,p)),l.faces,l.kind));
+  }
+  function intersects(a,b,eps=.02){
+    for(let i=0;i<3;i++)if(a.max[i]<=b.min[i]+eps||b.max[i]<=a.min[i]+eps)return false;
+    const axes=[...a.normals,...b.normals];
+    for(const e of a.edges)for(const f of b.edges){const x=unit(cross(e,f));if(x)axes.push(x);}
+    for(const ax of axes){
+      let a0=Infinity,a1=-Infinity,b0=Infinity,b1=-Infinity;
+      for(const p of a.pts){const v=dot(p,ax);if(v<a0)a0=v;if(v>a1)a1=v;}
+      for(const p of b.pts){const v=dot(p,ax);if(v<b0)b0=v;if(v>b1)b1=v;}
+      if(a1<=b0+eps||b1<=a0+eps)return false;
     }
-
-    button.primary:hover {
-      background: #454b54
+    return true;
+  }
+  function rayHit(poly,o,d){
+    let t0=-Infinity,t1=Infinity;
+    for(let i=0;i<poly.normals.length;i++){
+      const n=poly.normals[i],den=dot(n,d),dist=dot(n,o)-poly.planes[i];
+      if(Math.abs(den)<1e-12){if(dist>0)return null;continue;}
+      const t=-dist/den;if(den<0){if(t>t0)t0=t;}else if(t<t1)t1=t;
+      if(t0>t1)return null;
     }
-
-    a {
-      color: #2f343b
+    return t1<0?null:Math.max(t0,0);
+  }
+  function worldFeature(part,name){
+    const f=part.cat&&name?part.cat.geometry.features[name]:null;if(!f)return null;
+    if(f.type==='shaft')return {...f,name,A:toWorld(part.frame,f.a),B:toWorld(part.frame,f.b)};
+    return {...f,name,C:toWorld(part.frame,f.c),N:f.axis?unit(toWorldDir(part.frame,f.axis)):null};
+  }
+  function holeMarkers(part){
+    if(!part.cat)return [];
+    return Object.entries(part.cat.geometry.features).filter(([n,f])=>f.type==='hole'&&!f.approx&&n!=='bore').map(([n])=>worldFeature(part,n));
+  }
+  function segmentDistance(p,a,b){const d=sub(b,a),l=dot(d,d),t=l?Math.max(0,Math.min(1,dot(sub(p,a),d)/l)):0;return len(sub(p,add(a,mul(d,t))));}
+  function lineClosest(p1,d1,p2,d2){
+    const r=sub(p1,p2),a=dot(d1,d1),e=dot(d2,d2),b=dot(d1,d2),c=dot(d1,r),f=dot(d2,r),den=a*e-b*b;
+    if(Math.abs(den)<1e-9)return null;
+    const s=(b*f-c*e)/den,t=(a*f-b*c)/den,q1=add(p1,mul(d1,s)),q2=add(p2,mul(d2,t));
+    return {q1,q2,distance:len(sub(q1,q2))};
+  }
+  function gearWorld(part){const g=part.cat?.geometry.gear;if(!g)return null;return {...g,c:toWorld(part.frame,g.center||[0,0,0]),n:unit(toWorldDir(part.frame,g.axis||Z))};}
+  function meshCheck(pa,pb){
+    const A=gearWorld(pa),B=gearWorld(pb);
+    if(!A||!B)return {ok:false,msg:`${!A?pa.id:pb.id} is not a gear.`};
+    const kinds=[A.type,B.type].sort().join('+'),cosine=Math.abs(dot(A.n,B.n)),point=mul(add(A.c,B.c),.5);
+    if(kinds==='knob+knob'){
+      if(cosine>.2)return {ok:false,point,msg:'Knob wheel axes must be perpendicular.'};
+      const cl=lineClosest(A.c,A.n,B.c,B.n);
+      if(!cl||cl.distance>.4)return {ok:false,point,msg:`Knob wheel axes miss each other by ${cl?r2(cl.distance):'∞'}.`};
+      const da=len(sub(A.c,cl.q1)),db=len(sub(B.c,cl.q2));
+      if(Math.abs(da-1)>.35||Math.abs(db-1)>.35)return {ok:false,point,msg:`Each knob wheel centre should be ~1 from the axis crossing (found ${r2(da)} and ${r2(db)}).`};
+      return {ok:true,point};
     }
-
-    main {
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      height: 100vh
+    if(kinds==='spur+worm'){
+      const W=A.type==='worm'?A:B,G=A.type==='worm'?B:A;
+      if(cosine>.2)return {ok:false,point,msg:'Worm and gear axes must be perpendicular.'};
+      const cl=lineClosest(W.c,W.n,G.c,G.n);
+      if(!cl||Math.abs(cl.distance-(W.r+G.r))>.25)return {ok:false,point,msg:`Worm-to-gear axis distance should be ${W.r+G.r} (found ${cl?r2(cl.distance):'∞'}).`};
+      if(Math.abs(dot(sub(G.c,W.c),W.n))>1.3)return {ok:false,point,msg:'The gear is beyond the end of the worm.'};
+      return {ok:true,point};
     }
-
-    aside {
-      background: #fafafa;
-      border-right: 1px solid #d9dcdf;
-      padding: 22px;
-      overflow: auto
+    if(['spur','bevel'].includes(A.type)&&['spur','bevel'].includes(B.type)){
+      const d=len(sub(A.c,B.c));
+      if(cosine<.97||Math.abs(d-A.r-B.r)>.25)return {ok:false,point,msg:`Parallel gears need centre distance ${A.r+B.r} (found ${r2(d)}).`};
+      return {ok:true,point};
     }
+    return {ok:false,point,msg:`A ${A.type} cannot mesh with a ${B.type}.`};
+  }
 
-    .eyebrow {
-      text-transform: uppercase;
-      font-size: 10px;
-      letter-spacing: 2px;
-      color: #7b8189
+  function analyze(data){
+    if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Expected a JSON object with a "parts" array.');
+    if(!Array.isArray(data.parts)||!data.parts.length)throw Error('Expected a nonempty "parts" array.');
+    if(data.parts.length>400)throw Error('Too many parts: maximum 400.');
+    const schema=[],ids=new Set();
+    if(typeof data.title!=='string'||!data.title.trim())schema.push('Missing title.');
+    if(data.units?.length!=='module')schema.push('units.length should be "module".');
+    const parts=data.parts.map((p,index)=>{
+      const fail=m=>{throw Error(`Part ${index+1}${p&&typeof p.id==='string'?` (${p.id})`:''}: ${m}`);};
+      if(!p||typeof p!=='object'||Array.isArray(p))fail('expected an object.');
+      if(typeof p.id!=='string'||!p.id.trim()||p.id.length>80)fail('id must be a string of 1–80 characters.');
+      if(p.id.includes('.'))fail('id must not contain "." because feature references use it.');
+      if(ids.has(p.id))fail('duplicate id.');ids.add(p.id);
+      const vec=(v,name)=>{if(!Array.isArray(v)||v.length!==3||!v.every(n=>typeof n==='number'&&Number.isFinite(n)&&Math.abs(n)<=1000))fail(`${name} needs three finite numbers.`);return [...v];};
+      const position=vec(p.position,'position'),rx=vec(p.x_axis,'x_axis'),rz=vec(p.z_axis,'z_axis');
+      const x=unit(rx),zr=unit(rz);if(!x||!zr)fail('x_axis and z_axis must be nonzero.');
+      const skew=Math.abs(dot(x,zr));if(skew>.1)fail('x_axis and z_axis must be perpendicular.');
+      if(Math.abs(len(rx)-1)>.02||Math.abs(len(rz)-1)>.02||skew>.02)schema.push(`${p.id}: axes were not orthonormal; normalized for display.`);
+      const z=unit(sub(zr,mul(x,dot(x,zr)))),element=String(p.element??'');
+      const cat=CATALOG[element]||null;if(!cat)schema.push(`${p.id}: unknown element "${element}".`);
+      const subassembly=SUBASSEMBLIES.includes(p.subassembly)?p.subassembly:'other';
+      if(subassembly==='other')schema.push(`${p.id}: unknown subassembly "${p.subassembly}".`);
+      return {id:p.id,index,element,color:typeof p.color==='string'?p.color:'',subassembly,position,x,z,cat,frame:frameOf(position,x,z)};
+    });
+    const byId=new Map(parts.map(p=>[p.id,p]));
+    const renderPolys=parts.map(p=>partPolys(p,false)),collide=parts.map(p=>partPolys(p,true));
+    const partBox=collide.map(ps=>({min:[0,1,2].map(i=>Math.min(...ps.map(q=>q.min[i]))),max:[0,1,2].map(i=>Math.max(...ps.map(q=>q.max[i])))}));
+    const centroid=partBox.map(b=>mul(add(b.min,b.max),.5));
+
+    const conns=[],connIds=new Set(),vec3=v=>Array.isArray(v)&&v.length===3&&v.every(n=>typeof n==='number'&&Number.isFinite(n))?v:null;
+    const ref=r=>{if(typeof r!=='string'||!r)return {text:String(r),part:null,name:null};const k=r.lastIndexOf('.'),pid=k<0?r:r.slice(0,k);return {text:r,pid,part:byId.get(pid)||null,name:k<0?null:r.slice(k+1)};};
+    if(!Array.isArray(data.connections))schema.push('connections must be an array.');
+    else data.connections.slice(0,3000).forEach((c,i)=>{
+      if(!c||typeof c!=='object'){schema.push(`Connection ${i+1}: expected an object.`);return;}
+      let id=typeof c.id==='string'&&c.id?c.id:`#${i+1}`;
+      if(connIds.has(id)){schema.push(`${id}: duplicate connection id.`);id+=`#${i+1}`;}connIds.add(id);
+      if(!TYPES.includes(c.type))schema.push(`${id}: unknown type "${c.type}".`);
+      if(c.type!=='mesh'&&!MOTIONS.includes(c.motion))schema.push(`${id}: unknown motion "${c.motion}".`);
+      if(c.type!=='mesh'&&!vec3(c.at))schema.push(`${id}: missing or invalid "at" point.`);
+      conns.push({id,a:ref(c.a),b:ref(c.b),type:c.type,motion:c.motion,at:vec3(c.at),state:'ok',ref:[],geom:[],compat:[],warn:[]});
+    });
+
+    const checks=[],bad=new Set(),partNotes=new Map();
+    const note=(pid,msg)=>{if(!pid)return;if(!partNotes.has(pid))partNotes.set(pid,[]);const l=partNotes.get(pid);if(l.length<15)l.push(msg);};
+    function check(id,label,status,summary,details=[],flagged=[]){
+      const list=[...new Set(flagged.filter(Boolean))];checks.push({id,label,status,summary,details,parts:list});
+      if(status==='fail')list.forEach(p=>bad.add(p));
     }
+    check('schema','Schema',schema.length?'warn':'pass',schema.length?`${schema.length} note${schema.length>1?'s':''}`:'Valid structure',schema);
 
-    h1 {
-      font-size: 26px;
-      margin: 6px 0
-    }
+    const counts=new Map();for(const p of parts)counts.set(p.element,(counts.get(p.element)||0)+1);
+    const inventory=INVENTORY.map(([element,expected,color,name])=>({element,name,color,expected,got:counts.get(element)||0}));
+    for(const [element,got] of counts)if(!CATALOG[element])inventory.push({element,name:'not in this set',color:'',expected:0,got});
+    const offCount=inventory.filter(r=>r.got!==r.expected);
+    const overIds=parts.filter(p=>!p.cat||counts.get(p.element)>p.cat.qty).map(p=>p.id);
+    offCount.forEach(r=>parts.filter(p=>p.element===r.element&&r.got>r.expected).forEach(p=>note(p.id,`Inventory: ${r.got} used, ${r.expected} in the set.`)));
+    check('inventory',`Inventory (${TOTAL} parts)`,offCount.length?'fail':'pass',`${parts.length}/${TOTAL} parts; ${offCount.length?`${offCount.length} element types off`:'every count exact'}`,offCount.map(r=>`${r.element} ${r.name}: expected ${r.expected}, got ${r.got}`),overIds);
 
-    h1 span {
-      background: #f2cd37;
-      padding: 0 6px;
-      border-radius: 4px
-    }
+    const wrongColor=parts.filter(p=>p.cat&&p.color!==p.cat.color);
+    wrongColor.forEach(p=>note(p.id,`Colour should be ${p.cat.color}.`));
+    check('colors','Colours',wrongColor.length?'fail':'pass',wrongColor.length?`${wrongColor.length} parts off-colour`:'All colours match',wrongColor.map(p=>`${p.id} (${p.element}): "${p.color}" should be "${p.cat.color}"`),wrongColor.map(p=>p.id));
 
-    p {
-      color: #6a7079
-    }
-
-    .intro {
-      margin: 0 0 16px
-    }
-
-    textarea {
-      width: 100%;
-      height: 170px;
-      resize: vertical;
-      border: 1px solid #cfd3d7;
-      border-radius: 7px;
-      background: white;
-      padding: 10px;
-      font: 11px/1.5 monospace;
-      margin-top: 6px
-    }
-
-    .row {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 10px
-    }
-
-    #status {
-      white-space: pre-wrap;
-      font-size: 12px;
-      background: #eef0f2;
-      padding: 11px 13px;
-      border-radius: 7px;
-      margin-top: 14px
-    }
-
-    #score {
-      font-size: 22px;
-      font-weight: 650
-    }
-
-    #score small {
-      font-size: 12px;
-      font-weight: 400;
-      color: #6a7079
-    }
-
-    #checks {
-      margin-top: 10px;
-      display: grid;
-      gap: 5px
-    }
-
-    .check {
-      border: 1px solid #e0e3e6;
-      border-radius: 7px;
-      background: white;
-      padding: 7px 9px;
-      cursor: pointer
-    }
-
-    .check.active {
-      outline: 2px solid #e8590c
-    }
-
-    .check-head {
-      display: flex;
-      gap: 8px;
-      align-items: baseline
-    }
-
-    .badge {
-      font: 600 10px/1 system-ui;
-      letter-spacing: .5px;
-      padding: 3px 6px;
-      border-radius: 4px;
-      color: white;
-      flex: none
-    }
-
-    .pass .badge {
-      background: #2f9e5b
-    }
-
-    .fail .badge {
-      background: #d23c2c
-    }
-
-    .warn .badge {
-      background: #d59600
-    }
-
-    .check-label {
-      font-weight: 600
-    }
-
-    .check-summary {
-      font-size: 12px;
-      color: #6a7079
-    }
-
-    .check ul {
-      margin: 6px 0 0;
-      padding-left: 18px;
-      font-size: 11px;
-      color: #50565e;
-      max-height: 160px;
-      overflow: auto
-    }
-
-    .check:not(.open) ul {
-      display: none
-    }
-
-    fieldset {
-      border: 0;
-      padding: 0;
-      margin: 18px 0 8px
-    }
-
-    legend {
-      font-weight: 600;
-      margin-bottom: 6px
-    }
-
-    #groups {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 5px
-    }
-
-    label {
-      cursor: pointer
-    }
-
-    input[type=checkbox] {
-      accent-color: #2f343b
-    }
-
-    .options {
-      display: grid;
-      gap: 4px
-    }
-
-    input[type=range] {
-      width: 100%
-    }
-
-    details {
-      margin-top: 14px
-    }
-
-    summary {
-      cursor: pointer;
-      font-weight: 600
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11px;
-      margin-top: 6px
-    }
-
-    td,
-    th {
-      padding: 3px 4px;
-      border-bottom: 1px solid #e6e8ea;
-      text-align: left
-    }
-
-    tr.off td {
-      background: #fdecea
-    }
-
-    .sw {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
-      border: 1px solid #0003;
-      vertical-align: -1px;
-      margin-right: 4px
-    }
-
-    .stage {
-      position: relative;
-      min-width: 0;
-      overflow: hidden
-    }
-
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      touch-action: none;
-      cursor: grab
-    }
-
-    .stage-title {
-      position: absolute;
-      top: 22px;
-      left: 26px;
-      pointer-events: none
-    }
-
-    .stage-title h2 {
-      font-size: 19px;
-      margin: 3px 0
-    }
-
-    #piece-count {
-      color: #7b8189;
-      font-size: 12px
-    }
-
-    .hint {
-      position: absolute;
-      top: 24px;
-      right: 22px;
-      font-size: 11px;
-      color: #7b8189
-    }
-
-    .view-controls {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap
-    }
-
-    #error-banner {
-      position: absolute;
-      top: 96px;
-      left: 28px;
-      right: 28px;
-      background: #fff1e6;
-      padding: 14px;
-      border-radius: 8px
-    }
-
-    #error-banner:empty {
-      display: none
-    }
-
-    #info {
-      position: absolute;
-      right: 20px;
-      bottom: 74px;
-      width: 330px;
-      max-height: 55%;
-      overflow: auto;
-      background: #ffffffee;
-      border: 1px solid #d9dcdf;
-      border-radius: 9px;
-      padding: 12px 14px;
-      font-size: 12px;
-      box-shadow: 0 4px 18px #0001
-    }
-
-    #info:empty {
-      display: none
-    }
-
-    #info h3 {
-      margin: 0 0 4px;
-      font-size: 14px
-    }
-
-    #info ul {
-      margin: 4px 0 8px;
-      padding-left: 16px
-    }
-
-    #info .bad {
-      color: #c0392b
-    }
-
-    #info .ok {
-      color: #2f9e5b
-    }
-
-    #info .warnc {
-      color: #b07d00
-    }
-
-    .small {
-      font-size: 11px
-    }
-
-    @media(max-width:860px) {
-      main {
-        height: auto;
-        grid-template-columns: 1fr
+    // Resolve and evaluate every joint.
+    const shaftUse=new Map();
+    for(const c of conns){
+      for(const side of [c.a,c.b]){
+        if(!side.part)c.ref.push(`unknown part "${side.pid??side.text}"`);
+        else if(side.name===null){if(!['mesh','contact'].includes(c.type))c.ref.push(`${side.text}: feature name missing`);}
+        else if(side.part.cat&&!side.part.cat.geometry.features[side.name])c.ref.push(`${side.text}: no feature "${side.name}" on ${side.part.element}`);
+        side.f=side.part?worldFeature(side.part,side.name):null;
       }
-
-      aside {
-        overflow: visible
+      const A=c.a.part,B=c.b.part;
+      if(A&&B&&A===B)c.ref.push('joins a part to itself');
+      if(c.ref.length||!A||!B)continue;
+      if(c.type==='mesh'){const m=meshCheck(A,B);c.expected='mesh';c.point=m.point||centroid[A.index];if(!m.ok)c.geom.push(m.msg);continue;}
+      const fa=c.a.f,fb=c.b.f;
+      if(c.type==='contact'||!fa||!fb){
+        const ba=partBox[A.index],bb=partBox[B.index],gap=Math.max(0,...[0,1,2].map(i=>Math.max(ba.min[i]-bb.max[i],bb.min[i]-ba.max[i])));
+        c.expected=c.motion;c.point=c.at||mul(add(centroid[A.index],centroid[B.index]),.5);
+        if(gap>.3)c.geom.push(`the parts are ${r2(gap)} apart`);
+        continue;
       }
-
-      .stage {
-        height: 640px
-      }
-
-      .hint {
-        display: none
-      }
-
-      #info {
-        left: 16px;
-        right: 16px;
-        width: auto
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <main>
-    <aside>
-      <div class="eyebrow">Local Technic benchmark · set 42197</div>
-      <h1>Backhoe <span>Studio</span></h1>
-      <p class="intro">Paste a model's JSON answer or load it from a file to render it and grade it against the parts
-        list, joint geometry, and working functions.</p>
-      <label for="json">Construction JSON</label><textarea id="json" spellcheck="false"></textarea>
-      <div class="row"><button class="primary" id="render">Render &amp; check</button><button id="load">Load JSON
-          file</button><input id="file" type="file" accept=".json,application/json" hidden><button id="report">Save
-          report</button></div>
-      <div id="status" role="status">Loading model…</div>
-      <div id="checks"></div>
-      <fieldset>
-        <legend>Subassemblies</legend>
-        <div id="groups"></div>
-      </fieldset>
-      <fieldset>
-        <legend>Display</legend>
-        <div class="options">
-          <label><input id="highlight" type="checkbox" checked> Highlight failing parts in red</label>
-          <label><input id="holes" type="checkbox" checked> Show hole markers</label>
-          <label><input id="joints" type="checkbox"> Show joints (green ok · amber note · red fail)</label>
-          <label for="explode">Explode view</label><input id="explode" type="range" min="0" max="100" value="0">
-        </div>
-      </fieldset>
-      <details>
-        <summary>Inventory</summary>
-        <table>
-          <thead>
-            <tr>
-              <th>Element</th>
-              <th>Part</th>
-              <th>Set</th>
-              <th>Used</th>
-            </tr>
-          </thead>
-          <tbody id="inventory"></tbody>
-        </table>
-      </details>
-      <p class="small">Click a check to highlight the parts involved. Click a part to see its joints and problems.
-        Shapes of special parts (buckets, fairings, ball joints, panels) are approximate, so their joints and collisions
-        are checked loosely. The catalog geometry comes from the prompt, not from official LEGO dimensions.</p>
-      <p class="small">Offline. No accounts, uploads, or installation. Single file with the opus5.5 model built in.</p>
-    </aside>
-    <section class="stage"><canvas id="view" tabindex="0"
-        aria-label="Technic model. Drag to orbit, scroll to zoom, click a part to inspect it."></canvas>
-      <div class="stage-title">
-        <div class="eyebrow">Model preview</div>
-        <h2 id="title">Backhoe loader</h2>
-        <div id="piece-count"></div>
-      </div>
-      <div class="hint">Drag to orbit · Scroll to zoom · Click a part</div>
-      <div id="error-banner" role="alert"></div>
-      <div id="info"></div>
-      <div class="view-controls"><button id="assembled">Show all</button><button id="isolate">Isolate
-          part</button><button id="front">Front</button><button id="side">Side</button><button
-          id="rear">Rear</button><button id="top">Top</button><button id="reset">Reset view</button></div>
-    </section>
-  </main>
-  <script>
-    /* Technic backhoe benchmark: parts catalog, geometry, and quality checks. No DOM or external dependencies. */
-    (function (root) {
-      'use strict';
-      const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]], sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]], mul = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
-      const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-      const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-      const len = a => Math.hypot(a[0], a[1], a[2]);
-      function unit(a) { const l = len(a); return l < 1e-9 ? null : mul(a, 1 / l); }
-      function basis(u) { const p = unit(cross(u, Math.abs(u[0]) < .9 ? [1, 0, 0] : [0, 1, 0])); return [p, cross(u, p)]; }
-      const r2 = n => Math.round(n * 100) / 100, fmt = v => `[${v.map(r2).join(', ')}]`;
-
-      const SUBASSEMBLIES = ['chassis', 'drive_tower', 'cab', 'loader_gearbox', 'loader', 'backhoe', 'stabilizers', 'wheels'];
-      const TYPES = ['axle', 'pin', 'axle_pin', 'socket', 'stud', 'tyre', 'ball', 'clip', 'mesh', 'contact'];
-      const MOTIONS = ['fixed', 'rotates', 'swivels'];
-      const COLORS = { yellow: '#f2cd37', black: '#2c2f34', red: '#c91a09', blue: '#0055bf', tan: '#e4cd9e', reddish_brown: '#6a2e14', light_bluish_gray: '#a0a5a9', dark_bluish_gray: '#6c6e68', trans_clear: '#dcecf2' };
-
-      // Feature and body helpers. Local frames follow the prompt: shafts along +x, liftarm holes along +z.
-      const X = [1, 0, 0], Y = [0, 1, 0], Z = [0, 0, 1];
-      const H = (c, axis, depth, profile, approx = false) => ({ type: 'hole', c, axis, depth, profile, approx });
-      const S = (a, b, profile, approx = false) => ({ type: 'shaft', a, b, profile, approx });
-      const P = (kind, c, axis, approx = false) => ({ type: 'point', kind, c, axis, approx });
-      const box = (min, max) => ({ shape: 'box', min, max });
-      const bar = (a, b, hw, hz, ext = hw) => ({ shape: 'bar', a, b, hw, hz, ext });
-      const cyl = (a, b, r, n = 14) => ({ shape: 'cyl', a, b, r, n });
-      const plus = (a, b, r = .24) => ({ shape: 'plus', a, b, r });
-      function liftarm(holes, depth, bars, extra = []) {
-        const features = {}; holes.forEach(([x, y, p], i) => { features['h' + i] = H([x, y, 0], Z, depth, p); });
-        return { features, bodies: [...bars.map(([a, b, hw = .45, ext]) => bar(a, b, hw, depth / 2, ext ?? hw)), ...extra] };
-      }
-      const straight = (profiles, depth) => liftarm([...profiles].map((p, i) => [i, 0, p]), depth, [[[0, 0], [profiles.length - 1, 0]]]);
-      const axle = (n, stop) => ({ features: { s0: S([0, 0, 0], [n, 0, 0], 'axle') }, bodies: [plus([0, 0, 0], [n, 0, 0]), ...(stop ? [cyl([0, 0, 0], [.14, 0, 0], .34, 12)] : [])] });
-      const pin = n => ({ features: { s0: S([0, 0, 0], [1, 0, 0], 'pin'), s1: S([1, 0, 0], [n, 0, 0], 'pin') }, bodies: [cyl([0, 0, 0], [n, 0, 0], .24, 12), cyl([.9, 0, 0], [1.1, 0, 0], .31, 12)] });
-      function quarterEllipse() {
-        const arc = []; for (let i = 0; i <= 6; i++) { const t = i / 6 * Math.PI / 2; arc.push([4 - 4 * Math.cos(t), 2 * Math.sin(t)]); }
-        return liftarm([[0, 0, 'A'], [1, 0, 'P'], [2, 0, 'P'], [3, 0, 'P'], [4, 0, 'A'], [4, 1, 'P'], [4, 2, 'A']], .5,
-          [[[0, 0], [4, 0]], [[4, 0], [4, 2]], ...arc.slice(1).map((p, i) => [arc[i], p, .16, 0])]);
-      }
-      function worm() { const bore = H([1, 0, 0], X, 2, 'A'); return { features: { h0: bore, bore }, bodies: [cyl([.05, 0, 0], [1.95, 0, 0], .5, 12)], gear: { type: 'worm', r: .5, center: [1, 0, 0], axis: X, span: [0, 2] } }; }
-      const fairing = side => ({ approxBody: true, features: { h0: H([0, 0, 0], Z, 1, 'A', true) }, bodies: [cyl([0, 0, -.45], [0, 0, .45], .42, 12), box(side > 0 ? [.35, -.7, .25] : [-1.9, -.7, .25], side > 0 ? [1.9, .7, .45] : [-.35, .7, .45])] });
-      const GEOMETRY = {
-        pin3: () => pin(3), pin2: () => pin(2),
-        axlepin: () => ({ features: { s0: S([0, 0, 0], [1, 0, 0], 'pin'), s1: S([1, 0, 0], [2, 0, 0], 'axle') }, bodies: [cyl([0, 0, 0], [1, 0, 0], .24, 12), cyl([.9, 0, 0], [1.1, 0, 0], .31, 12), plus([1, 0, 0], [2, 0, 0])] }),
-        pinhalf: () => ({ features: { s0: S([0, 0, 0], [.5, 0, 0], 'pin'), stud: P('stud', [.85, 0, 0], X) }, bodies: [cyl([0, 0, 0], [.5, 0, 0], .24, 12), cyl([.5, 0, 0], [.85, 0, 0], .3, 12)] }),
-        axle2: () => axle(2), axle3: () => axle(3), axle5: () => axle(5), axle3stop: () => axle(3, true), axle4stop: () => axle(4, true), axle5stop: () => axle(5, true),
-        beam9: () => straight('PPPPPPPPP', 1), beam5: () => straight('PPPPP', 1),
-        thin5: () => straight('APPPA', .5), thin3: () => straight('APA', .5), thin2: () => straight('AA', .5),
-        l24: () => liftarm([[0, 0, 'A'], [1, 0, 'P'], [2, 0, 'P'], [3, 0, 'P'], [3, 1, 'P']], 1, [[[0, 0], [3, 0]], [[3, 0], [3, 1]]]),
-        bent7: () => liftarm([[0, 0, 'A'], [1, 0, 'P'], [2, 0, 'P'], [3, 0, 'P'], [3.6, .8, 'P'], [4.2, 1.6, 'P'], [4.8, 2.4, 'A']], 1, [[[0, 0], [3, 0]], [[3, 0], [4.8, 2.4]]]),
-        qe: quarterEllipse,
-        crank: () => straight('APPP', .5),
-        crossblock: () => ({ features: { h0: H([0, 0, 0], Z, 1, 'A'), h1: H([1, 0, 0], Y, 1, 'P') }, bodies: [box([-.45, -.45, -.45], [1.45, .45, .45])] }),
-        perp3: () => ({ features: { h0: H([0, 0, 0], Z, 1, 'A'), h1: H([1, 0, 0], Y, 1, 'P'), h2: H([2, 0, 0], Z, 1, 'A') }, bodies: [box([-.45, -.45, -.45], [2.45, .45, .45])] }),
-        perp2: () => ({ features: { h0: H([0, 0, 0], Z, 1, 'A'), h1: H([1, 0, 0], Y, 1, 'A') }, bodies: [box([-.45, -.45, -.45], [1.45, .45, .45])] }),
-        conn3: () => ({ features: { b0: H([-1, 0, 0], X, 1, 'A'), b1: H([1, 0, 0], X, 1, 'A'), h0: H([0, 0, 0], Z, 1, 'P') }, bodies: [cyl([-1.45, 0, 0], [1.45, 0, 0], .38, 12), cyl([0, 0, -.45], [0, 0, .45], .45, 12)] }),
-        conn2: () => ({ features: { b0: H([.5, 0, 0], X, 1, 'A'), b1: H([1.5, 0, 0], X, 1, 'A') }, bodies: [cyl([.05, 0, 0], [1.95, 0, 0], .38, 12)] }),
-        round1: () => ({ features: { h0: H([0, 0, 0], Z, 1, 'P') }, bodies: [cyl([0, 0, -.45], [0, 0, .45], .45, 14)] }),
-        halfbush: () => ({ features: { h0: H([0, 0, 0], Z, .5, 'A') }, bodies: [cyl([0, 0, -.22], [0, 0, .22], .42, 14)] }),
-        hub: () => ({ features: { h0: H([0, 0, 0], X, 1, 'P'), s0: S([0, 0, .45], [0, 0, 1.5], 'axle'), s1: S([0, .45, 0], [0, 1.5, 0], 'axle') }, bodies: [cyl([-.45, 0, 0], [.45, 0, 0], .42, 12), plus([0, 0, .45], [0, 0, 1.5]), plus([0, .45, 0], [0, 1.5, 0])] }),
-        gear8: () => ({ features: { h0: H([0, 0, 0], Z, .5, 'A') }, bodies: [cyl([0, 0, -.22], [0, 0, .22], .62, 16)], gear: { type: 'spur', r: .5 } }),
-        gear12: () => ({ features: { h0: H([0, 0, 0], Z, 1, 'A') }, bodies: [cyl([0, 0, -.45], [0, 0, .45], .85, 18)], gear: { type: 'bevel', r: .75 } }),
-        knob: () => ({ features: { h0: H([0, 0, 0], Z, 1, 'A') }, bodies: [cyl([0, 0, -.45], [0, 0, .45], .38, 12), box([.3, -.22, -.4], [.95, .22, .4]), box([-.95, -.22, -.4], [-.3, .22, .4]), box([-.22, .3, -.4], [.22, .95, .4]), box([-.22, -.95, -.4], [.22, -.3, .4])], gear: { type: 'knob', r: 1 } }),
-        worm,
-        ballsocket: () => ({ approxBody: true, features: { h0: H([0, 0, 0], Z, 1, 'A', true), h1: H([1, 0, 0], Y, 1, 'A', true), socket: P('socket', [2, 0, 0], Z, true) }, bodies: [box([-.45, -.45, -.45], [1.45, .45, .45]), cyl([2, 0, -.45], [2, 0, .45], .55, 12)] }),
-        ballarm: () => ({ approxBody: true, features: { h0: H([0, 0, 0], Z, 1, 'A', true), h1: H([1, 0, 0], Z, 1, 'P', true), ball: P('ball', [2.5, 0, 0], null, true) }, bodies: [bar([0, 0], [1, 0], .45, .5), box([1.45, -.2, -.25], [2.1, .2, .25]), cyl([2.5, 0, -.4], [2.5, 0, .4], .42, 12)] }),
-        panel: () => ({ approxBody: true, features: { bore: H([0, 0, 0], X, 3, 'A', true), h0: H([0, 1, -.3], Z, .5, 'A', true) }, bodies: [cyl([-1.5, 0, 0], [1.5, 0, 0], .42, 12), box([-1.5, .35, -.12], [1.5, 2.1, .12])] }),
-        fairing7: () => fairing(1), fairing8: () => fairing(-1),
-        bracket: () => ({ approxBody: true, features: { pa: S([0, 0, 0], [0, 0, -1], 'pin', true), pb: S([1, 0, 0], [1, 0, -1], 'pin', true), mount: P('mount', [.5, 0, 1.1], X, true) }, bodies: [box([-.45, -.45, 0], [1.45, .45, .9]), cyl([0, 0, -1], [0, 0, 0], .24, 10), cyl([1, 0, -1], [1, 0, 0], .24, 10)] }),
-        bucket: () => ({ approxBody: true, features: { mount: P('mount', [0, 0, 1.4], X, true) }, bodies: [box([-3.5, 0, 0], [3.5, 4, .2]), box([-3.5, 0, .2], [3.5, .2, 2.5]), box([-3.5, .2, .2], [-3.3, 4, 2]), box([3.3, .2, .2], [3.5, 4, 2])] }),
-        rim: () => ({ features: { h0: H([0, 0, 0], Z, 1, 'P'), seat: P('seat', [0, 0, 0], Z) }, bodies: [cyl([0, 0, -.875], [0, 0, .875], 1.1, 18)] }),
-        tyre: () => ({ features: { bore: P('bore', [0, 0, 0], Z) }, bodies: [{ shape: 'ring', r0: 1.15, r1: 1.9, w: 1.75, n: 20 }] }),
-        lens: () => ({ features: { anti_stud: P('anti_stud', [0, 0, 0], Z) }, bodies: [cyl([0, 0, 0], [0, 0, .33], .5, 16)] }),
-      };
-      const INVENTORY = [
-        ['6321305', 4, 'tan', 'pin 3L without friction', 'pin3'], ['4142865', 5, 'red', 'axle 2L notched', 'axle2'],
-        ['4206482', 6, 'blue', 'axle-pin with friction', 'axlepin'], ['6299413', 1, 'blue', 'pin 3L with friction', 'pin3'],
-        ['6510995', 1, 'yellow', 'small fairing #7', 'fairing7'], ['6513879', 1, 'yellow', 'small fairing #8', 'fairing8'],
-        ['6130007', 8, 'yellow', 'axle 3L', 'axle3'], ['6344174', 2, 'yellow', 'thin liftarm 1x3', 'thin3'],
-        ['6344325', 2, 'yellow', 'axle connector 3L, centre pin hole', 'conn3'], ['6334491', 1, 'yellow', 'curved panel 3x1 (roof)', 'panel'],
-        ['6522621', 2, 'yellow', 'quarter-ellipse frame 3x5', 'qe'], ['6371968', 2, 'yellow', 'thin liftarm 1x5', 'thin5'],
-        ['4142133', 2, 'yellow', 'thick beam 1x5', 'beam5'], ['6271828', 2, 'yellow', 'thick L-liftarm 2x4', 'l24'],
-        ['6278131', 4, 'yellow', 'thick liftarm 1x7 bent', 'bent7'], ['6115616', 2, 'yellow', 'thick beam 1x9', 'beam9'],
-        ['6121485', 3, 'black', 'round pin connector 1L', 'round1'], ['4177431', 1, 'black', 'gear 12T double bevel (knob)', 'gear12'],
-        ['6261371', 8, 'black', 'cross block 2L', 'crossblock'], ['6279875', 4, 'black', 'pin 2L with friction', 'pin2'],
-        ['6099801', 1, 'black', 'pin hub, 2 perpendicular axles', 'hub'], ['6331716', 1, 'black', 'perpendicular connector 2L', 'perp2'],
-        ['6284188', 2, 'black', 'knob wheel', 'knob'], ['6331026', 1, 'black', 'curved panel 3x1 (digger)', 'panel'],
-        ['6338171', 1, 'black', 'ball-joint arm', 'ballarm'], ['4619323', 4, 'black', 'tyre 30.4x14', 'tyre'],
-        ['6327162', 2, 'black', 'quarter-ellipse frame 3x5', 'qe'], ['6327028', 2, 'black', 'thin liftarm 1x5', 'thin5'],
-        ['6311434', 1, 'black', 'loader bucket', 'bucket'], ['6135494', 1, 'reddish_brown', 'axle 3L with stop', 'axle3stop'],
-        ['6159763', 1, 'reddish_brown', 'axle 5L with stop', 'axle5stop'], ['6271165', 2, 'light_bluish_gray', 'half bush', 'halfbush'],
-        ['4211483', 2, 'light_bluish_gray', 'pin 1/2', 'pinhalf'], ['6185471', 1, 'light_bluish_gray', 'worm gear', 'worm'],
-        ['6413107', 1, 'light_bluish_gray', 'bucket bracket', 'bracket'], ['6109684', 4, 'light_bluish_gray', 'wheel rim 18x14', 'rim'],
-        ['6331574', 2, 'light_bluish_gray', 'thin crank liftarm', 'crank'], ['6514191', 2, 'trans_clear', 'round 1x1 lens', 'lens'],
-        ['6012451', 1, 'dark_bluish_gray', 'gear 8T', 'gear8'], ['6338422', 2, 'dark_bluish_gray', 'thin liftarm 1x2', 'thin2'],
-        ['6276984', 1, 'dark_bluish_gray', 'perpendicular connector 3L', 'perp3'], ['6391550', 2, 'dark_bluish_gray', 'axle connector 2L', 'conn2'],
-        ['6360824', 1, 'dark_bluish_gray', 'ball-socket connector', 'ballsocket'], ['6083620', 1, 'dark_bluish_gray', 'axle 4L with stop', 'axle4stop'],
-        ['4211639', 4, 'light_bluish_gray', 'axle 5L', 'axle5'],
-      ];
-      const TOTAL = INVENTORY.reduce((n, r) => n + r[1], 0);
-      const CATALOG = Object.fromEntries(INVENTORY.map(([element, qty, color, name, key]) => [element, { element, qty, color, name, key, geometry: GEOMETRY[key]() }]));
-
-      // Geometry: local bodies become convex world polyhedra for rendering, picking, and collisions.
-      const frameOf = (o, x, z) => ({ o, X: x, Y: cross(z, x), Z: z });
-      const toWorld = (f, p) => add(f.o, add(add(mul(f.X, p[0]), mul(f.Y, p[1])), mul(f.Z, p[2])));
-      const toWorldDir = (f, d) => add(add(mul(f.X, d[0]), mul(f.Y, d[1])), mul(f.Z, d[2]));
-      const hexa = pts => ({ pts, faces: [[0, 3, 2, 1], [4, 5, 6, 7], [0, 1, 5, 4], [1, 2, 6, 5], [2, 3, 7, 6], [3, 0, 4, 7]], kind: 'hexa' });
-      function prism(bottom, top) { const n = bottom.length, idx = [...Array(n).keys()]; return { pts: [...bottom, ...top], faces: [idx.slice().reverse(), idx.map(i => i + n), ...idx.map(i => [i, (i + 1) % n, (i + 1) % n + n, i + n])], kind: 'prism' }; }
-      function localPolys(b, coarse) {
-        if (b.shape === 'box') { const [a, c] = [b.min, b.max]; return [hexa([[a[0], a[1], a[2]], [c[0], a[1], a[2]], [c[0], c[1], a[2]], [a[0], c[1], a[2]], [a[0], a[1], c[2]], [c[0], a[1], c[2]], [c[0], c[1], c[2]], [a[0], c[1], c[2]]])]; }
-        if (b.shape === 'bar') {
-          const d = unit([b.b[0] - b.a[0], b.b[1] - b.a[1], 0]) || X, n = [-d[1], d[0], 0];
-          const p0 = add([b.a[0], b.a[1], 0], mul(d, -b.ext)), p1 = add([b.b[0], b.b[1], 0], mul(d, b.ext));
-          const q = [add(p0, mul(n, -b.hw)), add(p1, mul(n, -b.hw)), add(p1, mul(n, b.hw)), add(p0, mul(n, b.hw))];
-          return [hexa([...q.map(p => [p[0], p[1], -b.hz]), ...q.map(p => [p[0], p[1], b.hz])])];
+      const approx=fa.approx||fb.approx;
+      if((fa.type==='shaft')!==(fb.type==='shaft')&&(fa.type==='hole'||fb.type==='hole')){
+        const [s,h,sp,hp]=fa.type==='shaft'?[fa,fb,A,B]:[fb,fa,B,A];
+        const d=unit(sub(s.B,s.A)),L=len(sub(s.B,s.A)),t=dot(sub(h.C,s.A),d),off=len(sub(h.C,add(s.A,mul(d,t)))),par=Math.abs(dot(d,h.N));
+        c.point=h.C;
+        if(approx){if(segmentDistance(h.C,s.A,s.B)>1.2)c.geom.push(`${hp.id}.${h.name} is ${r2(segmentDistance(h.C,s.A,s.B))} from the shaft`);}
+        else{
+          if(par<.97)c.geom.push(`shaft and hole are ${Math.round(Math.acos(Math.min(1,par))*180/Math.PI)}° out of line`);
+          if(off>.15)c.geom.push(`hole centre is ${r2(off)} off the shaft axis`);
+          if(t<-.1||t>L+.1)c.geom.push('hole lies beyond the end of the shaft');
+          const key=`${sp.id}.${s.name}`;if(!shaftUse.has(key))shaftUse.set(key,[]);
+          shaftUse.get(key).push({t,half:par>.9?h.depth/2:.5,part:hp.id,conn:c.id});
         }
-        if (b.shape === 'cyl') {
-          const u = unit(sub(b.b, b.a)), [p, q] = basis(u), n = coarse ? Math.min(b.n, 10) : b.n;
-          const at = c => Array.from({ length: n }, (_, i) => { const t = 2 * Math.PI * i / n; return add(c, add(mul(p, b.r * Math.cos(t)), mul(q, b.r * Math.sin(t)))); });
-          return [prism(at(b.a), at(b.b))];
+        if(s.profile==='pin'&&h.profile==='A')c.compat.push('a round pin cannot enter a cross-axle hole');
+        c.expected=s.profile==='axle'&&h.profile==='A'?'fixed':'rotates';
+      }else if(fa.type==='point'&&fb.type==='point'){
+        const pair=[fa.kind,fb.kind].sort().join('+'),allowed={'anti_stud+stud':'fixed','bore+seat':'fixed','ball+socket':'swivels','mount+mount':null};
+        c.point=mul(add(fa.C,fb.C),.5);
+        if(!(pair in allowed))c.compat.push(`${fa.kind} cannot join ${fb.kind}`);
+        else{
+          c.expected=allowed[pair]??c.motion;
+          const gap=len(sub(fa.C,fb.C));if(gap>(approx?1.2:.25))c.geom.push(`${fa.kind} and ${fb.kind} are ${r2(gap)} apart`);
+          if(!approx&&fa.N&&fb.N&&Math.abs(dot(fa.N,fb.N))<.95)c.geom.push(`${fa.kind} and ${fb.kind} axes are not aligned`);
         }
-        if (b.shape === 'plus') {
-          const [p, q] = basis(unit(sub(b.b, b.a)));
-          return [[p, q], [q, p]].map(([w, t]) => { const c = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([i, j]) => add(mul(w, i * b.r), mul(t, j * .085))); return hexa([...c.map(v => add(b.a, v)), ...c.map(v => add(b.b, v))]); });
-        }
-        const n = coarse ? 12 : b.n, out = [];
-        for (let i = 0; i < n; i++) {
-          const q = [[b.r0, i], [b.r1, i], [b.r1, i + 1], [b.r0, i + 1]].map(([r, k]) => [r * Math.cos(2 * Math.PI * k / n), r * Math.sin(2 * Math.PI * k / n)]);
-          out.push({ ...hexa([...q.map(([x, y]) => [x, y, -b.w / 2]), ...q.map(([x, y]) => [x, y, b.w / 2])]), kind: 'ring' });
-        }
-        return out;
+      }else{c.point=centroid[A.index];c.compat.push(`a ${fa.type} cannot join a ${fb.type}`);}
+      if(c.expected&&MOTIONS.includes(c.motion)&&c.motion!==c.expected&&!(c.expected==='fixed'&&fa.kind==='stud'))c.warn.push(`declared "${c.motion}" but the joint ${c.expected==='fixed'?'is locked':c.expected==='rotates'?'turns freely':'swivels'}`);
+      if(c.at&&c.point&&len(sub(c.at,c.point))>(approx?1.5:.5))c.warn.push(`"at" ${fmt(c.at)} is ${r2(len(sub(c.at,c.point)))} from the joint`);
+    }
+    const capacity=[];
+    for(const [key,list] of shaftUse){
+      list.sort((a,b)=>a.t-b.t);
+      for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++){
+        const a=list[i],b=list[j];if(a.part===b.part)continue;
+        const overlap=Math.min(a.t+a.half,b.t+b.half)-Math.max(a.t-a.half,b.t-b.half);
+        if(overlap>.12){capacity.push({msg:`${key}: ${a.part} and ${b.part} occupy the same ${r2(overlap)} of shaft`,parts:[a.part,b.part,key.split('.')[0]]});for(const c of conns)if(c.id===a.conn||c.id===b.conn)c.geom.push('shares shaft space with another part');}
       }
-      function finalize(pts, faces, kind) {
-        const c = mul(pts.reduce(add, [0, 0, 0]), 1 / pts.length), outFaces = [], normals = [], planes = [], edges = [];
-        for (let f of faces) {
-          let n = [0, 0, 0];
-          for (let i = 0; i < f.length; i++) { const a = pts[f[i]], b = pts[f[(i + 1) % f.length]]; n = add(n, [(a[1] - b[1]) * (a[2] + b[2]), (a[2] - b[2]) * (a[0] + b[0]), (a[0] - b[0]) * (a[1] + b[1])]); }
-          n = unit(n); if (!n) continue;
-          if (dot(n, sub(pts[f[0]], c)) < 0) { n = mul(n, -1); f = [...f].reverse(); }
-          outFaces.push(f); normals.push(n); planes.push(dot(n, pts[f[0]]));
-        }
-        for (const f of outFaces) for (let i = 0; i < f.length; i++) { const e = unit(sub(pts[f[(i + 1) % f.length]], pts[f[i]])); if (e && !edges.some(d => Math.abs(dot(d, e)) > .999)) edges.push(e); }
-        return { pts, faces: outFaces, normals, planes, edges, kind, min: [0, 1, 2].map(i => Math.min(...pts.map(p => p[i]))), max: [0, 1, 2].map(i => Math.max(...pts.map(p => p[i]))) };
-      }
-      function partPolys(part, coarse) {
-        const bodies = part.cat ? part.cat.geometry.bodies : [box([-.45, -.45, -.45], [.45, .45, .45])];
-        return bodies.flatMap(b => localPolys(b, coarse)).map(l => finalize(l.pts.map(p => toWorld(part.frame, p)), l.faces, l.kind));
-      }
-      function intersects(a, b, eps = .02) {
-        for (let i = 0; i < 3; i++)if (a.max[i] <= b.min[i] + eps || b.max[i] <= a.min[i] + eps) return false;
-        const axes = [...a.normals, ...b.normals];
-        for (const e of a.edges) for (const f of b.edges) { const x = unit(cross(e, f)); if (x) axes.push(x); }
-        for (const ax of axes) {
-          let a0 = Infinity, a1 = -Infinity, b0 = Infinity, b1 = -Infinity;
-          for (const p of a.pts) { const v = dot(p, ax); if (v < a0) a0 = v; if (v > a1) a1 = v; }
-          for (const p of b.pts) { const v = dot(p, ax); if (v < b0) b0 = v; if (v > b1) b1 = v; }
-          if (a1 <= b0 + eps || b1 <= a0 + eps) return false;
-        }
-        return true;
-      }
-      function rayHit(poly, o, d) {
-        let t0 = -Infinity, t1 = Infinity;
-        for (let i = 0; i < poly.normals.length; i++) {
-          const n = poly.normals[i], den = dot(n, d), dist = dot(n, o) - poly.planes[i];
-          if (Math.abs(den) < 1e-12) { if (dist > 0) return null; continue; }
-          const t = -dist / den; if (den < 0) { if (t > t0) t0 = t; } else if (t < t1) t1 = t;
-          if (t0 > t1) return null;
-        }
-        return t1 < 0 ? null : Math.max(t0, 0);
-      }
-      function worldFeature(part, name) {
-        const f = part.cat && name ? part.cat.geometry.features[name] : null; if (!f) return null;
-        if (f.type === 'shaft') return { ...f, name, A: toWorld(part.frame, f.a), B: toWorld(part.frame, f.b) };
-        return { ...f, name, C: toWorld(part.frame, f.c), N: f.axis ? unit(toWorldDir(part.frame, f.axis)) : null };
-      }
-      function holeMarkers(part) {
-        if (!part.cat) return [];
-        return Object.entries(part.cat.geometry.features).filter(([n, f]) => f.type === 'hole' && !f.approx && n !== 'bore').map(([n]) => worldFeature(part, n));
-      }
-      function segmentDistance(p, a, b) { const d = sub(b, a), l = dot(d, d), t = l ? Math.max(0, Math.min(1, dot(sub(p, a), d) / l)) : 0; return len(sub(p, add(a, mul(d, t)))); }
-      function lineClosest(p1, d1, p2, d2) {
-        const r = sub(p1, p2), a = dot(d1, d1), e = dot(d2, d2), b = dot(d1, d2), c = dot(d1, r), f = dot(d2, r), den = a * e - b * b;
-        if (Math.abs(den) < 1e-9) return null;
-        const s = (b * f - c * e) / den, t = (a * f - b * c) / den, q1 = add(p1, mul(d1, s)), q2 = add(p2, mul(d2, t));
-        return { q1, q2, distance: len(sub(q1, q2)) };
-      }
-      function gearWorld(part) { const g = part.cat?.geometry.gear; if (!g) return null; return { ...g, c: toWorld(part.frame, g.center || [0, 0, 0]), n: unit(toWorldDir(part.frame, g.axis || Z)) }; }
-      function meshCheck(pa, pb) {
-        const A = gearWorld(pa), B = gearWorld(pb);
-        if (!A || !B) return { ok: false, msg: `${!A ? pa.id : pb.id} is not a gear.` };
-        const kinds = [A.type, B.type].sort().join('+'), cosine = Math.abs(dot(A.n, B.n)), point = mul(add(A.c, B.c), .5);
-        if (kinds === 'knob+knob') {
-          if (cosine > .2) return { ok: false, point, msg: 'Knob wheel axes must be perpendicular.' };
-          const cl = lineClosest(A.c, A.n, B.c, B.n);
-          if (!cl || cl.distance > .4) return { ok: false, point, msg: `Knob wheel axes miss each other by ${cl ? r2(cl.distance) : '∞'}.` };
-          const da = len(sub(A.c, cl.q1)), db = len(sub(B.c, cl.q2));
-          if (Math.abs(da - 1) > .35 || Math.abs(db - 1) > .35) return { ok: false, point, msg: `Each knob wheel centre should be ~1 from the axis crossing (found ${r2(da)} and ${r2(db)}).` };
-          return { ok: true, point };
-        }
-        if (kinds === 'spur+worm') {
-          const W = A.type === 'worm' ? A : B, G = A.type === 'worm' ? B : A;
-          if (cosine > .2) return { ok: false, point, msg: 'Worm and gear axes must be perpendicular.' };
-          const cl = lineClosest(W.c, W.n, G.c, G.n);
-          if (!cl || Math.abs(cl.distance - (W.r + G.r)) > .25) return { ok: false, point, msg: `Worm-to-gear axis distance should be ${W.r + G.r} (found ${cl ? r2(cl.distance) : '∞'}).` };
-          if (Math.abs(dot(sub(G.c, W.c), W.n)) > 1.3) return { ok: false, point, msg: 'The gear is beyond the end of the worm.' };
-          return { ok: true, point };
-        }
-        if (['spur', 'bevel'].includes(A.type) && ['spur', 'bevel'].includes(B.type)) {
-          const d = len(sub(A.c, B.c));
-          if (cosine < .97 || Math.abs(d - A.r - B.r) > .25) return { ok: false, point, msg: `Parallel gears need centre distance ${A.r + B.r} (found ${r2(d)}).` };
-          return { ok: true, point };
-        }
-        return { ok: false, point, msg: `A ${A.type} cannot mesh with a ${B.type}.` };
-      }
+    }
+    for(const c of conns){
+      c.state=c.ref.length||c.geom.length||c.compat.length?'fail':c.warn.length?'warn':'ok';
+      const msgs=[...c.ref,...c.geom,...c.compat,...c.warn];
+      for(const side of [c.a,c.b])if(side.part&&msgs.length)note(side.part.id,`${c.id}: ${msgs[0]}`);
+    }
+    const listed=(key)=>conns.filter(c=>c[key].length);
+    const connParts=cs=>cs.flatMap(c=>[c.a.part?.id,c.b.part?.id]);
+    const refBad=listed('ref'),geomBad=conns.filter(c=>!c.ref.length&&c.geom.length),compatBad=listed('compat'),motionWarn=conns.filter(c=>!c.compat.length&&c.warn.length);
+    check('references','Feature references',refBad.length?'fail':'pass',refBad.length?`${refBad.length} broken references`:`${conns.length} connections resolve`,refBad.map(c=>`${c.id}: ${c.ref.join('; ')}`),connParts(refBad));
+    check('geometry','Joint geometry',geomBad.length?'fail':'pass',geomBad.length?`${geomBad.length} joints do not line up`:'Shafts, holes and gears line up',geomBad.map(c=>`${c.id} (${c.a.text} ↔ ${c.b.text}): ${c.geom.join('; ')}`),connParts(geomBad));
+    check('compat','Joint types & motion',compatBad.length?'fail':motionWarn.length?'warn':'pass',compatBad.length?`${compatBad.length} impossible joints`:motionWarn.length?`${motionWarn.length} motion/"at" notes`:'Joint types and motions agree',[...compatBad.map(c=>`${c.id}: ${c.compat.join('; ')}`),...motionWarn.map(c=>`${c.id}: ${c.warn.join('; ')}`)],connParts(compatBad));
+    check('capacity','Shaft occupancy',capacity.length?'fail':'pass',capacity.length?`${capacity.length} crowded shafts`:'No two parts share shaft space',capacity.map(c=>c.msg),capacity.flatMap(c=>c.parts));
 
-      function analyze(data) {
-        if (!data || typeof data !== 'object' || Array.isArray(data)) throw Error('Expected a JSON object with a "parts" array.');
-        if (!Array.isArray(data.parts) || !data.parts.length) throw Error('Expected a nonempty "parts" array.');
-        if (data.parts.length > 400) throw Error('Too many parts: maximum 400.');
-        const schema = [], ids = new Set();
-        if (typeof data.title !== 'string' || !data.title.trim()) schema.push('Missing title.');
-        if (data.units?.length !== 'module') schema.push('units.length should be "module".');
-        const parts = data.parts.map((p, index) => {
-          const fail = m => { throw Error(`Part ${index + 1}${p && typeof p.id === 'string' ? ` (${p.id})` : ''}: ${m}`); };
-          if (!p || typeof p !== 'object' || Array.isArray(p)) fail('expected an object.');
-          if (typeof p.id !== 'string' || !p.id.trim() || p.id.length > 80) fail('id must be a string of 1–80 characters.');
-          if (p.id.includes('.')) fail('id must not contain "." because feature references use it.');
-          if (ids.has(p.id)) fail('duplicate id.'); ids.add(p.id);
-          const vec = (v, name) => { if (!Array.isArray(v) || v.length !== 3 || !v.every(n => typeof n === 'number' && Number.isFinite(n) && Math.abs(n) <= 1000)) fail(`${name} needs three finite numbers.`); return [...v]; };
-          const position = vec(p.position, 'position'), rx = vec(p.x_axis, 'x_axis'), rz = vec(p.z_axis, 'z_axis');
-          const x = unit(rx), zr = unit(rz); if (!x || !zr) fail('x_axis and z_axis must be nonzero.');
-          const skew = Math.abs(dot(x, zr)); if (skew > .1) fail('x_axis and z_axis must be perpendicular.');
-          if (Math.abs(len(rx) - 1) > .02 || Math.abs(len(rz) - 1) > .02 || skew > .02) schema.push(`${p.id}: axes were not orthonormal; normalized for display.`);
-          const z = unit(sub(zr, mul(x, dot(x, zr)))), element = String(p.element ?? '');
-          const cat = CATALOG[element] || null; if (!cat) schema.push(`${p.id}: unknown element "${element}".`);
-          const subassembly = SUBASSEMBLIES.includes(p.subassembly) ? p.subassembly : 'other';
-          if (subassembly === 'other') schema.push(`${p.id}: unknown subassembly "${p.subassembly}".`);
-          return { id: p.id, index, element, color: typeof p.color === 'string' ? p.color : '', subassembly, position, x, z, cat, frame: frameOf(position, x, z) };
-        });
-        const byId = new Map(parts.map(p => [p.id, p]));
-        const renderPolys = parts.map(p => partPolys(p, false)), collide = parts.map(p => partPolys(p, true));
-        const partBox = collide.map(ps => ({ min: [0, 1, 2].map(i => Math.min(...ps.map(q => q.min[i]))), max: [0, 1, 2].map(i => Math.max(...ps.map(q => q.max[i]))) }));
-        const centroid = partBox.map(b => mul(add(b.min, b.max), .5));
+    const root=parts.map((_,i)=>i),find=i=>root[i]===i?i:(root[i]=find(root[i]));
+    for(const c of conns)if(c.type!=='mesh'&&c.a.part&&c.b.part)root[find(c.a.part.index)]=find(c.b.part.index);
+    const groups=new Map();parts.forEach((p,i)=>{const r=find(i);if(!groups.has(r))groups.set(r,[]);groups.get(r).push(p.id);});
+    const comps=[...groups.values()].sort((a,b)=>b.length-a.length),loose=comps.slice(1);
+    loose.forEach(g=>g.forEach(id=>note(id,'Not connected to the main assembly.')));
+    check('connectivity','Connected assembly',loose.length?'fail':'pass',loose.length?`${comps.length} separate groups; ${loose.flat().length} parts detached`:'One connected assembly',loose.slice(0,20).map(g=>`Loose group of ${g.length}: ${g.slice(0,8).join(', ')}${g.length>8?' …':''}`),loose.flat());
 
-        const conns = [], connIds = new Set(), vec3 = v => Array.isArray(v) && v.length === 3 && v.every(n => typeof n === 'number' && Number.isFinite(n)) ? v : null;
-        const ref = r => { if (typeof r !== 'string' || !r) return { text: String(r), part: null, name: null }; const k = r.lastIndexOf('.'), pid = k < 0 ? r : r.slice(0, k); return { text: r, pid, part: byId.get(pid) || null, name: k < 0 ? null : r.slice(k + 1) }; };
-        if (!Array.isArray(data.connections)) schema.push('connections must be an array.');
-        else data.connections.slice(0, 3000).forEach((c, i) => {
-          if (!c || typeof c !== 'object') { schema.push(`Connection ${i + 1}: expected an object.`); return; }
-          let id = typeof c.id === 'string' && c.id ? c.id : `#${i + 1}`;
-          if (connIds.has(id)) { schema.push(`${id}: duplicate connection id.`); id += `#${i + 1}`; } connIds.add(id);
-          if (!TYPES.includes(c.type)) schema.push(`${id}: unknown type "${c.type}".`);
-          if (c.type !== 'mesh' && !MOTIONS.includes(c.motion)) schema.push(`${id}: unknown motion "${c.motion}".`);
-          if (c.type !== 'mesh' && !vec3(c.at)) schema.push(`${id}: missing or invalid "at" point.`);
-          conns.push({ id, a: ref(c.a), b: ref(c.b), type: c.type, motion: c.motion, at: vec3(c.at), state: 'ok', ref: [], geom: [], compat: [], warn: [] });
-        });
+    const tyres=parts.filter(p=>p.element==='4619323');
+    const low=t=>t.position[2]-1.9*Math.sqrt(Math.max(0,1-t.z[2]**2));
+    const floating=tyres.filter(t=>Math.abs(low(t))>.15),below=parts.filter(p=>p.element!=='4619323'&&partBox[p.index].min[2]<-.1);
+    floating.forEach(t=>note(t.id,`Tyre bottom at z=${r2(low(t))}, should be 0.`));below.forEach(p=>note(p.id,'Below the ground.'));
+    check('ground','Ground contact',!tyres.length||floating.length||below.length?'fail':'pass',!tyres.length?'No tyres':floating.length||below.length?`${floating.length} tyres off the ground, ${below.length} parts below it`:'All tyres rest on z=0',[...floating.map(t=>`${t.id}: bottom at z=${r2(low(t))}`),...below.map(p=>`${p.id}: reaches z=${r2(partBox[p.index].min[2])}`)],[...floating,...below].map(p=>p.id));
 
-        const checks = [], bad = new Set(), partNotes = new Map();
-        const note = (pid, msg) => { if (!pid) return; if (!partNotes.has(pid)) partNotes.set(pid, []); const l = partNotes.get(pid); if (l.length < 15) l.push(msg); };
-        function check(id, label, status, summary, details = [], flagged = []) {
-          const list = [...new Set(flagged.filter(Boolean))]; checks.push({ id, label, status, summary, details, parts: list });
-          if (status === 'fail') list.forEach(p => bad.add(p));
+    const wb=[];
+    if(tyres.length!==4)wb.push(`Expected 4 tyres, found ${tyres.length}.`);
+    else{
+      const sorted=[...tyres].sort((a,b)=>a.position[0]-b.position[0]);
+      for(const [name,pair] of [['Left',sorted.slice(0,2)],['Right',sorted.slice(2)]]){
+        const dy=Math.abs(pair[0].position[1]-pair[1].position[1]),dx=Math.abs(pair[0].position[0]-pair[1].position[0]);
+        if(Math.abs(dy-6)>.3||dx>.5)wb.push(`${name} wheels ${pair.map(p=>p.id).join(' & ')}: ${r2(dy)} apart along y (expected 6), ${r2(dx)} across.`);
+      }
+    }
+    check('wheelbase','Wheelbase (6 modules)',wb.length?'fail':'pass',wb.length?wb[0]:'Both sides 6 modules',wb,wb.length?tyres.map(t=>t.id):[]);
+
+    const direct=new Set(conns.filter(c=>c.a.part&&c.b.part).map(c=>[c.a.part.id,c.b.part.id].sort().join('|')));
+    const collisions=[];
+    scan: for(let i=0;i<parts.length;i++)for(let j=i+1;j<parts.length;j++){
+      const a=partBox[i],b=partBox[j];
+      if([0,1,2].some(k=>a.max[k]<=b.min[k]+.02||b.max[k]<=a.min[k]+.02))continue;
+      if(direct.has([parts[i].id,parts[j].id].sort().join('|')))continue;
+      if(collide[i].some(p=>collide[j].some(q=>intersects(p,q)))){collisions.push([parts[i],parts[j]]);if(collisions.length>=500)break scan;}
+    }
+    collisions.forEach(([a,b])=>{note(a.id,`Overlaps ${b.id}.`);note(b.id,`Overlaps ${a.id}.`);});
+    const hard=collisions.filter(([a,b])=>!a.cat?.geometry.approxBody&&!b.cat?.geometry.approxBody);
+    check('collisions','Collisions',hard.length?'fail':collisions.length?'warn':'pass',collisions.length?`${collisions.length} overlapping pairs${collisions.length>=500?' (stopped at 500)':''}${hard.length<collisions.length?`; ${collisions.length-hard.length} involve approximate shapes`:''}`:'No unconnected bodies overlap',collisions.slice(0,40).map(([a,b])=>`${a.id} (${a.cat?.name??a.element}) overlaps ${b.id} (${b.cat?.name??b.element})`),hard.flat().map(p=>p.id));
+
+    // Functions F1–F5 and layout.
+    const mech=new Map();
+    if(Array.isArray(data.mechanisms))for(const m of data.mechanisms)if(m&&typeof m.function==='string'&&Array.isArray(m.chain))mech.set(m.function,m.chain.map(String));
+    const involves=(c,id)=>c.a.part?.id===id||c.b.part?.id===id;
+    const other=(c,id)=>c.a.part?.id===id?c.b.part:c.a.part;
+    const between=(a,b)=>conns.filter(c=>involves(c,a)&&involves(c,b)&&a!==b);
+    function fn(id,label,run){const r={issues:[],parts:[]};const ok=run(r);check(id,label,r.issues.length?'fail':'pass',r.issues[0]||ok,r.issues,r.parts);}
+    fn('F1','F1 knob raises loader',r=>{
+      const chain=mech.get('F1');if(!chain){r.issues.push('No F1 chain in "mechanisms".');return;}
+      const ps=chain.map(id=>byId.get(id)),missing=chain.filter((_,i)=>!ps[i]);
+      if(missing.length){r.issues.push(`F1 chain has unknown ids: ${missing.join(', ')}.`);return;}
+      const els=ps.map(p=>p.element);
+      if(els[0]!=='4177431')r.issues.push('Chain must start at the 12-tooth knob gear (4177431).');
+      if(els.at(-1)!=='6278131')r.issues.push('Chain must end at a loader arm (6278131).');
+      for(const [el,n,name] of [['6284188',2,'knob wheels'],['6185471',1,'worm'],['6012451',1,'8-tooth gear']])if(els.filter(e=>e===el).length<n)r.issues.push(`Chain needs ${n} ${name} (${el}).`);
+      for(let i=0;i+1<ps.length;i++){
+        const [a,b]=[ps[i],ps[i+1]],links=between(a.id,b.id);
+        if(!links.length){r.issues.push(`${a.id} → ${b.id}: not connected.`);r.parts.push(a.id,b.id);continue;}
+        if(!links.some(c=>c.state!=='fail'&&(c.type==='mesh'||c.expected==='fixed'))){
+          const c=links[0];r.issues.push(`${a.id} → ${b.id}: ${c.state==='fail'?'the joint fails its checks':`turns freely (${c.expected}), so the drive slips`}.`);r.parts.push(a.id,b.id);
         }
-        check('schema', 'Schema', schema.length ? 'warn' : 'pass', schema.length ? `${schema.length} note${schema.length > 1 ? 's' : ''}` : 'Valid structure', schema);
+      }
+      if(!conns.some(c=>c.type==='mesh'&&c.state!=='fail'&&c.a.part?.element==='6185471'&&c.b.part?.element==='6012451'))r.issues.push('No valid mesh with the worm (a) driving the 8-tooth gear (b).');
+      return `Drive train of ${ps.length} parts is continuous and self-locking`;
+    });
+    fn('F2','F2 wheels roll',r=>{
+      if(tyres.length!==4)r.issues.push(`Expected 4 tyres, found ${tyres.length}.`);
+      for(const t of tyres){
+        const seat=conns.find(c=>c.state!=='fail'&&involves(c,t.id)&&other(c,t.id)?.element==='6109684');
+        if(!seat){r.issues.push(`${t.id}: not mounted on a rim.`);r.parts.push(t.id);continue;}
+        const rim=other(seat,t.id),turn=conns.find(c=>c.state!=='fail'&&involves(c,rim.id)&&c.expected==='rotates');
+        if(!turn){r.issues.push(`${t.id}: rim ${rim.id} has no free-turning pin or axle.`);r.parts.push(t.id,rim.id);continue;}
+        const s=other(turn,rim.id);
+        if(!conns.some(c=>involves(c,s.id)&&other(c,s.id)&&other(c,s.id).id!==rim.id)){r.issues.push(`${t.id}: ${s.id} holds the rim but is attached to nothing else.`);r.parts.push(s.id);}
+      }
+      return 'Four wheels turn on free pins';
+    });
+    fn('F3','F3 backhoe swivels',r=>{
+      const ball=conns.find(c=>c.a.f&&c.b.f&&[c.a.f.kind,c.b.f.kind].sort().join('+')==='ball+socket');
+      if(!ball)r.issues.push('No ball-to-socket joint between 6338171 and 6360824.');
+      else if(ball.state==='fail'){r.issues.push(`${ball.id}: the ball joint fails its checks.`);r.parts.push(ball.a.part.id,ball.b.part.id);}
+      else if(ball.motion!=='swivels')r.issues.push(`${ball.id}: motion should be "swivels".`);
+      return 'Ball joint in place';
+    });
+    fn('F4','F4 stabilizers pivot',r=>{
+      const legs=parts.filter(p=>p.element==='4142133');if(legs.length!==2)r.issues.push(`Expected 2 stabilizer beams (4142133), found ${legs.length}.`);
+      for(const leg of legs){
+        const cs=conns.filter(c=>c.type!=='mesh'&&involves(c,leg.id)&&other(c,leg.id)),holes=new Set(cs.map(c=>c.a.part.id===leg.id?c.a.name:c.b.name));
+        if(!cs.length){r.issues.push(`${leg.id}: not attached.`);r.parts.push(leg.id);}
+        else if(holes.size>1){r.issues.push(`${leg.id}: held at ${holes.size} holes, so it cannot pivot.`);r.parts.push(leg.id);}
+        else if(cs.some(c=>c.expected!=='rotates')){r.issues.push(`${leg.id}: its joint is locked.`);r.parts.push(leg.id);}
+      }
+      return 'Both legs pivot on a single pin';
+    });
+    fn('F5','F5 bucket tilts',r=>{
+      const bucket=parts.find(p=>p.element==='6311434');if(!bucket){r.issues.push('No loader bucket (6311434).');return;}
+      const cs=conns.filter(c=>involves(c,bucket.id));
+      if(!cs.length){r.issues.push(`${bucket.id}: not attached.`);r.parts.push(bucket.id);}
+      else if(!cs.some(c=>['rotates','swivels'].includes(c.motion))){r.issues.push(`${bucket.id}: every joint is fixed, so it cannot tilt.`);r.parts.push(bucket.id);}
+      return 'Bucket has a hinged mount';
+    });
+    fn('layout','Layout',r=>{
+      const meanY=centroid.reduce((s,c)=>s+c[1],0)/centroid.length,bucket=parts.find(p=>p.element==='6311434');
+      const hoe=parts.filter(p=>p.subassembly==='backhoe'||p.element==='6338171');
+      if(!bucket)r.issues.push('No loader bucket to locate.');
+      else if(centroid[bucket.index][1]<meanY+1){r.issues.push('The loader bucket should be at the front (+y).');r.parts.push(bucket.id);}
+      if(!hoe.length)r.issues.push('No backhoe parts to locate.');
+      else if(hoe.reduce((s,p)=>s+centroid[p.index][1],0)/hoe.length>meanY-1){r.issues.push('The backhoe should be at the rear (−y).');r.parts.push(...hoe.map(p=>p.id));}
+      return 'Loader in front, backhoe behind';
+    });
 
-        const counts = new Map(); for (const p of parts) counts.set(p.element, (counts.get(p.element) || 0) + 1);
-        const inventory = INVENTORY.map(([element, expected, color, name]) => ({ element, name, color, expected, got: counts.get(element) || 0 }));
-        for (const [element, got] of counts) if (!CATALOG[element]) inventory.push({ element, name: 'not in this set', color: '', expected: 0, got });
-        const offCount = inventory.filter(r => r.got !== r.expected);
-        const overIds = parts.filter(p => !p.cat || counts.get(p.element) > p.cat.qty).map(p => p.id);
-        offCount.forEach(r => parts.filter(p => p.element === r.element && r.got > r.expected).forEach(p => note(p.id, `Inventory: ${r.got} used, ${r.expected} in the set.`)));
-        check('inventory', `Inventory (${TOTAL} parts)`, offCount.length ? 'fail' : 'pass', `${parts.length}/${TOTAL} parts; ${offCount.length ? `${offCount.length} element types off` : 'every count exact'}`, offCount.map(r => `${r.element} ${r.name}: expected ${r.expected}, got ${r.got}`), overIds);
+    const score={pass:checks.filter(c=>c.status==='pass').length,warn:checks.filter(c=>c.status==='warn').length,fail:checks.filter(c=>c.status==='fail').length,total:checks.length};
+    return {title:typeof data.title==='string'&&data.title.trim()?data.title.trim().slice(0,120):'Untitled model',data,parts,byId,conns,checks,bad,partNotes,renderPolys,collide,partBox,centroid,inventory,score,collisions};
+  }
+  function parse(text){
+    if(text.length>3000000)throw Error('JSON exceeds the 3 MB input limit.');
+    return analyze(JSON.parse(text.trim().replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'')));
+  }
+  const api={SUBASSEMBLIES,TYPES,MOTIONS,COLORS,INVENTORY,TOTAL,CATALOG,add,sub,mul,dot,cross,unit,len,basis,toWorld,worldFeature,holeMarkers,partPolys,intersects,rayHit,meshCheck,analyze,parse};
+  if(typeof module!=='undefined'&&module.exports)module.exports=api;
+  else root.TechnicCore=api;
+})(globalThis);
 
-        const wrongColor = parts.filter(p => p.cat && p.color !== p.cat.color);
-        wrongColor.forEach(p => note(p.id, `Colour should be ${p.cat.color}.`));
-        check('colors', 'Colours', wrongColor.length ? 'fail' : 'pass', wrongColor.length ? `${wrongColor.length} parts off-colour` : 'All colours match', wrongColor.map(p => `${p.id} (${p.element}): "${p.color}" should be "${p.cat.color}"`), wrongColor.map(p => p.id));
+</script><script>
+window.createTechnicDemo=()=>({"title":"Technic Backhoe Loader 42197 (Generate by Claude Opus 5.5 in 40 minutes)","units":{"length":"module","module_mm":8},"axes":{"x":"right","y":"forward","z":"up"},"parts":[{"id":"p001","element":"6115616","color":"yellow","subassembly":"chassis","position":[-2,-4,1.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p002","element":"6115616","color":"yellow","subassembly":"chassis","position":[2,-4,1.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p003","element":"6321305","color":"tan","subassembly":"wheels","position":[-1.5,3,1.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p004","element":"6109684","color":"light_bluish_gray","subassembly":"wheels","position":[-3.5,3,1.9],"x_axis":[0,1,0],"z_axis":[-1,0,0]},{"id":"p005","element":"4619323","color":"black","subassembly":"wheels","position":[-3.5,3,1.9],"x_axis":[0,1,0],"z_axis":[-1,0,0]},{"id":"p006","element":"6321305","color":"tan","subassembly":"wheels","position":[-1.5,-3,1.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p007","element":"6109684","color":"light_bluish_gray","subassembly":"wheels","position":[-3.5,-3,1.9],"x_axis":[0,1,0],"z_axis":[-1,0,0]},{"id":"p008","element":"4619323","color":"black","subassembly":"wheels","position":[-3.5,-3,1.9],"x_axis":[0,1,0],"z_axis":[-1,0,0]},{"id":"p009","element":"6321305","color":"tan","subassembly":"wheels","position":[1.5,3,1.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p010","element":"6109684","color":"light_bluish_gray","subassembly":"wheels","position":[3.5,3,1.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p011","element":"4619323","color":"black","subassembly":"wheels","position":[3.5,3,1.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p012","element":"6321305","color":"tan","subassembly":"wheels","position":[1.5,-3,1.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p013","element":"6109684","color":"light_bluish_gray","subassembly":"wheels","position":[3.5,-3,1.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p014","element":"4619323","color":"black","subassembly":"wheels","position":[3.5,-3,1.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p015","element":"6271828","color":"yellow","subassembly":"chassis","position":[-1,-3,1.9],"x_axis":[0,-1,0],"z_axis":[-1,0,0]},{"id":"p016","element":"6279875","color":"black","subassembly":"chassis","position":[-2.5,-4,1.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p017","element":"6271828","color":"yellow","subassembly":"chassis","position":[1,-3,1.9],"x_axis":[0,-1,0],"z_axis":[-1,0,0]},{"id":"p018","element":"6279875","color":"black","subassembly":"chassis","position":[2.5,-4,1.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p019","element":"6130007","color":"yellow","subassembly":"chassis","position":[-1.5,-3,1.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p020","element":"6121485","color":"black","subassembly":"chassis","position":[0,-3,1.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p021","element":"6130007","color":"yellow","subassembly":"chassis","position":[-1.5,-6,1.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p022","element":"6360824","color":"dark_bluish_gray","subassembly":"chassis","position":[0,-6,1.9],"x_axis":[0,-1,0],"z_axis":[1,0,0]},{"id":"p023","element":"6279875","color":"black","subassembly":"stabilizers","position":[-2.5,-6,2.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p024","element":"4142133","color":"yellow","subassembly":"stabilizers","position":[-2,-6,2.9],"x_axis":[0,-0.8432,-0.5375],"z_axis":[1,0,0]},{"id":"p025","element":"6279875","color":"black","subassembly":"stabilizers","position":[2.5,-6,2.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p026","element":"4142133","color":"yellow","subassembly":"stabilizers","position":[2,-6,2.9],"x_axis":[0,-0.8432,-0.5375],"z_axis":[1,0,0]},{"id":"p027","element":"4211639","color":"light_bluish_gray","subassembly":"chassis","position":[-2.5,4,1.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p028","element":"6522621","color":"yellow","subassembly":"loader_gearbox","position":[-0.75,1.0186,4.5667],"x_axis":[0,0.7454,-0.6667],"z_axis":[1,0,0]},{"id":"p029","element":"6522621","color":"yellow","subassembly":"loader_gearbox","position":[0.75,1.0186,4.5667],"x_axis":[0,0.7454,-0.6667],"z_axis":[1,0,0]},{"id":"p030","element":"6261371","color":"black","subassembly":"loader_gearbox","position":[0,4,1.9],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p031","element":"6159763","color":"reddish_brown","subassembly":"loader_gearbox","position":[0,-0.5,2.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p032","element":"6284188","color":"black","subassembly":"loader_gearbox","position":[0,0,2.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p033","element":"6185471","color":"light_bluish_gray","subassembly":"loader_gearbox","position":[0,0.7639,2.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p034","element":"4211639","color":"light_bluish_gray","subassembly":"loader_gearbox","position":[-2.5,1.7639,3.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p035","element":"6012451","color":"dark_bluish_gray","subassembly":"loader_gearbox","position":[0,1.7639,3.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p036","element":"6271165","color":"light_bluish_gray","subassembly":"loader_gearbox","position":[-1.25,1.7639,3.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p037","element":"6271165","color":"light_bluish_gray","subassembly":"loader_gearbox","position":[1.25,1.7639,3.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p038","element":"6278131","color":"yellow","subassembly":"loader","position":[-2,1.7639,3.9],"x_axis":[0,0.9999,-0.0119],"z_axis":[-1,0,0]},{"id":"p039","element":"6278131","color":"yellow","subassembly":"loader","position":[2,1.7639,3.9],"x_axis":[0,0.9999,-0.0119],"z_axis":[-1,0,0]},{"id":"p040","element":"6130007","color":"yellow","subassembly":"loader_gearbox","position":[-1.5,5.3333,3.3907],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p041","element":"6121485","color":"black","subassembly":"loader_gearbox","position":[0,5.3333,3.3907],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p042","element":"6130007","color":"yellow","subassembly":"loader_gearbox","position":[-1.5,1.0186,4.5667],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p043","element":"4211639","color":"light_bluish_gray","subassembly":"loader","position":[-2.5,5.9445,2.25],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p044","element":"6121485","color":"black","subassembly":"loader","position":[-1,5.9445,2.25],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p045","element":"6261371","color":"black","subassembly":"loader","position":[0,5.9445,2.25],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p046","element":"6261371","color":"black","subassembly":"loader","position":[1,5.9445,2.25],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p047","element":"6413107","color":"light_bluish_gray","subassembly":"loader","position":[0,6.9445,2.25],"x_axis":[1,0,0],"z_axis":[0,0,1]},{"id":"p048","element":"6311434","color":"black","subassembly":"loader","position":[0.5,7.9445,3],"x_axis":[1,0,0],"z_axis":[0,0,1]},{"id":"p049","element":"6083620","color":"dark_bluish_gray","subassembly":"drive_tower","position":[0,-1,3.4],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p050","element":"6284188","color":"black","subassembly":"drive_tower","position":[0,-1,3.9],"x_axis":[1,0,0],"z_axis":[0,0,1]},{"id":"p051","element":"6344325","color":"yellow","subassembly":"drive_tower","position":[0,-1,4.9],"x_axis":[1,0,0],"z_axis":[0,0,1]},{"id":"p052","element":"6261371","color":"black","subassembly":"drive_tower","position":[0,-1,5.9],"x_axis":[1,0,0],"z_axis":[0,0,1]},{"id":"p053","element":"6391550","color":"dark_bluish_gray","subassembly":"drive_tower","position":[0,-1,6.4],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p054","element":"6135494","color":"reddish_brown","subassembly":"drive_tower","position":[0,-1,10.4],"x_axis":[0,0,-1],"z_axis":[1,0,0]},{"id":"p055","element":"6344325","color":"yellow","subassembly":"drive_tower","position":[0,-1,8.9],"x_axis":[1,0,0],"z_axis":[0,0,1]},{"id":"p056","element":"4177431","color":"black","subassembly":"drive_tower","position":[0,-1,9.9],"x_axis":[1,0,0],"z_axis":[0,0,1]},{"id":"p057","element":"6327162","color":"black","subassembly":"cab","position":[-2.25,-1,4.9],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p058","element":"6327028","color":"black","subassembly":"cab","position":[-2.25,1,4.9],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p059","element":"6344174","color":"yellow","subassembly":"cab","position":[-2.75,-1,4.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p060","element":"6371968","color":"yellow","subassembly":"cab","position":[-1.75,-3,8.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p061","element":"6513879","color":"yellow","subassembly":"cab","position":[-3.25,-1,4.9],"x_axis":[0,-1,0],"z_axis":[1,0,0]},{"id":"p062","element":"6130007","color":"yellow","subassembly":"cab","position":[-0.5,-1,4.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p063","element":"4142865","color":"red","subassembly":"cab","position":[-0.5,-1,8.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p064","element":"6327162","color":"black","subassembly":"cab","position":[2.25,-1,4.9],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p065","element":"6327028","color":"black","subassembly":"cab","position":[2.25,1,4.9],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p066","element":"6344174","color":"yellow","subassembly":"cab","position":[2.75,-1,4.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p067","element":"6371968","color":"yellow","subassembly":"cab","position":[1.75,-3,8.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p068","element":"6510995","color":"yellow","subassembly":"cab","position":[3.25,-1,4.9],"x_axis":[0,-1,0],"z_axis":[1,0,0]},{"id":"p069","element":"6130007","color":"yellow","subassembly":"cab","position":[0.5,-1,4.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p070","element":"4142865","color":"red","subassembly":"cab","position":[0.5,-1,8.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p071","element":"6334491","color":"yellow","subassembly":"cab","position":[0,1,8.9],"x_axis":[-1,0,0],"z_axis":[0,0,1]},{"id":"p072","element":"6130007","color":"yellow","subassembly":"cab","position":[-0.5,1,8.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p073","element":"6261371","color":"black","subassembly":"cab","position":[-3,1,8.9],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p074","element":"4211483","color":"light_bluish_gray","subassembly":"cab","position":[-3,0.9,9.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p075","element":"6514191","color":"trans_clear","subassembly":"cab","position":[-3,1.7,9.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p076","element":"6130007","color":"yellow","subassembly":"cab","position":[0.5,1,8.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p077","element":"6261371","color":"black","subassembly":"cab","position":[3,1,8.9],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p078","element":"4211483","color":"light_bluish_gray","subassembly":"cab","position":[3,0.9,9.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p079","element":"6514191","color":"trans_clear","subassembly":"cab","position":[3,1.7,9.9],"x_axis":[0,1,0],"z_axis":[1,0,0]},{"id":"p080","element":"4211639","color":"light_bluish_gray","subassembly":"cab","position":[-2.5,-3,8.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p081","element":"6261371","color":"black","subassembly":"cab","position":[-0.5,-3,8.9],"x_axis":[0,-1,0],"z_axis":[1,0,0]},{"id":"p082","element":"6261371","color":"black","subassembly":"cab","position":[0.5,-3,8.9],"x_axis":[0,-1,0],"z_axis":[1,0,0]},{"id":"p083","element":"6338422","color":"dark_bluish_gray","subassembly":"cab","position":[-0.5,-4,9.65],"x_axis":[1,0,0],"z_axis":[0,0,1]},{"id":"p084","element":"6338422","color":"dark_bluish_gray","subassembly":"cab","position":[-0.5,-4,10.15],"x_axis":[1,0,0],"z_axis":[0,0,1]},{"id":"p085","element":"4206482","color":"blue","subassembly":"cab","position":[-0.5,-4,8.4],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p086","element":"4206482","color":"blue","subassembly":"cab","position":[0.5,-4,8.4],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p087","element":"6331574","color":"light_bluish_gray","subassembly":"cab","position":[-3.25,0,4.9],"x_axis":[0,0,-1],"z_axis":[1,0,0]},{"id":"p088","element":"4206482","color":"blue","subassembly":"cab","position":[-2,0,4.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p089","element":"6331574","color":"light_bluish_gray","subassembly":"cab","position":[3.25,0,4.9],"x_axis":[0,0,-1],"z_axis":[1,0,0]},{"id":"p090","element":"4206482","color":"blue","subassembly":"cab","position":[2,0,4.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p091","element":"6299413","color":"blue","subassembly":"chassis","position":[1.5,0,1.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p092","element":"6276984","color":"dark_bluish_gray","subassembly":"chassis","position":[4,0,0.9],"x_axis":[0,0,1],"z_axis":[0,1,0]},{"id":"p093","element":"4206482","color":"blue","subassembly":"chassis","position":[-1.5,0,1.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p094","element":"4142865","color":"red","subassembly":"cab","position":[-2,1,4.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p095","element":"4142865","color":"red","subassembly":"cab","position":[2,1,4.9],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p096","element":"6331716","color":"black","subassembly":"cab","position":[3.5,1,4.9],"x_axis":[0,0,1],"z_axis":[1,0,0]},{"id":"p097","element":"6391550","color":"dark_bluish_gray","subassembly":"cab","position":[-3,1,4.9],"x_axis":[-1,0,0],"z_axis":[0,1,0]},{"id":"p098","element":"6338171","color":"black","subassembly":"backhoe","position":[0,-7.2,4.4],"x_axis":[0,0,-1],"z_axis":[1,0,0]},{"id":"p099","element":"4142865","color":"red","subassembly":"backhoe","position":[-0.5,-7.2,4.4],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p100","element":"6278131","color":"yellow","subassembly":"backhoe","position":[1,-7.2,4.4],"x_axis":[0,-0.1736,0.9848],"z_axis":[1,0,0]},{"id":"p101","element":"4206482","color":"blue","subassembly":"backhoe","position":[0.5,-9.505,8.2584],"x_axis":[1,0,0],"z_axis":[0,1,0]},{"id":"p102","element":"6278131","color":"yellow","subassembly":"backhoe","position":[2,-9.505,8.2584],"x_axis":[0,-0.1736,0.9848],"z_axis":[-1,0,0]},{"id":"p103","element":"6099801","color":"black","subassembly":"backhoe","position":[1,-7.975,13.4022],"x_axis":[0,0,-1],"z_axis":[1,0,0]},{"id":"p104","element":"6331026","color":"black","subassembly":"backhoe","position":[1,-6.675,14.4022],"x_axis":[1,0,0],"z_axis":[0,1,0]}],"connections":[{"id":"c001","a":"p003.s0","b":"p001.h7","type":"pin","motion":"rotates","at":[-2,3,1.9],"axis":[-1,0,0]},{"id":"c002","a":"p003.s1","b":"p004.h0","type":"pin","motion":"rotates","at":[-3.5,3,1.9],"axis":[-1,0,0]},{"id":"c003","a":"p005.bore","b":"p004.seat","type":"tyre","motion":"fixed","at":[-3.5,3,1.9],"axis":[-1,0,0]},{"id":"c004","a":"p006.s0","b":"p001.h1","type":"pin","motion":"rotates","at":[-2,-3,1.9],"axis":[-1,0,0]},{"id":"c005","a":"p006.s1","b":"p007.h0","type":"pin","motion":"rotates","at":[-3.5,-3,1.9],"axis":[-1,0,0]},{"id":"c006","a":"p008.bore","b":"p007.seat","type":"tyre","motion":"fixed","at":[-3.5,-3,1.9],"axis":[-1,0,0]},{"id":"c007","a":"p009.s0","b":"p002.h7","type":"pin","motion":"rotates","at":[2,3,1.9],"axis":[1,0,0]},{"id":"c008","a":"p009.s1","b":"p010.h0","type":"pin","motion":"rotates","at":[3.5,3,1.9],"axis":[1,0,0]},{"id":"c009","a":"p011.bore","b":"p010.seat","type":"tyre","motion":"fixed","at":[3.5,3,1.9],"axis":[1,0,0]},{"id":"c010","a":"p012.s0","b":"p002.h1","type":"pin","motion":"rotates","at":[2,-3,1.9],"axis":[1,0,0]},{"id":"c011","a":"p012.s1","b":"p013.h0","type":"pin","motion":"rotates","at":[3.5,-3,1.9],"axis":[1,0,0]},{"id":"c012","a":"p014.bore","b":"p013.seat","type":"tyre","motion":"fixed","at":[3.5,-3,1.9],"axis":[1,0,0]},{"id":"c013","a":"p016.s0","b":"p001.h0","type":"pin","motion":"rotates","at":[-2,-4,1.9],"axis":[1,0,0]},{"id":"c014","a":"p016.s1","b":"p015.h1","type":"pin","motion":"rotates","at":[-1,-4,1.9],"axis":[1,0,0]},{"id":"c015","a":"p018.s0","b":"p002.h0","type":"pin","motion":"rotates","at":[2,-4,1.9],"axis":[-1,0,0]},{"id":"c016","a":"p018.s1","b":"p017.h1","type":"pin","motion":"rotates","at":[1,-4,1.9],"axis":[-1,0,0]},{"id":"c017","a":"p019.s0","b":"p015.h0","type":"axle","motion":"fixed","at":[-1,-3,1.9],"axis":[1,0,0]},{"id":"c018","a":"p019.s0","b":"p020.h0","type":"axle","motion":"rotates","at":[0,-3,1.9],"axis":[1,0,0]},{"id":"c019","a":"p019.s0","b":"p017.h0","type":"axle","motion":"fixed","at":[1,-3,1.9],"axis":[1,0,0]},{"id":"c020","a":"p021.s0","b":"p015.h3","type":"axle","motion":"rotates","at":[-1,-6,1.9],"axis":[1,0,0]},{"id":"c021","a":"p021.s0","b":"p022.h1","type":"axle","motion":"fixed","at":[0,-6,1.9],"axis":[1,0,0]},{"id":"c022","a":"p021.s0","b":"p017.h3","type":"axle","motion":"rotates","at":[1,-6,1.9],"axis":[1,0,0]},{"id":"c023","a":"p023.s0","b":"p024.h0","type":"pin","motion":"rotates","at":[-2,-6,2.9],"axis":[1,0,0]},{"id":"c024","a":"p023.s1","b":"p015.h4","type":"pin","motion":"rotates","at":[-1,-6,2.9],"axis":[1,0,0]},{"id":"c025","a":"p025.s0","b":"p026.h0","type":"pin","motion":"rotates","at":[2,-6,2.9],"axis":[-1,0,0]},{"id":"c026","a":"p025.s1","b":"p017.h4","type":"pin","motion":"rotates","at":[1,-6,2.9],"axis":[-1,0,0]},{"id":"c027","a":"p027.s0","b":"p001.h8","type":"axle","motion":"rotates","at":[-2,4,1.9],"axis":[1,0,0]},{"id":"c028","a":"p027.s0","b":"p028.h4","type":"axle","motion":"fixed","at":[-0.75,4,1.9],"axis":[1,0,0]},{"id":"c029","a":"p027.s0","b":"p030.h0","type":"axle","motion":"fixed","at":[0,4,1.9],"axis":[1,0,0]},{"id":"c030","a":"p027.s0","b":"p029.h4","type":"axle","motion":"fixed","at":[0.75,4,1.9],"axis":[1,0,0]},{"id":"c031","a":"p027.s0","b":"p002.h8","type":"axle","motion":"rotates","at":[2,4,1.9],"axis":[1,0,0]},{"id":"c032","a":"p031.s0","b":"p032.h0","type":"axle","motion":"fixed","at":[0,0,2.9],"axis":[0,1,0]},{"id":"c033","a":"p031.s0","b":"p033.h0","type":"axle","motion":"fixed","at":[0,1.7639,2.9],"axis":[0,1,0]},{"id":"c034","a":"p031.s0","b":"p030.h1","type":"axle","motion":"rotates","at":[0,4,2.9],"axis":[0,1,0]},{"id":"c035","a":"p034.s0","b":"p038.h0","type":"axle","motion":"fixed","at":[-2,1.7639,3.9],"axis":[1,0,0]},{"id":"c036","a":"p034.s0","b":"p036.h0","type":"axle","motion":"fixed","at":[-1.25,1.7639,3.9],"axis":[1,0,0]},{"id":"c037","a":"p034.s0","b":"p028.h1","type":"axle","motion":"rotates","at":[-0.75,1.7639,3.9],"axis":[1,0,0]},{"id":"c038","a":"p034.s0","b":"p035.h0","type":"axle","motion":"fixed","at":[0,1.7639,3.9],"axis":[1,0,0]},{"id":"c039","a":"p034.s0","b":"p029.h1","type":"axle","motion":"rotates","at":[0.75,1.7639,3.9],"axis":[1,0,0]},{"id":"c040","a":"p034.s0","b":"p037.h0","type":"axle","motion":"fixed","at":[1.25,1.7639,3.9],"axis":[1,0,0]},{"id":"c041","a":"p034.s0","b":"p039.h0","type":"axle","motion":"fixed","at":[2,1.7639,3.9],"axis":[1,0,0]},{"id":"c042","a":"p040.s0","b":"p028.h6","type":"axle","motion":"fixed","at":[-0.75,5.3333,3.3907],"axis":[1,0,0]},{"id":"c043","a":"p040.s0","b":"p041.h0","type":"axle","motion":"rotates","at":[0,5.3333,3.3907],"axis":[1,0,0]},{"id":"c044","a":"p040.s0","b":"p029.h6","type":"axle","motion":"fixed","at":[0.75,5.3333,3.3907],"axis":[1,0,0]},{"id":"c045","a":"p042.s0","b":"p028.h0","type":"axle","motion":"fixed","at":[-0.75,1.0186,4.5667],"axis":[1,0,0]},{"id":"c046","a":"p042.s0","b":"p029.h0","type":"axle","motion":"fixed","at":[0.75,1.0186,4.5667],"axis":[1,0,0]},{"id":"c047","a":"p043.s0","b":"p038.h5","type":"axle","motion":"rotates","at":[-2,5.9445,2.25],"axis":[1,0,0]},{"id":"c048","a":"p043.s0","b":"p044.h0","type":"axle","motion":"rotates","at":[-1,5.9445,2.25],"axis":[1,0,0]},{"id":"c049","a":"p043.s0","b":"p045.h0","type":"axle","motion":"fixed","at":[0,5.9445,2.25],"axis":[1,0,0]},{"id":"c050","a":"p043.s0","b":"p046.h0","type":"axle","motion":"fixed","at":[1,5.9445,2.25],"axis":[1,0,0]},{"id":"c051","a":"p043.s0","b":"p039.h5","type":"axle","motion":"rotates","at":[2,5.9445,2.25],"axis":[1,0,0]},{"id":"c052","a":"p047.pa","b":"p045.h1","type":"pin","motion":"rotates","at":[0,6.9445,2.25],"axis":[0,0,1]},{"id":"c053","a":"p047.pb","b":"p046.h1","type":"pin","motion":"rotates","at":[1,6.9445,2.25],"axis":[0,0,1]},{"id":"c054","a":"p047.mount","b":"p048.mount","type":"clip","motion":"fixed","at":[0.5,7.9445,3],"axis":[1,0,0]},{"id":"c055","a":"p049.s0","b":"p050.h0","type":"axle","motion":"fixed","at":[0,-1,3.9],"axis":[0,0,1]},{"id":"c056","a":"p049.s0","b":"p051.h0","type":"axle","motion":"rotates","at":[0,-1,4.9],"axis":[0,0,1]},{"id":"c057","a":"p049.s0","b":"p052.h0","type":"axle","motion":"fixed","at":[0,-1,5.9],"axis":[0,0,1]},{"id":"c058","a":"p049.s0","b":"p053.b0","type":"socket","motion":"fixed","at":[0,-1,6.9],"axis":[0,0,1]},{"id":"c059","a":"p054.s0","b":"p053.b1","type":"socket","motion":"fixed","at":[0,-1,7.9],"axis":[0,0,-1]},{"id":"c060","a":"p054.s0","b":"p055.h0","type":"axle","motion":"rotates","at":[0,-1,8.9],"axis":[0,0,-1]},{"id":"c061","a":"p054.s0","b":"p056.h0","type":"axle","motion":"fixed","at":[0,-1,9.9],"axis":[0,0,-1]},{"id":"c062","a":"p062.s0","b":"p051.b0","type":"socket","motion":"fixed","at":[-1,-1,4.9],"axis":[-1,0,0]},{"id":"c063","a":"p062.s0","b":"p057.h0","type":"axle","motion":"fixed","at":[-2.25,-1,4.9],"axis":[-1,0,0]},{"id":"c064","a":"p062.s0","b":"p059.h0","type":"axle","motion":"fixed","at":[-2.75,-1,4.9],"axis":[-1,0,0]},{"id":"c065","a":"p062.s0","b":"p061.h0","type":"axle","motion":"fixed","at":[-3.25,-1,4.9],"axis":[-1,0,0]},{"id":"c066","a":"p063.s0","b":"p055.b0","type":"socket","motion":"fixed","at":[-1,-1,8.9],"axis":[-1,0,0]},{"id":"c067","a":"p063.s0","b":"p060.h2","type":"axle","motion":"rotates","at":[-1.75,-1,8.9],"axis":[-1,0,0]},{"id":"c068","a":"p063.s0","b":"p057.h4","type":"axle","motion":"fixed","at":[-2.25,-1,8.9],"axis":[-1,0,0]},{"id":"c069","a":"p069.s0","b":"p051.b1","type":"socket","motion":"fixed","at":[1,-1,4.9],"axis":[1,0,0]},{"id":"c070","a":"p069.s0","b":"p064.h0","type":"axle","motion":"fixed","at":[2.25,-1,4.9],"axis":[1,0,0]},{"id":"c071","a":"p069.s0","b":"p066.h0","type":"axle","motion":"fixed","at":[2.75,-1,4.9],"axis":[1,0,0]},{"id":"c072","a":"p069.s0","b":"p068.h0","type":"axle","motion":"fixed","at":[3.25,-1,4.9],"axis":[1,0,0]},{"id":"c073","a":"p070.s0","b":"p055.b1","type":"socket","motion":"fixed","at":[1,-1,8.9],"axis":[1,0,0]},{"id":"c074","a":"p070.s0","b":"p067.h2","type":"axle","motion":"rotates","at":[1.75,-1,8.9],"axis":[1,0,0]},{"id":"c075","a":"p070.s0","b":"p064.h4","type":"axle","motion":"fixed","at":[2.25,-1,8.9],"axis":[1,0,0]},{"id":"c076","a":"p072.s0","b":"p071.bore","type":"axle","motion":"fixed","at":[-1,1,8.9],"axis":[-1,0,0]},{"id":"c077","a":"p072.s0","b":"p060.h4","type":"axle","motion":"fixed","at":[-1.75,1,8.9],"axis":[-1,0,0]},{"id":"c078","a":"p072.s0","b":"p058.h4","type":"axle","motion":"fixed","at":[-2.25,1,8.9],"axis":[-1,0,0]},{"id":"c079","a":"p072.s0","b":"p073.h0","type":"axle","motion":"fixed","at":[-3,1,8.9],"axis":[-1,0,0]},{"id":"c080","a":"p074.s0","b":"p073.h1","type":"pin","motion":"rotates","at":[-3,1,9.9],"axis":[0,1,0]},{"id":"c081","a":"p074.stud","b":"p075.anti_stud","type":"stud","motion":"fixed","at":[-3,1.7,9.9],"axis":[0,1,0]},{"id":"c082","a":"p076.s0","b":"p071.bore","type":"axle","motion":"fixed","at":[1,1,8.9],"axis":[1,0,0]},{"id":"c083","a":"p076.s0","b":"p067.h4","type":"axle","motion":"fixed","at":[1.75,1,8.9],"axis":[1,0,0]},{"id":"c084","a":"p076.s0","b":"p065.h4","type":"axle","motion":"fixed","at":[2.25,1,8.9],"axis":[1,0,0]},{"id":"c085","a":"p076.s0","b":"p077.h0","type":"axle","motion":"fixed","at":[3,1,8.9],"axis":[1,0,0]},{"id":"c086","a":"p078.s0","b":"p077.h1","type":"pin","motion":"rotates","at":[3,1,9.9],"axis":[0,1,0]},{"id":"c087","a":"p078.stud","b":"p079.anti_stud","type":"stud","motion":"fixed","at":[3,1.7,9.9],"axis":[0,1,0]},{"id":"c088","a":"p080.s0","b":"p057.h6","type":"axle","motion":"fixed","at":[-2.25,-3,8.9],"axis":[1,0,0]},{"id":"c089","a":"p080.s0","b":"p060.h0","type":"axle","motion":"fixed","at":[-1.75,-3,8.9],"axis":[1,0,0]},{"id":"c090","a":"p080.s0","b":"p081.h0","type":"axle","motion":"fixed","at":[-0.5,-3,8.9],"axis":[1,0,0]},{"id":"c091","a":"p080.s0","b":"p082.h0","type":"axle","motion":"fixed","at":[0.5,-3,8.9],"axis":[1,0,0]},{"id":"c092","a":"p080.s0","b":"p067.h0","type":"axle","motion":"fixed","at":[1.75,-3,8.9],"axis":[1,0,0]},{"id":"c093","a":"p080.s0","b":"p064.h6","type":"axle","motion":"fixed","at":[2.25,-3,8.9],"axis":[1,0,0]},{"id":"c094","a":"p085.s0","b":"p081.h1","type":"axle_pin","motion":"rotates","at":[-0.5,-4,8.9],"axis":[0,0,1]},{"id":"c095","a":"p085.s1","b":"p083.h0","type":"axle_pin","motion":"fixed","at":[-0.5,-4,9.65],"axis":[0,0,1]},{"id":"c096","a":"p085.s1","b":"p084.h0","type":"axle_pin","motion":"fixed","at":[-0.5,-4,10.15],"axis":[0,0,1]},{"id":"c097","a":"p086.s0","b":"p082.h1","type":"axle_pin","motion":"rotates","at":[0.5,-4,8.9],"axis":[0,0,1]},{"id":"c098","a":"p086.s1","b":"p083.h1","type":"axle_pin","motion":"fixed","at":[0.5,-4,9.65],"axis":[0,0,1]},{"id":"c099","a":"p086.s1","b":"p084.h1","type":"axle_pin","motion":"fixed","at":[0.5,-4,10.15],"axis":[0,0,1]},{"id":"c100","a":"p088.s0","b":"p059.h1","type":"axle_pin","motion":"rotates","at":[-2.75,0,4.9],"axis":[-1,0,0]},{"id":"c101","a":"p088.s1","b":"p087.h0","type":"axle_pin","motion":"fixed","at":[-3.25,0,4.9],"axis":[-1,0,0]},{"id":"c102","a":"p090.s0","b":"p066.h1","type":"axle_pin","motion":"rotates","at":[2.75,0,4.9],"axis":[1,0,0]},{"id":"c103","a":"p090.s1","b":"p089.h0","type":"axle_pin","motion":"fixed","at":[3.25,0,4.9],"axis":[1,0,0]},{"id":"c104","a":"p091.s0","b":"p002.h4","type":"pin","motion":"rotates","at":[2,0,1.9],"axis":[1,0,0]},{"id":"c105","a":"p091.s1","b":"p089.h3","type":"pin","motion":"rotates","at":[3.25,0,1.9],"axis":[1,0,0]},{"id":"c106","a":"p091.s1","b":"p092.h1","type":"pin","motion":"rotates","at":[4,0,1.9],"axis":[1,0,0]},{"id":"c107","a":"p093.s0","b":"p001.h4","type":"axle_pin","motion":"rotates","at":[-2,0,1.9],"axis":[-1,0,0]},{"id":"c108","a":"p093.s1","b":"p087.h3","type":"axle_pin","motion":"rotates","at":[-3.25,0,1.9],"axis":[-1,0,0]},{"id":"c109","a":"p095.s0","b":"p065.h0","type":"axle","motion":"fixed","at":[2.25,1,4.9],"axis":[1,0,0]},{"id":"c110","a":"p095.s0","b":"p066.h2","type":"axle","motion":"fixed","at":[2.75,1,4.9],"axis":[1,0,0]},{"id":"c111","a":"p095.s0","b":"p096.h0","type":"axle","motion":"fixed","at":[3.5,1,4.9],"axis":[1,0,0]},{"id":"c112","a":"p094.s0","b":"p058.h0","type":"axle","motion":"fixed","at":[-2.25,1,4.9],"axis":[-1,0,0]},{"id":"c113","a":"p094.s0","b":"p059.h2","type":"axle","motion":"fixed","at":[-2.75,1,4.9],"axis":[-1,0,0]},{"id":"c114","a":"p094.s0","b":"p097.b0","type":"socket","motion":"fixed","at":[-3.5,1,4.9],"axis":[-1,0,0]},{"id":"c115","a":"p098.ball","b":"p022.socket","type":"ball","motion":"swivels","at":[0,-7.2,1.9],"axis":[0,-1,0]},{"id":"c116","a":"p099.s0","b":"p098.h0","type":"axle","motion":"fixed","at":[0,-7.2,4.4],"axis":[1,0,0]},{"id":"c117","a":"p099.s0","b":"p100.h0","type":"axle","motion":"fixed","at":[1,-7.2,4.4],"axis":[1,0,0]},{"id":"c118","a":"p101.s0","b":"p100.h5","type":"axle_pin","motion":"rotates","at":[1,-9.505,8.2584],"axis":[1,0,0]},{"id":"c119","a":"p101.s1","b":"p102.h0","type":"axle_pin","motion":"fixed","at":[2,-9.505,8.2584],"axis":[1,0,0]},{"id":"c120","a":"p103.s0","b":"p102.h6","type":"axle","motion":"fixed","at":[2,-7.975,13.4022],"axis":[1,0,0]},{"id":"c121","a":"p103.s1","b":"p104.h0","type":"axle","motion":"fixed","at":[1,-6.975,13.4022],"axis":[0,1,0]},{"id":"c122","a":"p050.h0","b":"p032.h0","type":"mesh","motion":"rotates","at":[0,-0.5,3.4],"axis":[0,1,0]},{"id":"c123","a":"p033.h0","b":"p035.h0","type":"mesh","motion":"rotates","at":[0,1.7639,3.4],"axis":[1,0,0]}],"mechanisms":[{"function":"F1","chain":["p056","p054","p053","p049","p050","p032","p031","p033","p035","p034","p038","p039"]},{"function":"F2","chain":["p003","p004","p005","p006","p007","p008","p009","p010","p011","p012","p013","p014"]},{"function":"F3","chain":["p022","p098","p099","p100","p101","p102","p103","p104"]},{"function":"F4","chain":["p015","p023","p024","p017","p025","p026"]},{"function":"F5","chain":["p038","p043","p045","p046","p047","p048"]}]});
+</script><script>
+(function(){
+  'use strict';
+  const C=TechnicCore,$=id=>document.getElementById(id),canvas=$('view');
+  const groups=[...C.SUBASSEMBLIES,'other'];
+  const labels={chassis:'Chassis',drive_tower:'Drive tower',cab:'Cab',loader_gearbox:'Loader gearbox',loader:'Loader',backhoe:'Backhoe',stabilizers:'Stabilizers',wheels:'Wheels',other:'Other'};
+  let model=null,angle=Math.PI-.7,elevation=.45,zoom=1,radius=12,center=[0,0,2],renderer;
+  let selected=null,isolated=null,focus=null,activeCheck=null,offsets=[];
+  const visible=new Set(groups),el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;};
+  const hex=h=>/^#[0-9a-f]{6}$/i.test(h)?[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255):[.9,.2,.8];
+  const light=C.unit([.45,.7,1.4]);
+  function colorOf(p){return hex(C.COLORS[p.color]||(p.color.startsWith('#')?p.color:'#e033cc'));}
+  function fill(out,pts,normal,col,alpha){const k=.58+.42*Math.max(0,C.dot(normal,light));for(let i=1;i<pts.length-1;i++)for(const p of [pts[0],pts[i],pts[i+1]])out.push(...p,...col.map(v=>v*k),alpha);}
+  function shown(p){return visible.has(p.subassembly)&&(!isolated||isolated.has(p.id));}
 
-        // Resolve and evaluate every joint.
-        const shaftUse = new Map();
-        for (const c of conns) {
-          for (const side of [c.a, c.b]) {
-            if (!side.part) c.ref.push(`unknown part "${side.pid ?? side.text}"`);
-            else if (side.name === null) { if (!['mesh', 'contact'].includes(c.type)) c.ref.push(`${side.text}: feature name missing`); }
-            else if (side.part.cat && !side.part.cat.geometry.features[side.name]) c.ref.push(`${side.text}: no feature "${side.name}" on ${side.part.element}`);
-            side.f = side.part ? worldFeature(side.part, side.name) : null;
-          }
-          const A = c.a.part, B = c.b.part;
-          if (A && B && A === B) c.ref.push('joins a part to itself');
-          if (c.ref.length || !A || !B) continue;
-          if (c.type === 'mesh') { const m = meshCheck(A, B); c.expected = 'mesh'; c.point = m.point || centroid[A.index]; if (!m.ok) c.geom.push(m.msg); continue; }
-          const fa = c.a.f, fb = c.b.f;
-          if (c.type === 'contact' || !fa || !fb) {
-            const ba = partBox[A.index], bb = partBox[B.index], gap = Math.max(0, ...[0, 1, 2].map(i => Math.max(ba.min[i] - bb.max[i], bb.min[i] - ba.max[i])));
-            c.expected = c.motion; c.point = c.at || mul(add(centroid[A.index], centroid[B.index]), .5);
-            if (gap > .3) c.geom.push(`the parts are ${r2(gap)} apart`);
-            continue;
-          }
-          const approx = fa.approx || fb.approx;
-          if ((fa.type === 'shaft') !== (fb.type === 'shaft') && (fa.type === 'hole' || fb.type === 'hole')) {
-            const [s, h, sp, hp] = fa.type === 'shaft' ? [fa, fb, A, B] : [fb, fa, B, A];
-            const d = unit(sub(s.B, s.A)), L = len(sub(s.B, s.A)), t = dot(sub(h.C, s.A), d), off = len(sub(h.C, add(s.A, mul(d, t)))), par = Math.abs(dot(d, h.N));
-            c.point = h.C;
-            if (approx) { if (segmentDistance(h.C, s.A, s.B) > 1.2) c.geom.push(`${hp.id}.${h.name} is ${r2(segmentDistance(h.C, s.A, s.B))} from the shaft`); }
-            else {
-              if (par < .97) c.geom.push(`shaft and hole are ${Math.round(Math.acos(Math.min(1, par)) * 180 / Math.PI)}° out of line`);
-              if (off > .15) c.geom.push(`hole centre is ${r2(off)} off the shaft axis`);
-              if (t < -.1 || t > L + .1) c.geom.push('hole lies beyond the end of the shaft');
-              const key = `${sp.id}.${s.name}`; if (!shaftUse.has(key)) shaftUse.set(key, []);
-              shaftUse.get(key).push({ t, half: par > .9 ? h.depth / 2 : .5, part: hp.id, conn: c.id });
-            }
-            if (s.profile === 'pin' && h.profile === 'A') c.compat.push('a round pin cannot enter a cross-axle hole');
-            c.expected = s.profile === 'axle' && h.profile === 'A' ? 'fixed' : 'rotates';
-          } else if (fa.type === 'point' && fb.type === 'point') {
-            const pair = [fa.kind, fb.kind].sort().join('+'), allowed = { 'anti_stud+stud': 'fixed', 'bore+seat': 'fixed', 'ball+socket': 'swivels', 'mount+mount': null };
-            c.point = mul(add(fa.C, fb.C), .5);
-            if (!(pair in allowed)) c.compat.push(`${fa.kind} cannot join ${fb.kind}`);
-            else {
-              c.expected = allowed[pair] ?? c.motion;
-              const gap = len(sub(fa.C, fb.C)); if (gap > (approx ? 1.2 : .25)) c.geom.push(`${fa.kind} and ${fb.kind} are ${r2(gap)} apart`);
-              if (!approx && fa.N && fb.N && Math.abs(dot(fa.N, fb.N)) < .95) c.geom.push(`${fa.kind} and ${fb.kind} axes are not aligned`);
-            }
-          } else { c.point = centroid[A.index]; c.compat.push(`a ${fa.type} cannot join a ${fb.type}`); }
-          if (c.expected && MOTIONS.includes(c.motion) && c.motion !== c.expected && !(c.expected === 'fixed' && fa.kind === 'stud')) c.warn.push(`declared "${c.motion}" but the joint ${c.expected === 'fixed' ? 'is locked' : c.expected === 'rotates' ? 'turns freely' : 'swivels'}`);
-          if (c.at && c.point && len(sub(c.at, c.point)) > (approx ? 1.5 : .5)) c.warn.push(`"at" ${fmt(c.at)} is ${r2(len(sub(c.at, c.point)))} from the joint`);
+  function computeOffsets(){
+    const f=+$('explode').value/100;offsets=model?model.parts.map(()=>[0,0,0]):[];
+    if(!model||!f)return;
+    const mid=C.mul(model.centroid.reduce(C.add,[0,0,0]),1/model.parts.length),subs=new Map();
+    model.parts.forEach((p,i)=>{if(!subs.has(p.subassembly))subs.set(p.subassembly,[]);subs.get(p.subassembly).push(model.centroid[i]);});
+    const subMid=new Map([...subs].map(([k,list])=>[k,C.mul(list.reduce(C.add,[0,0,0]),1/list.length)]));
+    offsets=model.parts.map((p,i)=>{const s=subMid.get(p.subassembly);return C.add(C.mul(C.sub(s,mid),f*1.2),C.mul(C.sub(model.centroid[i],s),f*.6));});
+  }
+  function rebuild(){
+    const solid=[],lines=[],glass=[],overlay=[];
+    if(model){
+      computeOffsets();
+      model.parts.forEach((p,i)=>{
+        if(!shown(p))return;
+        const o=offsets[i];let col=colorOf(p);
+        if(focus?focus.has(p.id):($('highlight').checked&&model.bad.has(p.id)))col=[.93,.18,.14];
+        if(selected===p.id)col=col.map((v,k)=>v*.35+[1,.55,.05][k]*.65);
+        const trans=p.color==='trans_clear',target=trans?glass:solid;
+        const dark=col[0]*.3+col[1]*.55+col[2]*.15<.3,edge=dark?col.map(v=>v+.3):col.map(v=>v*.55);
+        for(const poly of model.renderPolys[i]){
+          const pts=poly.pts.map(v=>C.add(v,o));
+          poly.faces.forEach((f,k)=>fill(target,f.map(j=>pts[j]),poly.normals[k],col,trans?.45:1));
+          if(poly.kind==='ring'||trans)continue;
+          const faces=poly.kind==='prism'?poly.faces.slice(0,2):poly.faces,seen=new Set();
+          for(const f of faces)for(let k=0;k<f.length;k++){const a=f[k],b=f[(k+1)%f.length],key=a<b?a+','+b:b+','+a;if(seen.has(key))continue;seen.add(key);lines.push(...pts[a],...edge,1,...pts[b],...edge,1);}
         }
-        const capacity = [];
-        for (const [key, list] of shaftUse) {
-          list.sort((a, b) => a.t - b.t);
-          for (let i = 0; i < list.length; i++)for (let j = i + 1; j < list.length; j++) {
-            const a = list[i], b = list[j]; if (a.part === b.part) continue;
-            const overlap = Math.min(a.t + a.half, b.t + b.half) - Math.max(a.t - a.half, b.t - b.half);
-            if (overlap > .12) { capacity.push({ msg: `${key}: ${a.part} and ${b.part} occupy the same ${r2(overlap)} of shaft`, parts: [a.part, b.part, key.split('.')[0]] }); for (const c of conns) if (c.id === a.conn || c.id === b.conn) c.geom.push('shares shaft space with another part'); }
+        if($('holes').checked)for(const h of C.holeMarkers(p)){
+          const mark=dark?[.55,.58,.62]:col.map(v=>v*.3),[u,w]=C.basis(h.N);
+          for(const side of [-1,1]){
+            const c=C.add(C.add(h.C,C.mul(h.N,side*(h.depth/2+.015))),o),n=C.mul(h.N,side);
+            if(h.profile==='P')fill(solid,Array.from({length:12},(_,k)=>C.add(c,C.add(C.mul(u,.24*Math.cos(k*Math.PI/6)),C.mul(w,.24*Math.sin(k*Math.PI/6))))),n,mark,1);
+            else for(const [a,b] of [[u,w],[w,u]])fill(solid,[[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,y])=>C.add(c,C.add(C.mul(a,x*.22),C.mul(b,y*.06)))),n,mark,1);
           }
         }
-        for (const c of conns) {
-          c.state = c.ref.length || c.geom.length || c.compat.length ? 'fail' : c.warn.length ? 'warn' : 'ok';
-          const msgs = [...c.ref, ...c.geom, ...c.compat, ...c.warn];
-          for (const side of [c.a, c.b]) if (side.part && msgs.length) note(side.part.id, `${c.id}: ${msgs[0]}`);
-        }
-        const listed = (key) => conns.filter(c => c[key].length);
-        const connParts = cs => cs.flatMap(c => [c.a.part?.id, c.b.part?.id]);
-        const refBad = listed('ref'), geomBad = conns.filter(c => !c.ref.length && c.geom.length), compatBad = listed('compat'), motionWarn = conns.filter(c => !c.compat.length && c.warn.length);
-        check('references', 'Feature references', refBad.length ? 'fail' : 'pass', refBad.length ? `${refBad.length} broken references` : `${conns.length} connections resolve`, refBad.map(c => `${c.id}: ${c.ref.join('; ')}`), connParts(refBad));
-        check('geometry', 'Joint geometry', geomBad.length ? 'fail' : 'pass', geomBad.length ? `${geomBad.length} joints do not line up` : 'Shafts, holes and gears line up', geomBad.map(c => `${c.id} (${c.a.text} ↔ ${c.b.text}): ${c.geom.join('; ')}`), connParts(geomBad));
-        check('compat', 'Joint types & motion', compatBad.length ? 'fail' : motionWarn.length ? 'warn' : 'pass', compatBad.length ? `${compatBad.length} impossible joints` : motionWarn.length ? `${motionWarn.length} motion/"at" notes` : 'Joint types and motions agree', [...compatBad.map(c => `${c.id}: ${c.compat.join('; ')}`), ...motionWarn.map(c => `${c.id}: ${c.warn.join('; ')}`)], connParts(compatBad));
-        check('capacity', 'Shaft occupancy', capacity.length ? 'fail' : 'pass', capacity.length ? `${capacity.length} crowded shafts` : 'No two parts share shaft space', capacity.map(c => c.msg), capacity.flatMap(c => c.parts));
-
-        const root = parts.map((_, i) => i), find = i => root[i] === i ? i : (root[i] = find(root[i]));
-        for (const c of conns) if (c.type !== 'mesh' && c.a.part && c.b.part) root[find(c.a.part.index)] = find(c.b.part.index);
-        const groups = new Map(); parts.forEach((p, i) => { const r = find(i); if (!groups.has(r)) groups.set(r, []); groups.get(r).push(p.id); });
-        const comps = [...groups.values()].sort((a, b) => b.length - a.length), loose = comps.slice(1);
-        loose.forEach(g => g.forEach(id => note(id, 'Not connected to the main assembly.')));
-        check('connectivity', 'Connected assembly', loose.length ? 'fail' : 'pass', loose.length ? `${comps.length} separate groups; ${loose.flat().length} parts detached` : 'One connected assembly', loose.slice(0, 20).map(g => `Loose group of ${g.length}: ${g.slice(0, 8).join(', ')}${g.length > 8 ? ' …' : ''}`), loose.flat());
-
-        const tyres = parts.filter(p => p.element === '4619323');
-        const low = t => t.position[2] - 1.9 * Math.sqrt(Math.max(0, 1 - t.z[2] ** 2));
-        const floating = tyres.filter(t => Math.abs(low(t)) > .15), below = parts.filter(p => p.element !== '4619323' && partBox[p.index].min[2] < -.1);
-        floating.forEach(t => note(t.id, `Tyre bottom at z=${r2(low(t))}, should be 0.`)); below.forEach(p => note(p.id, 'Below the ground.'));
-        check('ground', 'Ground contact', !tyres.length || floating.length || below.length ? 'fail' : 'pass', !tyres.length ? 'No tyres' : floating.length || below.length ? `${floating.length} tyres off the ground, ${below.length} parts below it` : 'All tyres rest on z=0', [...floating.map(t => `${t.id}: bottom at z=${r2(low(t))}`), ...below.map(p => `${p.id}: reaches z=${r2(partBox[p.index].min[2])}`)], [...floating, ...below].map(p => p.id));
-
-        const wb = [];
-        if (tyres.length !== 4) wb.push(`Expected 4 tyres, found ${tyres.length}.`);
-        else {
-          const sorted = [...tyres].sort((a, b) => a.position[0] - b.position[0]);
-          for (const [name, pair] of [['Left', sorted.slice(0, 2)], ['Right', sorted.slice(2)]]) {
-            const dy = Math.abs(pair[0].position[1] - pair[1].position[1]), dx = Math.abs(pair[0].position[0] - pair[1].position[0]);
-            if (Math.abs(dy - 6) > .3 || dx > .5) wb.push(`${name} wheels ${pair.map(p => p.id).join(' & ')}: ${r2(dy)} apart along y (expected 6), ${r2(dx)} across.`);
-          }
-        }
-        check('wheelbase', 'Wheelbase (6 modules)', wb.length ? 'fail' : 'pass', wb.length ? wb[0] : 'Both sides 6 modules', wb, wb.length ? tyres.map(t => t.id) : []);
-
-        const direct = new Set(conns.filter(c => c.a.part && c.b.part).map(c => [c.a.part.id, c.b.part.id].sort().join('|')));
-        const collisions = [];
-        scan: for (let i = 0; i < parts.length; i++)for (let j = i + 1; j < parts.length; j++) {
-          const a = partBox[i], b = partBox[j];
-          if ([0, 1, 2].some(k => a.max[k] <= b.min[k] + .02 || b.max[k] <= a.min[k] + .02)) continue;
-          if (direct.has([parts[i].id, parts[j].id].sort().join('|'))) continue;
-          if (collide[i].some(p => collide[j].some(q => intersects(p, q)))) { collisions.push([parts[i], parts[j]]); if (collisions.length >= 500) break scan; }
-        }
-        collisions.forEach(([a, b]) => { note(a.id, `Overlaps ${b.id}.`); note(b.id, `Overlaps ${a.id}.`); });
-        const hard = collisions.filter(([a, b]) => !a.cat?.geometry.approxBody && !b.cat?.geometry.approxBody);
-        check('collisions', 'Collisions', hard.length ? 'fail' : collisions.length ? 'warn' : 'pass', collisions.length ? `${collisions.length} overlapping pairs${collisions.length >= 500 ? ' (stopped at 500)' : ''}${hard.length < collisions.length ? `; ${collisions.length - hard.length} involve approximate shapes` : ''}` : 'No unconnected bodies overlap', collisions.slice(0, 40).map(([a, b]) => `${a.id} (${a.cat?.name ?? a.element}) overlaps ${b.id} (${b.cat?.name ?? b.element})`), hard.flat().map(p => p.id));
-
-        // Functions F1–F5 and layout.
-        const mech = new Map();
-        if (Array.isArray(data.mechanisms)) for (const m of data.mechanisms) if (m && typeof m.function === 'string' && Array.isArray(m.chain)) mech.set(m.function, m.chain.map(String));
-        const involves = (c, id) => c.a.part?.id === id || c.b.part?.id === id;
-        const other = (c, id) => c.a.part?.id === id ? c.b.part : c.a.part;
-        const between = (a, b) => conns.filter(c => involves(c, a) && involves(c, b) && a !== b);
-        function fn(id, label, run) { const r = { issues: [], parts: [] }; const ok = run(r); check(id, label, r.issues.length ? 'fail' : 'pass', r.issues[0] || ok, r.issues, r.parts); }
-        fn('F1', 'F1 knob raises loader', r => {
-          const chain = mech.get('F1'); if (!chain) { r.issues.push('No F1 chain in "mechanisms".'); return; }
-          const ps = chain.map(id => byId.get(id)), missing = chain.filter((_, i) => !ps[i]);
-          if (missing.length) { r.issues.push(`F1 chain has unknown ids: ${missing.join(', ')}.`); return; }
-          const els = ps.map(p => p.element);
-          if (els[0] !== '4177431') r.issues.push('Chain must start at the 12-tooth knob gear (4177431).');
-          if (els.at(-1) !== '6278131') r.issues.push('Chain must end at a loader arm (6278131).');
-          for (const [el, n, name] of [['6284188', 2, 'knob wheels'], ['6185471', 1, 'worm'], ['6012451', 1, '8-tooth gear']]) if (els.filter(e => e === el).length < n) r.issues.push(`Chain needs ${n} ${name} (${el}).`);
-          for (let i = 0; i + 1 < ps.length; i++) {
-            const [a, b] = [ps[i], ps[i + 1]], links = between(a.id, b.id);
-            if (!links.length) { r.issues.push(`${a.id} → ${b.id}: not connected.`); r.parts.push(a.id, b.id); continue; }
-            if (!links.some(c => c.state !== 'fail' && (c.type === 'mesh' || c.expected === 'fixed'))) {
-              const c = links[0]; r.issues.push(`${a.id} → ${b.id}: ${c.state === 'fail' ? 'the joint fails its checks' : `turns freely (${c.expected}), so the drive slips`}.`); r.parts.push(a.id, b.id);
-            }
-          }
-          if (!conns.some(c => c.type === 'mesh' && c.state !== 'fail' && c.a.part?.element === '6185471' && c.b.part?.element === '6012451')) r.issues.push('No valid mesh with the worm (a) driving the 8-tooth gear (b).');
-          return `Drive train of ${ps.length} parts is continuous and self-locking`;
-        });
-        fn('F2', 'F2 wheels roll', r => {
-          if (tyres.length !== 4) r.issues.push(`Expected 4 tyres, found ${tyres.length}.`);
-          for (const t of tyres) {
-            const seat = conns.find(c => c.state !== 'fail' && involves(c, t.id) && other(c, t.id)?.element === '6109684');
-            if (!seat) { r.issues.push(`${t.id}: not mounted on a rim.`); r.parts.push(t.id); continue; }
-            const rim = other(seat, t.id), turn = conns.find(c => c.state !== 'fail' && involves(c, rim.id) && c.expected === 'rotates');
-            if (!turn) { r.issues.push(`${t.id}: rim ${rim.id} has no free-turning pin or axle.`); r.parts.push(t.id, rim.id); continue; }
-            const s = other(turn, rim.id);
-            if (!conns.some(c => involves(c, s.id) && other(c, s.id) && other(c, s.id).id !== rim.id)) { r.issues.push(`${t.id}: ${s.id} holds the rim but is attached to nothing else.`); r.parts.push(s.id); }
-          }
-          return 'Four wheels turn on free pins';
-        });
-        fn('F3', 'F3 backhoe swivels', r => {
-          const ball = conns.find(c => c.a.f && c.b.f && [c.a.f.kind, c.b.f.kind].sort().join('+') === 'ball+socket');
-          if (!ball) r.issues.push('No ball-to-socket joint between 6338171 and 6360824.');
-          else if (ball.state === 'fail') { r.issues.push(`${ball.id}: the ball joint fails its checks.`); r.parts.push(ball.a.part.id, ball.b.part.id); }
-          else if (ball.motion !== 'swivels') r.issues.push(`${ball.id}: motion should be "swivels".`);
-          return 'Ball joint in place';
-        });
-        fn('F4', 'F4 stabilizers pivot', r => {
-          const legs = parts.filter(p => p.element === '4142133'); if (legs.length !== 2) r.issues.push(`Expected 2 stabilizer beams (4142133), found ${legs.length}.`);
-          for (const leg of legs) {
-            const cs = conns.filter(c => c.type !== 'mesh' && involves(c, leg.id) && other(c, leg.id)), holes = new Set(cs.map(c => c.a.part.id === leg.id ? c.a.name : c.b.name));
-            if (!cs.length) { r.issues.push(`${leg.id}: not attached.`); r.parts.push(leg.id); }
-            else if (holes.size > 1) { r.issues.push(`${leg.id}: held at ${holes.size} holes, so it cannot pivot.`); r.parts.push(leg.id); }
-            else if (cs.some(c => c.expected !== 'rotates')) { r.issues.push(`${leg.id}: its joint is locked.`); r.parts.push(leg.id); }
-          }
-          return 'Both legs pivot on a single pin';
-        });
-        fn('F5', 'F5 bucket tilts', r => {
-          const bucket = parts.find(p => p.element === '6311434'); if (!bucket) { r.issues.push('No loader bucket (6311434).'); return; }
-          const cs = conns.filter(c => involves(c, bucket.id));
-          if (!cs.length) { r.issues.push(`${bucket.id}: not attached.`); r.parts.push(bucket.id); }
-          else if (!cs.some(c => ['rotates', 'swivels'].includes(c.motion))) { r.issues.push(`${bucket.id}: every joint is fixed, so it cannot tilt.`); r.parts.push(bucket.id); }
-          return 'Bucket has a hinged mount';
-        });
-        fn('layout', 'Layout', r => {
-          const meanY = centroid.reduce((s, c) => s + c[1], 0) / centroid.length, bucket = parts.find(p => p.element === '6311434');
-          const hoe = parts.filter(p => p.subassembly === 'backhoe' || p.element === '6338171');
-          if (!bucket) r.issues.push('No loader bucket to locate.');
-          else if (centroid[bucket.index][1] < meanY + 1) { r.issues.push('The loader bucket should be at the front (+y).'); r.parts.push(bucket.id); }
-          if (!hoe.length) r.issues.push('No backhoe parts to locate.');
-          else if (hoe.reduce((s, p) => s + centroid[p.index][1], 0) / hoe.length > meanY - 1) { r.issues.push('The backhoe should be at the rear (−y).'); r.parts.push(...hoe.map(p => p.id)); }
-          return 'Loader in front, backhoe behind';
-        });
-
-        const score = { pass: checks.filter(c => c.status === 'pass').length, warn: checks.filter(c => c.status === 'warn').length, fail: checks.filter(c => c.status === 'fail').length, total: checks.length };
-        return { title: typeof data.title === 'string' && data.title.trim() ? data.title.trim().slice(0, 120) : 'Untitled model', data, parts, byId, conns, checks, bad, partNotes, renderPolys, collide, partBox, centroid, inventory, score, collisions };
+      });
+      if($('joints').checked)for(const c of model.conns){
+        if(!c.point||(c.a.part&&!shown(c.a.part))||(c.b.part&&!shown(c.b.part)))continue;
+        const o=c.a.part?offsets[c.a.part.index]:[0,0,0],p=C.add(c.point,o),col=c.state==='fail'?[.85,.2,.15]:c.state==='warn'?[.9,.62,0]:[.18,.66,.36],s=.14;
+        const v=[[s,0,0],[-s,0,0],[0,s,0],[0,-s,0],[0,0,s],[0,0,-s]].map(d=>C.add(p,d));
+        for(const [a,b,d] of [[0,2,4],[2,1,4],[1,3,4],[3,0,4],[2,0,5],[1,2,5],[3,1,5],[0,3,5]])overlay.push(...[v[a],v[b],v[d]].flatMap(q=>[...q,...col,1]));
       }
-      function parse(text) {
-        if (text.length > 3000000) throw Error('JSON exceeds the 3 MB input limit.');
-        return analyze(JSON.parse(text.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')));
-      }
-      const api = { SUBASSEMBLIES, TYPES, MOTIONS, COLORS, INVENTORY, TOTAL, CATALOG, add, sub, mul, dot, cross, unit, len, basis, toWorld, worldFeature, holeMarkers, partPolys, intersects, rayHit, meshCheck, analyze, parse };
-      if (typeof module !== 'undefined' && module.exports) module.exports = api;
-      else root.TechnicCore = api;
-    })(globalThis);
-
-  </script>
-  <script>
-    window.createTechnicDemo = () => ({ "title": "Technic Backhoe Loader 42197 (Generate by Claude Opus 5.5 in 40 minutes)", "units": { "length": "module", "module_mm": 8 }, "axes": { "x": "right", "y": "forward", "z": "up" }, "parts": [{ "id": "p001", "element": "6115616", "color": "yellow", "subassembly": "chassis", "position": [-2, -4, 1.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p002", "element": "6115616", "color": "yellow", "subassembly": "chassis", "position": [2, -4, 1.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p003", "element": "6321305", "color": "tan", "subassembly": "wheels", "position": [-1.5, 3, 1.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p004", "element": "6109684", "color": "light_bluish_gray", "subassembly": "wheels", "position": [-3.5, 3, 1.9], "x_axis": [0, 1, 0], "z_axis": [-1, 0, 0] }, { "id": "p005", "element": "4619323", "color": "black", "subassembly": "wheels", "position": [-3.5, 3, 1.9], "x_axis": [0, 1, 0], "z_axis": [-1, 0, 0] }, { "id": "p006", "element": "6321305", "color": "tan", "subassembly": "wheels", "position": [-1.5, -3, 1.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p007", "element": "6109684", "color": "light_bluish_gray", "subassembly": "wheels", "position": [-3.5, -3, 1.9], "x_axis": [0, 1, 0], "z_axis": [-1, 0, 0] }, { "id": "p008", "element": "4619323", "color": "black", "subassembly": "wheels", "position": [-3.5, -3, 1.9], "x_axis": [0, 1, 0], "z_axis": [-1, 0, 0] }, { "id": "p009", "element": "6321305", "color": "tan", "subassembly": "wheels", "position": [1.5, 3, 1.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p010", "element": "6109684", "color": "light_bluish_gray", "subassembly": "wheels", "position": [3.5, 3, 1.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p011", "element": "4619323", "color": "black", "subassembly": "wheels", "position": [3.5, 3, 1.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p012", "element": "6321305", "color": "tan", "subassembly": "wheels", "position": [1.5, -3, 1.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p013", "element": "6109684", "color": "light_bluish_gray", "subassembly": "wheels", "position": [3.5, -3, 1.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p014", "element": "4619323", "color": "black", "subassembly": "wheels", "position": [3.5, -3, 1.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p015", "element": "6271828", "color": "yellow", "subassembly": "chassis", "position": [-1, -3, 1.9], "x_axis": [0, -1, 0], "z_axis": [-1, 0, 0] }, { "id": "p016", "element": "6279875", "color": "black", "subassembly": "chassis", "position": [-2.5, -4, 1.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p017", "element": "6271828", "color": "yellow", "subassembly": "chassis", "position": [1, -3, 1.9], "x_axis": [0, -1, 0], "z_axis": [-1, 0, 0] }, { "id": "p018", "element": "6279875", "color": "black", "subassembly": "chassis", "position": [2.5, -4, 1.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p019", "element": "6130007", "color": "yellow", "subassembly": "chassis", "position": [-1.5, -3, 1.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p020", "element": "6121485", "color": "black", "subassembly": "chassis", "position": [0, -3, 1.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p021", "element": "6130007", "color": "yellow", "subassembly": "chassis", "position": [-1.5, -6, 1.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p022", "element": "6360824", "color": "dark_bluish_gray", "subassembly": "chassis", "position": [0, -6, 1.9], "x_axis": [0, -1, 0], "z_axis": [1, 0, 0] }, { "id": "p023", "element": "6279875", "color": "black", "subassembly": "stabilizers", "position": [-2.5, -6, 2.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p024", "element": "4142133", "color": "yellow", "subassembly": "stabilizers", "position": [-2, -6, 2.9], "x_axis": [0, -0.8432, -0.5375], "z_axis": [1, 0, 0] }, { "id": "p025", "element": "6279875", "color": "black", "subassembly": "stabilizers", "position": [2.5, -6, 2.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p026", "element": "4142133", "color": "yellow", "subassembly": "stabilizers", "position": [2, -6, 2.9], "x_axis": [0, -0.8432, -0.5375], "z_axis": [1, 0, 0] }, { "id": "p027", "element": "4211639", "color": "light_bluish_gray", "subassembly": "chassis", "position": [-2.5, 4, 1.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p028", "element": "6522621", "color": "yellow", "subassembly": "loader_gearbox", "position": [-0.75, 1.0186, 4.5667], "x_axis": [0, 0.7454, -0.6667], "z_axis": [1, 0, 0] }, { "id": "p029", "element": "6522621", "color": "yellow", "subassembly": "loader_gearbox", "position": [0.75, 1.0186, 4.5667], "x_axis": [0, 0.7454, -0.6667], "z_axis": [1, 0, 0] }, { "id": "p030", "element": "6261371", "color": "black", "subassembly": "loader_gearbox", "position": [0, 4, 1.9], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p031", "element": "6159763", "color": "reddish_brown", "subassembly": "loader_gearbox", "position": [0, -0.5, 2.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p032", "element": "6284188", "color": "black", "subassembly": "loader_gearbox", "position": [0, 0, 2.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p033", "element": "6185471", "color": "light_bluish_gray", "subassembly": "loader_gearbox", "position": [0, 0.7639, 2.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p034", "element": "4211639", "color": "light_bluish_gray", "subassembly": "loader_gearbox", "position": [-2.5, 1.7639, 3.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p035", "element": "6012451", "color": "dark_bluish_gray", "subassembly": "loader_gearbox", "position": [0, 1.7639, 3.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p036", "element": "6271165", "color": "light_bluish_gray", "subassembly": "loader_gearbox", "position": [-1.25, 1.7639, 3.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p037", "element": "6271165", "color": "light_bluish_gray", "subassembly": "loader_gearbox", "position": [1.25, 1.7639, 3.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p038", "element": "6278131", "color": "yellow", "subassembly": "loader", "position": [-2, 1.7639, 3.9], "x_axis": [0, 0.9999, -0.0119], "z_axis": [-1, 0, 0] }, { "id": "p039", "element": "6278131", "color": "yellow", "subassembly": "loader", "position": [2, 1.7639, 3.9], "x_axis": [0, 0.9999, -0.0119], "z_axis": [-1, 0, 0] }, { "id": "p040", "element": "6130007", "color": "yellow", "subassembly": "loader_gearbox", "position": [-1.5, 5.3333, 3.3907], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p041", "element": "6121485", "color": "black", "subassembly": "loader_gearbox", "position": [0, 5.3333, 3.3907], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p042", "element": "6130007", "color": "yellow", "subassembly": "loader_gearbox", "position": [-1.5, 1.0186, 4.5667], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p043", "element": "4211639", "color": "light_bluish_gray", "subassembly": "loader", "position": [-2.5, 5.9445, 2.25], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p044", "element": "6121485", "color": "black", "subassembly": "loader", "position": [-1, 5.9445, 2.25], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p045", "element": "6261371", "color": "black", "subassembly": "loader", "position": [0, 5.9445, 2.25], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p046", "element": "6261371", "color": "black", "subassembly": "loader", "position": [1, 5.9445, 2.25], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p047", "element": "6413107", "color": "light_bluish_gray", "subassembly": "loader", "position": [0, 6.9445, 2.25], "x_axis": [1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p048", "element": "6311434", "color": "black", "subassembly": "loader", "position": [0.5, 7.9445, 3], "x_axis": [1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p049", "element": "6083620", "color": "dark_bluish_gray", "subassembly": "drive_tower", "position": [0, -1, 3.4], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p050", "element": "6284188", "color": "black", "subassembly": "drive_tower", "position": [0, -1, 3.9], "x_axis": [1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p051", "element": "6344325", "color": "yellow", "subassembly": "drive_tower", "position": [0, -1, 4.9], "x_axis": [1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p052", "element": "6261371", "color": "black", "subassembly": "drive_tower", "position": [0, -1, 5.9], "x_axis": [1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p053", "element": "6391550", "color": "dark_bluish_gray", "subassembly": "drive_tower", "position": [0, -1, 6.4], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p054", "element": "6135494", "color": "reddish_brown", "subassembly": "drive_tower", "position": [0, -1, 10.4], "x_axis": [0, 0, -1], "z_axis": [1, 0, 0] }, { "id": "p055", "element": "6344325", "color": "yellow", "subassembly": "drive_tower", "position": [0, -1, 8.9], "x_axis": [1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p056", "element": "4177431", "color": "black", "subassembly": "drive_tower", "position": [0, -1, 9.9], "x_axis": [1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p057", "element": "6327162", "color": "black", "subassembly": "cab", "position": [-2.25, -1, 4.9], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p058", "element": "6327028", "color": "black", "subassembly": "cab", "position": [-2.25, 1, 4.9], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p059", "element": "6344174", "color": "yellow", "subassembly": "cab", "position": [-2.75, -1, 4.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p060", "element": "6371968", "color": "yellow", "subassembly": "cab", "position": [-1.75, -3, 8.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p061", "element": "6513879", "color": "yellow", "subassembly": "cab", "position": [-3.25, -1, 4.9], "x_axis": [0, -1, 0], "z_axis": [1, 0, 0] }, { "id": "p062", "element": "6130007", "color": "yellow", "subassembly": "cab", "position": [-0.5, -1, 4.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p063", "element": "4142865", "color": "red", "subassembly": "cab", "position": [-0.5, -1, 8.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p064", "element": "6327162", "color": "black", "subassembly": "cab", "position": [2.25, -1, 4.9], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p065", "element": "6327028", "color": "black", "subassembly": "cab", "position": [2.25, 1, 4.9], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p066", "element": "6344174", "color": "yellow", "subassembly": "cab", "position": [2.75, -1, 4.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p067", "element": "6371968", "color": "yellow", "subassembly": "cab", "position": [1.75, -3, 8.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p068", "element": "6510995", "color": "yellow", "subassembly": "cab", "position": [3.25, -1, 4.9], "x_axis": [0, -1, 0], "z_axis": [1, 0, 0] }, { "id": "p069", "element": "6130007", "color": "yellow", "subassembly": "cab", "position": [0.5, -1, 4.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p070", "element": "4142865", "color": "red", "subassembly": "cab", "position": [0.5, -1, 8.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p071", "element": "6334491", "color": "yellow", "subassembly": "cab", "position": [0, 1, 8.9], "x_axis": [-1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p072", "element": "6130007", "color": "yellow", "subassembly": "cab", "position": [-0.5, 1, 8.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p073", "element": "6261371", "color": "black", "subassembly": "cab", "position": [-3, 1, 8.9], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p074", "element": "4211483", "color": "light_bluish_gray", "subassembly": "cab", "position": [-3, 0.9, 9.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p075", "element": "6514191", "color": "trans_clear", "subassembly": "cab", "position": [-3, 1.7, 9.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p076", "element": "6130007", "color": "yellow", "subassembly": "cab", "position": [0.5, 1, 8.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p077", "element": "6261371", "color": "black", "subassembly": "cab", "position": [3, 1, 8.9], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p078", "element": "4211483", "color": "light_bluish_gray", "subassembly": "cab", "position": [3, 0.9, 9.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p079", "element": "6514191", "color": "trans_clear", "subassembly": "cab", "position": [3, 1.7, 9.9], "x_axis": [0, 1, 0], "z_axis": [1, 0, 0] }, { "id": "p080", "element": "4211639", "color": "light_bluish_gray", "subassembly": "cab", "position": [-2.5, -3, 8.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p081", "element": "6261371", "color": "black", "subassembly": "cab", "position": [-0.5, -3, 8.9], "x_axis": [0, -1, 0], "z_axis": [1, 0, 0] }, { "id": "p082", "element": "6261371", "color": "black", "subassembly": "cab", "position": [0.5, -3, 8.9], "x_axis": [0, -1, 0], "z_axis": [1, 0, 0] }, { "id": "p083", "element": "6338422", "color": "dark_bluish_gray", "subassembly": "cab", "position": [-0.5, -4, 9.65], "x_axis": [1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p084", "element": "6338422", "color": "dark_bluish_gray", "subassembly": "cab", "position": [-0.5, -4, 10.15], "x_axis": [1, 0, 0], "z_axis": [0, 0, 1] }, { "id": "p085", "element": "4206482", "color": "blue", "subassembly": "cab", "position": [-0.5, -4, 8.4], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p086", "element": "4206482", "color": "blue", "subassembly": "cab", "position": [0.5, -4, 8.4], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p087", "element": "6331574", "color": "light_bluish_gray", "subassembly": "cab", "position": [-3.25, 0, 4.9], "x_axis": [0, 0, -1], "z_axis": [1, 0, 0] }, { "id": "p088", "element": "4206482", "color": "blue", "subassembly": "cab", "position": [-2, 0, 4.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p089", "element": "6331574", "color": "light_bluish_gray", "subassembly": "cab", "position": [3.25, 0, 4.9], "x_axis": [0, 0, -1], "z_axis": [1, 0, 0] }, { "id": "p090", "element": "4206482", "color": "blue", "subassembly": "cab", "position": [2, 0, 4.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p091", "element": "6299413", "color": "blue", "subassembly": "chassis", "position": [1.5, 0, 1.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p092", "element": "6276984", "color": "dark_bluish_gray", "subassembly": "chassis", "position": [4, 0, 0.9], "x_axis": [0, 0, 1], "z_axis": [0, 1, 0] }, { "id": "p093", "element": "4206482", "color": "blue", "subassembly": "chassis", "position": [-1.5, 0, 1.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p094", "element": "4142865", "color": "red", "subassembly": "cab", "position": [-2, 1, 4.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p095", "element": "4142865", "color": "red", "subassembly": "cab", "position": [2, 1, 4.9], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p096", "element": "6331716", "color": "black", "subassembly": "cab", "position": [3.5, 1, 4.9], "x_axis": [0, 0, 1], "z_axis": [1, 0, 0] }, { "id": "p097", "element": "6391550", "color": "dark_bluish_gray", "subassembly": "cab", "position": [-3, 1, 4.9], "x_axis": [-1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p098", "element": "6338171", "color": "black", "subassembly": "backhoe", "position": [0, -7.2, 4.4], "x_axis": [0, 0, -1], "z_axis": [1, 0, 0] }, { "id": "p099", "element": "4142865", "color": "red", "subassembly": "backhoe", "position": [-0.5, -7.2, 4.4], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p100", "element": "6278131", "color": "yellow", "subassembly": "backhoe", "position": [1, -7.2, 4.4], "x_axis": [0, -0.1736, 0.9848], "z_axis": [1, 0, 0] }, { "id": "p101", "element": "4206482", "color": "blue", "subassembly": "backhoe", "position": [0.5, -9.505, 8.2584], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }, { "id": "p102", "element": "6278131", "color": "yellow", "subassembly": "backhoe", "position": [2, -9.505, 8.2584], "x_axis": [0, -0.1736, 0.9848], "z_axis": [-1, 0, 0] }, { "id": "p103", "element": "6099801", "color": "black", "subassembly": "backhoe", "position": [1, -7.975, 13.4022], "x_axis": [0, 0, -1], "z_axis": [1, 0, 0] }, { "id": "p104", "element": "6331026", "color": "black", "subassembly": "backhoe", "position": [1, -6.675, 14.4022], "x_axis": [1, 0, 0], "z_axis": [0, 1, 0] }], "connections": [{ "id": "c001", "a": "p003.s0", "b": "p001.h7", "type": "pin", "motion": "rotates", "at": [-2, 3, 1.9], "axis": [-1, 0, 0] }, { "id": "c002", "a": "p003.s1", "b": "p004.h0", "type": "pin", "motion": "rotates", "at": [-3.5, 3, 1.9], "axis": [-1, 0, 0] }, { "id": "c003", "a": "p005.bore", "b": "p004.seat", "type": "tyre", "motion": "fixed", "at": [-3.5, 3, 1.9], "axis": [-1, 0, 0] }, { "id": "c004", "a": "p006.s0", "b": "p001.h1", "type": "pin", "motion": "rotates", "at": [-2, -3, 1.9], "axis": [-1, 0, 0] }, { "id": "c005", "a": "p006.s1", "b": "p007.h0", "type": "pin", "motion": "rotates", "at": [-3.5, -3, 1.9], "axis": [-1, 0, 0] }, { "id": "c006", "a": "p008.bore", "b": "p007.seat", "type": "tyre", "motion": "fixed", "at": [-3.5, -3, 1.9], "axis": [-1, 0, 0] }, { "id": "c007", "a": "p009.s0", "b": "p002.h7", "type": "pin", "motion": "rotates", "at": [2, 3, 1.9], "axis": [1, 0, 0] }, { "id": "c008", "a": "p009.s1", "b": "p010.h0", "type": "pin", "motion": "rotates", "at": [3.5, 3, 1.9], "axis": [1, 0, 0] }, { "id": "c009", "a": "p011.bore", "b": "p010.seat", "type": "tyre", "motion": "fixed", "at": [3.5, 3, 1.9], "axis": [1, 0, 0] }, { "id": "c010", "a": "p012.s0", "b": "p002.h1", "type": "pin", "motion": "rotates", "at": [2, -3, 1.9], "axis": [1, 0, 0] }, { "id": "c011", "a": "p012.s1", "b": "p013.h0", "type": "pin", "motion": "rotates", "at": [3.5, -3, 1.9], "axis": [1, 0, 0] }, { "id": "c012", "a": "p014.bore", "b": "p013.seat", "type": "tyre", "motion": "fixed", "at": [3.5, -3, 1.9], "axis": [1, 0, 0] }, { "id": "c013", "a": "p016.s0", "b": "p001.h0", "type": "pin", "motion": "rotates", "at": [-2, -4, 1.9], "axis": [1, 0, 0] }, { "id": "c014", "a": "p016.s1", "b": "p015.h1", "type": "pin", "motion": "rotates", "at": [-1, -4, 1.9], "axis": [1, 0, 0] }, { "id": "c015", "a": "p018.s0", "b": "p002.h0", "type": "pin", "motion": "rotates", "at": [2, -4, 1.9], "axis": [-1, 0, 0] }, { "id": "c016", "a": "p018.s1", "b": "p017.h1", "type": "pin", "motion": "rotates", "at": [1, -4, 1.9], "axis": [-1, 0, 0] }, { "id": "c017", "a": "p019.s0", "b": "p015.h0", "type": "axle", "motion": "fixed", "at": [-1, -3, 1.9], "axis": [1, 0, 0] }, { "id": "c018", "a": "p019.s0", "b": "p020.h0", "type": "axle", "motion": "rotates", "at": [0, -3, 1.9], "axis": [1, 0, 0] }, { "id": "c019", "a": "p019.s0", "b": "p017.h0", "type": "axle", "motion": "fixed", "at": [1, -3, 1.9], "axis": [1, 0, 0] }, { "id": "c020", "a": "p021.s0", "b": "p015.h3", "type": "axle", "motion": "rotates", "at": [-1, -6, 1.9], "axis": [1, 0, 0] }, { "id": "c021", "a": "p021.s0", "b": "p022.h1", "type": "axle", "motion": "fixed", "at": [0, -6, 1.9], "axis": [1, 0, 0] }, { "id": "c022", "a": "p021.s0", "b": "p017.h3", "type": "axle", "motion": "rotates", "at": [1, -6, 1.9], "axis": [1, 0, 0] }, { "id": "c023", "a": "p023.s0", "b": "p024.h0", "type": "pin", "motion": "rotates", "at": [-2, -6, 2.9], "axis": [1, 0, 0] }, { "id": "c024", "a": "p023.s1", "b": "p015.h4", "type": "pin", "motion": "rotates", "at": [-1, -6, 2.9], "axis": [1, 0, 0] }, { "id": "c025", "a": "p025.s0", "b": "p026.h0", "type": "pin", "motion": "rotates", "at": [2, -6, 2.9], "axis": [-1, 0, 0] }, { "id": "c026", "a": "p025.s1", "b": "p017.h4", "type": "pin", "motion": "rotates", "at": [1, -6, 2.9], "axis": [-1, 0, 0] }, { "id": "c027", "a": "p027.s0", "b": "p001.h8", "type": "axle", "motion": "rotates", "at": [-2, 4, 1.9], "axis": [1, 0, 0] }, { "id": "c028", "a": "p027.s0", "b": "p028.h4", "type": "axle", "motion": "fixed", "at": [-0.75, 4, 1.9], "axis": [1, 0, 0] }, { "id": "c029", "a": "p027.s0", "b": "p030.h0", "type": "axle", "motion": "fixed", "at": [0, 4, 1.9], "axis": [1, 0, 0] }, { "id": "c030", "a": "p027.s0", "b": "p029.h4", "type": "axle", "motion": "fixed", "at": [0.75, 4, 1.9], "axis": [1, 0, 0] }, { "id": "c031", "a": "p027.s0", "b": "p002.h8", "type": "axle", "motion": "rotates", "at": [2, 4, 1.9], "axis": [1, 0, 0] }, { "id": "c032", "a": "p031.s0", "b": "p032.h0", "type": "axle", "motion": "fixed", "at": [0, 0, 2.9], "axis": [0, 1, 0] }, { "id": "c033", "a": "p031.s0", "b": "p033.h0", "type": "axle", "motion": "fixed", "at": [0, 1.7639, 2.9], "axis": [0, 1, 0] }, { "id": "c034", "a": "p031.s0", "b": "p030.h1", "type": "axle", "motion": "rotates", "at": [0, 4, 2.9], "axis": [0, 1, 0] }, { "id": "c035", "a": "p034.s0", "b": "p038.h0", "type": "axle", "motion": "fixed", "at": [-2, 1.7639, 3.9], "axis": [1, 0, 0] }, { "id": "c036", "a": "p034.s0", "b": "p036.h0", "type": "axle", "motion": "fixed", "at": [-1.25, 1.7639, 3.9], "axis": [1, 0, 0] }, { "id": "c037", "a": "p034.s0", "b": "p028.h1", "type": "axle", "motion": "rotates", "at": [-0.75, 1.7639, 3.9], "axis": [1, 0, 0] }, { "id": "c038", "a": "p034.s0", "b": "p035.h0", "type": "axle", "motion": "fixed", "at": [0, 1.7639, 3.9], "axis": [1, 0, 0] }, { "id": "c039", "a": "p034.s0", "b": "p029.h1", "type": "axle", "motion": "rotates", "at": [0.75, 1.7639, 3.9], "axis": [1, 0, 0] }, { "id": "c040", "a": "p034.s0", "b": "p037.h0", "type": "axle", "motion": "fixed", "at": [1.25, 1.7639, 3.9], "axis": [1, 0, 0] }, { "id": "c041", "a": "p034.s0", "b": "p039.h0", "type": "axle", "motion": "fixed", "at": [2, 1.7639, 3.9], "axis": [1, 0, 0] }, { "id": "c042", "a": "p040.s0", "b": "p028.h6", "type": "axle", "motion": "fixed", "at": [-0.75, 5.3333, 3.3907], "axis": [1, 0, 0] }, { "id": "c043", "a": "p040.s0", "b": "p041.h0", "type": "axle", "motion": "rotates", "at": [0, 5.3333, 3.3907], "axis": [1, 0, 0] }, { "id": "c044", "a": "p040.s0", "b": "p029.h6", "type": "axle", "motion": "fixed", "at": [0.75, 5.3333, 3.3907], "axis": [1, 0, 0] }, { "id": "c045", "a": "p042.s0", "b": "p028.h0", "type": "axle", "motion": "fixed", "at": [-0.75, 1.0186, 4.5667], "axis": [1, 0, 0] }, { "id": "c046", "a": "p042.s0", "b": "p029.h0", "type": "axle", "motion": "fixed", "at": [0.75, 1.0186, 4.5667], "axis": [1, 0, 0] }, { "id": "c047", "a": "p043.s0", "b": "p038.h5", "type": "axle", "motion": "rotates", "at": [-2, 5.9445, 2.25], "axis": [1, 0, 0] }, { "id": "c048", "a": "p043.s0", "b": "p044.h0", "type": "axle", "motion": "rotates", "at": [-1, 5.9445, 2.25], "axis": [1, 0, 0] }, { "id": "c049", "a": "p043.s0", "b": "p045.h0", "type": "axle", "motion": "fixed", "at": [0, 5.9445, 2.25], "axis": [1, 0, 0] }, { "id": "c050", "a": "p043.s0", "b": "p046.h0", "type": "axle", "motion": "fixed", "at": [1, 5.9445, 2.25], "axis": [1, 0, 0] }, { "id": "c051", "a": "p043.s0", "b": "p039.h5", "type": "axle", "motion": "rotates", "at": [2, 5.9445, 2.25], "axis": [1, 0, 0] }, { "id": "c052", "a": "p047.pa", "b": "p045.h1", "type": "pin", "motion": "rotates", "at": [0, 6.9445, 2.25], "axis": [0, 0, 1] }, { "id": "c053", "a": "p047.pb", "b": "p046.h1", "type": "pin", "motion": "rotates", "at": [1, 6.9445, 2.25], "axis": [0, 0, 1] }, { "id": "c054", "a": "p047.mount", "b": "p048.mount", "type": "clip", "motion": "fixed", "at": [0.5, 7.9445, 3], "axis": [1, 0, 0] }, { "id": "c055", "a": "p049.s0", "b": "p050.h0", "type": "axle", "motion": "fixed", "at": [0, -1, 3.9], "axis": [0, 0, 1] }, { "id": "c056", "a": "p049.s0", "b": "p051.h0", "type": "axle", "motion": "rotates", "at": [0, -1, 4.9], "axis": [0, 0, 1] }, { "id": "c057", "a": "p049.s0", "b": "p052.h0", "type": "axle", "motion": "fixed", "at": [0, -1, 5.9], "axis": [0, 0, 1] }, { "id": "c058", "a": "p049.s0", "b": "p053.b0", "type": "socket", "motion": "fixed", "at": [0, -1, 6.9], "axis": [0, 0, 1] }, { "id": "c059", "a": "p054.s0", "b": "p053.b1", "type": "socket", "motion": "fixed", "at": [0, -1, 7.9], "axis": [0, 0, -1] }, { "id": "c060", "a": "p054.s0", "b": "p055.h0", "type": "axle", "motion": "rotates", "at": [0, -1, 8.9], "axis": [0, 0, -1] }, { "id": "c061", "a": "p054.s0", "b": "p056.h0", "type": "axle", "motion": "fixed", "at": [0, -1, 9.9], "axis": [0, 0, -1] }, { "id": "c062", "a": "p062.s0", "b": "p051.b0", "type": "socket", "motion": "fixed", "at": [-1, -1, 4.9], "axis": [-1, 0, 0] }, { "id": "c063", "a": "p062.s0", "b": "p057.h0", "type": "axle", "motion": "fixed", "at": [-2.25, -1, 4.9], "axis": [-1, 0, 0] }, { "id": "c064", "a": "p062.s0", "b": "p059.h0", "type": "axle", "motion": "fixed", "at": [-2.75, -1, 4.9], "axis": [-1, 0, 0] }, { "id": "c065", "a": "p062.s0", "b": "p061.h0", "type": "axle", "motion": "fixed", "at": [-3.25, -1, 4.9], "axis": [-1, 0, 0] }, { "id": "c066", "a": "p063.s0", "b": "p055.b0", "type": "socket", "motion": "fixed", "at": [-1, -1, 8.9], "axis": [-1, 0, 0] }, { "id": "c067", "a": "p063.s0", "b": "p060.h2", "type": "axle", "motion": "rotates", "at": [-1.75, -1, 8.9], "axis": [-1, 0, 0] }, { "id": "c068", "a": "p063.s0", "b": "p057.h4", "type": "axle", "motion": "fixed", "at": [-2.25, -1, 8.9], "axis": [-1, 0, 0] }, { "id": "c069", "a": "p069.s0", "b": "p051.b1", "type": "socket", "motion": "fixed", "at": [1, -1, 4.9], "axis": [1, 0, 0] }, { "id": "c070", "a": "p069.s0", "b": "p064.h0", "type": "axle", "motion": "fixed", "at": [2.25, -1, 4.9], "axis": [1, 0, 0] }, { "id": "c071", "a": "p069.s0", "b": "p066.h0", "type": "axle", "motion": "fixed", "at": [2.75, -1, 4.9], "axis": [1, 0, 0] }, { "id": "c072", "a": "p069.s0", "b": "p068.h0", "type": "axle", "motion": "fixed", "at": [3.25, -1, 4.9], "axis": [1, 0, 0] }, { "id": "c073", "a": "p070.s0", "b": "p055.b1", "type": "socket", "motion": "fixed", "at": [1, -1, 8.9], "axis": [1, 0, 0] }, { "id": "c074", "a": "p070.s0", "b": "p067.h2", "type": "axle", "motion": "rotates", "at": [1.75, -1, 8.9], "axis": [1, 0, 0] }, { "id": "c075", "a": "p070.s0", "b": "p064.h4", "type": "axle", "motion": "fixed", "at": [2.25, -1, 8.9], "axis": [1, 0, 0] }, { "id": "c076", "a": "p072.s0", "b": "p071.bore", "type": "axle", "motion": "fixed", "at": [-1, 1, 8.9], "axis": [-1, 0, 0] }, { "id": "c077", "a": "p072.s0", "b": "p060.h4", "type": "axle", "motion": "fixed", "at": [-1.75, 1, 8.9], "axis": [-1, 0, 0] }, { "id": "c078", "a": "p072.s0", "b": "p058.h4", "type": "axle", "motion": "fixed", "at": [-2.25, 1, 8.9], "axis": [-1, 0, 0] }, { "id": "c079", "a": "p072.s0", "b": "p073.h0", "type": "axle", "motion": "fixed", "at": [-3, 1, 8.9], "axis": [-1, 0, 0] }, { "id": "c080", "a": "p074.s0", "b": "p073.h1", "type": "pin", "motion": "rotates", "at": [-3, 1, 9.9], "axis": [0, 1, 0] }, { "id": "c081", "a": "p074.stud", "b": "p075.anti_stud", "type": "stud", "motion": "fixed", "at": [-3, 1.7, 9.9], "axis": [0, 1, 0] }, { "id": "c082", "a": "p076.s0", "b": "p071.bore", "type": "axle", "motion": "fixed", "at": [1, 1, 8.9], "axis": [1, 0, 0] }, { "id": "c083", "a": "p076.s0", "b": "p067.h4", "type": "axle", "motion": "fixed", "at": [1.75, 1, 8.9], "axis": [1, 0, 0] }, { "id": "c084", "a": "p076.s0", "b": "p065.h4", "type": "axle", "motion": "fixed", "at": [2.25, 1, 8.9], "axis": [1, 0, 0] }, { "id": "c085", "a": "p076.s0", "b": "p077.h0", "type": "axle", "motion": "fixed", "at": [3, 1, 8.9], "axis": [1, 0, 0] }, { "id": "c086", "a": "p078.s0", "b": "p077.h1", "type": "pin", "motion": "rotates", "at": [3, 1, 9.9], "axis": [0, 1, 0] }, { "id": "c087", "a": "p078.stud", "b": "p079.anti_stud", "type": "stud", "motion": "fixed", "at": [3, 1.7, 9.9], "axis": [0, 1, 0] }, { "id": "c088", "a": "p080.s0", "b": "p057.h6", "type": "axle", "motion": "fixed", "at": [-2.25, -3, 8.9], "axis": [1, 0, 0] }, { "id": "c089", "a": "p080.s0", "b": "p060.h0", "type": "axle", "motion": "fixed", "at": [-1.75, -3, 8.9], "axis": [1, 0, 0] }, { "id": "c090", "a": "p080.s0", "b": "p081.h0", "type": "axle", "motion": "fixed", "at": [-0.5, -3, 8.9], "axis": [1, 0, 0] }, { "id": "c091", "a": "p080.s0", "b": "p082.h0", "type": "axle", "motion": "fixed", "at": [0.5, -3, 8.9], "axis": [1, 0, 0] }, { "id": "c092", "a": "p080.s0", "b": "p067.h0", "type": "axle", "motion": "fixed", "at": [1.75, -3, 8.9], "axis": [1, 0, 0] }, { "id": "c093", "a": "p080.s0", "b": "p064.h6", "type": "axle", "motion": "fixed", "at": [2.25, -3, 8.9], "axis": [1, 0, 0] }, { "id": "c094", "a": "p085.s0", "b": "p081.h1", "type": "axle_pin", "motion": "rotates", "at": [-0.5, -4, 8.9], "axis": [0, 0, 1] }, { "id": "c095", "a": "p085.s1", "b": "p083.h0", "type": "axle_pin", "motion": "fixed", "at": [-0.5, -4, 9.65], "axis": [0, 0, 1] }, { "id": "c096", "a": "p085.s1", "b": "p084.h0", "type": "axle_pin", "motion": "fixed", "at": [-0.5, -4, 10.15], "axis": [0, 0, 1] }, { "id": "c097", "a": "p086.s0", "b": "p082.h1", "type": "axle_pin", "motion": "rotates", "at": [0.5, -4, 8.9], "axis": [0, 0, 1] }, { "id": "c098", "a": "p086.s1", "b": "p083.h1", "type": "axle_pin", "motion": "fixed", "at": [0.5, -4, 9.65], "axis": [0, 0, 1] }, { "id": "c099", "a": "p086.s1", "b": "p084.h1", "type": "axle_pin", "motion": "fixed", "at": [0.5, -4, 10.15], "axis": [0, 0, 1] }, { "id": "c100", "a": "p088.s0", "b": "p059.h1", "type": "axle_pin", "motion": "rotates", "at": [-2.75, 0, 4.9], "axis": [-1, 0, 0] }, { "id": "c101", "a": "p088.s1", "b": "p087.h0", "type": "axle_pin", "motion": "fixed", "at": [-3.25, 0, 4.9], "axis": [-1, 0, 0] }, { "id": "c102", "a": "p090.s0", "b": "p066.h1", "type": "axle_pin", "motion": "rotates", "at": [2.75, 0, 4.9], "axis": [1, 0, 0] }, { "id": "c103", "a": "p090.s1", "b": "p089.h0", "type": "axle_pin", "motion": "fixed", "at": [3.25, 0, 4.9], "axis": [1, 0, 0] }, { "id": "c104", "a": "p091.s0", "b": "p002.h4", "type": "pin", "motion": "rotates", "at": [2, 0, 1.9], "axis": [1, 0, 0] }, { "id": "c105", "a": "p091.s1", "b": "p089.h3", "type": "pin", "motion": "rotates", "at": [3.25, 0, 1.9], "axis": [1, 0, 0] }, { "id": "c106", "a": "p091.s1", "b": "p092.h1", "type": "pin", "motion": "rotates", "at": [4, 0, 1.9], "axis": [1, 0, 0] }, { "id": "c107", "a": "p093.s0", "b": "p001.h4", "type": "axle_pin", "motion": "rotates", "at": [-2, 0, 1.9], "axis": [-1, 0, 0] }, { "id": "c108", "a": "p093.s1", "b": "p087.h3", "type": "axle_pin", "motion": "rotates", "at": [-3.25, 0, 1.9], "axis": [-1, 0, 0] }, { "id": "c109", "a": "p095.s0", "b": "p065.h0", "type": "axle", "motion": "fixed", "at": [2.25, 1, 4.9], "axis": [1, 0, 0] }, { "id": "c110", "a": "p095.s0", "b": "p066.h2", "type": "axle", "motion": "fixed", "at": [2.75, 1, 4.9], "axis": [1, 0, 0] }, { "id": "c111", "a": "p095.s0", "b": "p096.h0", "type": "axle", "motion": "fixed", "at": [3.5, 1, 4.9], "axis": [1, 0, 0] }, { "id": "c112", "a": "p094.s0", "b": "p058.h0", "type": "axle", "motion": "fixed", "at": [-2.25, 1, 4.9], "axis": [-1, 0, 0] }, { "id": "c113", "a": "p094.s0", "b": "p059.h2", "type": "axle", "motion": "fixed", "at": [-2.75, 1, 4.9], "axis": [-1, 0, 0] }, { "id": "c114", "a": "p094.s0", "b": "p097.b0", "type": "socket", "motion": "fixed", "at": [-3.5, 1, 4.9], "axis": [-1, 0, 0] }, { "id": "c115", "a": "p098.ball", "b": "p022.socket", "type": "ball", "motion": "swivels", "at": [0, -7.2, 1.9], "axis": [0, -1, 0] }, { "id": "c116", "a": "p099.s0", "b": "p098.h0", "type": "axle", "motion": "fixed", "at": [0, -7.2, 4.4], "axis": [1, 0, 0] }, { "id": "c117", "a": "p099.s0", "b": "p100.h0", "type": "axle", "motion": "fixed", "at": [1, -7.2, 4.4], "axis": [1, 0, 0] }, { "id": "c118", "a": "p101.s0", "b": "p100.h5", "type": "axle_pin", "motion": "rotates", "at": [1, -9.505, 8.2584], "axis": [1, 0, 0] }, { "id": "c119", "a": "p101.s1", "b": "p102.h0", "type": "axle_pin", "motion": "fixed", "at": [2, -9.505, 8.2584], "axis": [1, 0, 0] }, { "id": "c120", "a": "p103.s0", "b": "p102.h6", "type": "axle", "motion": "fixed", "at": [2, -7.975, 13.4022], "axis": [1, 0, 0] }, { "id": "c121", "a": "p103.s1", "b": "p104.h0", "type": "axle", "motion": "fixed", "at": [1, -6.975, 13.4022], "axis": [0, 1, 0] }, { "id": "c122", "a": "p050.h0", "b": "p032.h0", "type": "mesh", "motion": "rotates", "at": [0, -0.5, 3.4], "axis": [0, 1, 0] }, { "id": "c123", "a": "p033.h0", "b": "p035.h0", "type": "mesh", "motion": "rotates", "at": [0, 1.7639, 3.4], "axis": [1, 0, 0] }], "mechanisms": [{ "function": "F1", "chain": ["p056", "p054", "p053", "p049", "p050", "p032", "p031", "p033", "p035", "p034", "p038", "p039"] }, { "function": "F2", "chain": ["p003", "p004", "p005", "p006", "p007", "p008", "p009", "p010", "p011", "p012", "p013", "p014"] }, { "function": "F3", "chain": ["p022", "p098", "p099", "p100", "p101", "p102", "p103", "p104"] }, { "function": "F4", "chain": ["p015", "p023", "p024", "p017", "p025", "p026"] }, { "function": "F5", "chain": ["p038", "p043", "p045", "p046", "p047", "p048"] }] });
-  </script>
-  <script>
-    (function () {
-      'use strict';
-      const C = TechnicCore, $ = id => document.getElementById(id), canvas = $('view');
-      const groups = [...C.SUBASSEMBLIES, 'other'];
-      const labels = { chassis: 'Chassis', drive_tower: 'Drive tower', cab: 'Cab', loader_gearbox: 'Loader gearbox', loader: 'Loader', backhoe: 'Backhoe', stabilizers: 'Stabilizers', wheels: 'Wheels', other: 'Other' };
-      let model = null, angle = Math.PI - .7, elevation = .45, zoom = 1, radius = 12, center = [0, 0, 2], renderer;
-      let selected = null, isolated = null, focus = null, activeCheck = null, offsets = [];
-      const visible = new Set(groups), el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
-      const hex = h => /^#[0-9a-f]{6}$/i.test(h) ? [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255) : [.9, .2, .8];
-      const light = C.unit([.45, .7, 1.4]);
-      function colorOf(p) { return hex(C.COLORS[p.color] || (p.color.startsWith('#') ? p.color : '#e033cc')); }
-      function fill(out, pts, normal, col, alpha) { const k = .58 + .42 * Math.max(0, C.dot(normal, light)); for (let i = 1; i < pts.length - 1; i++)for (const p of [pts[0], pts[i], pts[i + 1]]) out.push(...p, ...col.map(v => v * k), alpha); }
-      function shown(p) { return visible.has(p.subassembly) && (!isolated || isolated.has(p.id)); }
-
-      function computeOffsets() {
-        const f = +$('explode').value / 100; offsets = model ? model.parts.map(() => [0, 0, 0]) : [];
-        if (!model || !f) return;
-        const mid = C.mul(model.centroid.reduce(C.add, [0, 0, 0]), 1 / model.parts.length), subs = new Map();
-        model.parts.forEach((p, i) => { if (!subs.has(p.subassembly)) subs.set(p.subassembly, []); subs.get(p.subassembly).push(model.centroid[i]); });
-        const subMid = new Map([...subs].map(([k, list]) => [k, C.mul(list.reduce(C.add, [0, 0, 0]), 1 / list.length)]));
-        offsets = model.parts.map((p, i) => { const s = subMid.get(p.subassembly); return C.add(C.mul(C.sub(s, mid), f * 1.2), C.mul(C.sub(model.centroid[i], s), f * .6)); });
-      }
-      function rebuild() {
-        const solid = [], lines = [], glass = [], overlay = [];
-        if (model) {
-          computeOffsets();
-          model.parts.forEach((p, i) => {
-            if (!shown(p)) return;
-            const o = offsets[i]; let col = colorOf(p);
-            if (focus ? focus.has(p.id) : ($('highlight').checked && model.bad.has(p.id))) col = [.93, .18, .14];
-            if (selected === p.id) col = col.map((v, k) => v * .35 + [1, .55, .05][k] * .65);
-            const trans = p.color === 'trans_clear', target = trans ? glass : solid;
-            const dark = col[0] * .3 + col[1] * .55 + col[2] * .15 < .3, edge = dark ? col.map(v => v + .3) : col.map(v => v * .55);
-            for (const poly of model.renderPolys[i]) {
-              const pts = poly.pts.map(v => C.add(v, o));
-              poly.faces.forEach((f, k) => fill(target, f.map(j => pts[j]), poly.normals[k], col, trans ? .45 : 1));
-              if (poly.kind === 'ring' || trans) continue;
-              const faces = poly.kind === 'prism' ? poly.faces.slice(0, 2) : poly.faces, seen = new Set();
-              for (const f of faces) for (let k = 0; k < f.length; k++) { const a = f[k], b = f[(k + 1) % f.length], key = a < b ? a + ',' + b : b + ',' + a; if (seen.has(key)) continue; seen.add(key); lines.push(...pts[a], ...edge, 1, ...pts[b], ...edge, 1); }
-            }
-            if ($('holes').checked) for (const h of C.holeMarkers(p)) {
-              const mark = dark ? [.55, .58, .62] : col.map(v => v * .3), [u, w] = C.basis(h.N);
-              for (const side of [-1, 1]) {
-                const c = C.add(C.add(h.C, C.mul(h.N, side * (h.depth / 2 + .015))), o), n = C.mul(h.N, side);
-                if (h.profile === 'P') fill(solid, Array.from({ length: 12 }, (_, k) => C.add(c, C.add(C.mul(u, .24 * Math.cos(k * Math.PI / 6)), C.mul(w, .24 * Math.sin(k * Math.PI / 6))))), n, mark, 1);
-                else for (const [a, b] of [[u, w], [w, u]]) fill(solid, [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([x, y]) => C.add(c, C.add(C.mul(a, x * .22), C.mul(b, y * .06)))), n, mark, 1);
-              }
-            }
-          });
-          if ($('joints').checked) for (const c of model.conns) {
-            if (!c.point || (c.a.part && !shown(c.a.part)) || (c.b.part && !shown(c.b.part))) continue;
-            const o = c.a.part ? offsets[c.a.part.index] : [0, 0, 0], p = C.add(c.point, o), col = c.state === 'fail' ? [.85, .2, .15] : c.state === 'warn' ? [.9, .62, 0] : [.18, .66, .36], s = .14;
-            const v = [[s, 0, 0], [-s, 0, 0], [0, s, 0], [0, -s, 0], [0, 0, s], [0, 0, -s]].map(d => C.add(p, d));
-            for (const [a, b, d] of [[0, 2, 4], [2, 1, 4], [1, 3, 4], [3, 0, 4], [2, 0, 5], [1, 2, 5], [3, 1, 5], [0, 3, 5]]) overlay.push(...[v[a], v[b], v[d]].flatMap(q => [...q, ...col, 1]));
-          }
-        }
-        renderer.upload(solid, lines, glass, overlay); draw();
-      }
-      function camera() {
-        const right = [Math.cos(angle), Math.sin(angle), 0], toward = [Math.sin(angle) * Math.cos(elevation), -Math.cos(angle) * Math.cos(elevation), Math.sin(elevation)];
-        return { right, up: C.cross(toward, right), toward, center, scale: radius / zoom, far: radius * 6 };
-      }
-      function initRenderer() {
-        const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
-        if (!gl) throw Error('WebGL is unavailable. Open this file in a browser with graphics acceleration enabled.');
-        function shader(type, src) { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw Error(gl.getShaderInfoLog(s)); return s; }
-        const program = gl.createProgram();
-        gl.attachShader(program, shader(gl.VERTEX_SHADER, `attribute vec3 aPosition; attribute vec4 aColor;
+    }
+    renderer.upload(solid,lines,glass,overlay);draw();
+  }
+  function camera(){
+    const right=[Math.cos(angle),Math.sin(angle),0],toward=[Math.sin(angle)*Math.cos(elevation),-Math.cos(angle)*Math.cos(elevation),Math.sin(elevation)];
+    return {right,up:C.cross(toward,right),toward,center,scale:radius/zoom,far:radius*6};
+  }
+  function initRenderer(){
+    const gl=canvas.getContext('webgl',{antialias:true,alpha:false});
+    if(!gl)throw Error('WebGL is unavailable. Open this file in a browser with graphics acceleration enabled.');
+    function shader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+    const program=gl.createProgram();
+    gl.attachShader(program,shader(gl.VERTEX_SHADER,`attribute vec3 aPosition; attribute vec4 aColor;
       uniform vec3 uRight,uUp,uToward,uCenter; uniform float uScale,uAspect,uFar;
       varying vec4 vColor; void main(){vec3 p=aPosition-uCenter;gl_Position=vec4(dot(p,uRight)/(uScale*uAspect),dot(p,uUp)/uScale,-dot(p,uToward)/uFar,1.0);vColor=aColor;}`));
-        gl.attachShader(program, shader(gl.FRAGMENT_SHADER, 'precision mediump float; varying vec4 vColor; void main(){gl_FragColor=vColor;}'));
-        gl.linkProgram(program); if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw Error(gl.getProgramInfoLog(program)); gl.useProgram(program);
-        const position = gl.getAttribLocation(program, 'aPosition'), col = gl.getAttribLocation(program, 'aColor');
-        const uniforms = Object.fromEntries(['Right', 'Up', 'Toward', 'Center', 'Scale', 'Aspect', 'Far'].map(n => [n, gl.getUniformLocation(program, 'u' + n)]));
-        const buffers = { solid: gl.createBuffer(), lines: gl.createBuffer(), glass: gl.createBuffer(), overlay: gl.createBuffer() }, counts = { solid: 0, lines: 0, glass: 0, overlay: 0 };
-        function bind(b) { gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 28, 0); gl.vertexAttribPointer(col, 4, gl.FLOAT, false, 28, 12); gl.enableVertexAttribArray(position); gl.enableVertexAttribArray(col); }
-        gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
-        return {
-          upload(solid, lines, glass, overlay) { for (const [k, data] of Object.entries({ solid, lines, glass, overlay })) { bind(buffers[k]); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW); counts[k] = data.length / 7; } },
-          draw(cam) {
-            const rect = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.max(1, Math.round(rect.width * dpr)), h = Math.max(1, Math.round(rect.height * dpr));
-            if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
-            gl.viewport(0, 0, w, h); gl.clearColor(.925, .933, .937, 1); gl.depthMask(true); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            for (const [n, v] of [['Right', cam.right], ['Up', cam.up], ['Toward', cam.toward], ['Center', cam.center]]) gl.uniform3fv(uniforms[n], v);
-            gl.uniform1f(uniforms.Scale, cam.scale * Math.max(1, h / w)); gl.uniform1f(uniforms.Aspect, w / h); gl.uniform1f(uniforms.Far, cam.far);
-            gl.disable(gl.BLEND); gl.enable(gl.DEPTH_TEST); gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(1, 1); bind(buffers.solid); gl.drawArrays(gl.TRIANGLES, 0, counts.solid); gl.disable(gl.POLYGON_OFFSET_FILL);
-            bind(buffers.lines); gl.drawArrays(gl.LINES, 0, counts.lines);
-            gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); bind(buffers.glass); gl.drawArrays(gl.TRIANGLES, 0, counts.glass); gl.depthMask(true);
-            gl.disable(gl.DEPTH_TEST); bind(buffers.overlay); gl.drawArrays(gl.TRIANGLES, 0, counts.overlay); gl.enable(gl.DEPTH_TEST);
-          }
-        };
+    gl.attachShader(program,shader(gl.FRAGMENT_SHADER,'precision mediump float; varying vec4 vColor; void main(){gl_FragColor=vColor;}'));
+    gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+    const position=gl.getAttribLocation(program,'aPosition'),col=gl.getAttribLocation(program,'aColor');
+    const uniforms=Object.fromEntries(['Right','Up','Toward','Center','Scale','Aspect','Far'].map(n=>[n,gl.getUniformLocation(program,'u'+n)]));
+    const buffers={solid:gl.createBuffer(),lines:gl.createBuffer(),glass:gl.createBuffer(),overlay:gl.createBuffer()},counts={solid:0,lines:0,glass:0,overlay:0};
+    function bind(b){gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.vertexAttribPointer(position,3,gl.FLOAT,false,28,0);gl.vertexAttribPointer(col,4,gl.FLOAT,false,28,12);gl.enableVertexAttribArray(position);gl.enableVertexAttribArray(col);}
+    gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);
+    return {
+      upload(solid,lines,glass,overlay){for(const [k,data] of Object.entries({solid,lines,glass,overlay})){bind(buffers[k]);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW);counts[k]=data.length/7;}},
+      draw(cam){
+        const rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2),w=Math.max(1,Math.round(rect.width*dpr)),h=Math.max(1,Math.round(rect.height*dpr));
+        if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+        gl.viewport(0,0,w,h);gl.clearColor(.925,.933,.937,1);gl.depthMask(true);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+        for(const [n,v] of [['Right',cam.right],['Up',cam.up],['Toward',cam.toward],['Center',cam.center]])gl.uniform3fv(uniforms[n],v);
+        gl.uniform1f(uniforms.Scale,cam.scale*Math.max(1,h/w));gl.uniform1f(uniforms.Aspect,w/h);gl.uniform1f(uniforms.Far,cam.far);
+        gl.disable(gl.BLEND);gl.enable(gl.DEPTH_TEST);gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,1);bind(buffers.solid);gl.drawArrays(gl.TRIANGLES,0,counts.solid);gl.disable(gl.POLYGON_OFFSET_FILL);
+        bind(buffers.lines);gl.drawArrays(gl.LINES,0,counts.lines);
+        gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);bind(buffers.glass);gl.drawArrays(gl.TRIANGLES,0,counts.glass);gl.depthMask(true);
+        gl.disable(gl.DEPTH_TEST);bind(buffers.overlay);gl.drawArrays(gl.TRIANGLES,0,counts.overlay);gl.enable(gl.DEPTH_TEST);
       }
-      function draw() { if (renderer) renderer.draw(camera()); }
+    };
+  }
+  function draw(){if(renderer)renderer.draw(camera());}
 
-      function pick(clientX, clientY) {
-        if (!model) return null;
-        const rect = canvas.getBoundingClientRect(), cam = camera(), S = cam.scale * Math.max(1, rect.height / rect.width), A = rect.width / rect.height;
-        const x = (clientX - rect.left) / rect.width * 2 - 1, y = 1 - (clientY - rect.top) / rect.height * 2;
-        const origin = C.add(C.add(C.add(cam.center, C.mul(cam.right, x * S * A)), C.mul(cam.up, y * S)), C.mul(cam.toward, cam.far)), dir = C.mul(cam.toward, -1);
-        let best = null, bestT = Infinity;
-        model.parts.forEach((p, i) => { if (!shown(p)) return; const o = C.sub(origin, offsets[i] || [0, 0, 0]); for (const poly of model.renderPolys[i]) { const t = C.rayHit(poly, o, dir); if (t !== null && t < bestT) { bestT = t; best = p.id; } } });
-        return best;
-      }
-      function neighbours(id) { const set = new Set([id]); for (const c of model.conns) if (c.a.part && c.b.part && (c.a.part.id === id || c.b.part.id === id)) { set.add(c.a.part.id); set.add(c.b.part.id); } return set; }
-      function showInfo() {
-        const box = $('info'); box.replaceChildren(); if (!model || !selected) return;
-        const p = model.byId.get(selected), r2 = n => Math.round(n * 100) / 100;
-        box.append(el('h3', '', `${p.id} · ${p.cat ? p.cat.name : 'unknown element'}`));
-        box.append(el('div', '', `Element ${p.element} · ${p.color || 'no colour'} · ${labels[p.subassembly]}`));
-        box.append(el('div', 'small', `position [${p.position.map(r2).join(', ')}]`));
-        const notes = model.partNotes.get(p.id) || [];
-        if (notes.length) { box.append(el('strong', '', 'Problems')); const ul = el('ul'); notes.forEach(n => ul.append(el('li', 'bad', n))); box.append(ul); }
-        const cs = model.conns.filter(c => c.a.part?.id === p.id || c.b.part?.id === p.id);
-        box.append(el('strong', '', `Joints (${cs.length})`)); const ul = el('ul');
-        for (const c of cs) { const msgs = [...c.ref, ...c.geom, ...c.compat, ...c.warn]; ul.append(el('li', c.state === 'fail' ? 'bad' : c.state === 'warn' ? 'warnc' : 'ok', `${c.id}: ${c.a.text} ↔ ${c.b.text} · ${c.type}${c.motion ? `, ${c.motion}` : ''}${msgs.length ? ` — ${msgs.join('; ')}` : ''}`)); }
-        if (!cs.length) ul.append(el('li', 'bad', 'No joints: this part floats.')); box.append(ul);
-      }
-      function select(id) { selected = id; showInfo(); rebuild(); }
-      function renderChecks() {
-        const list = $('checks'); list.replaceChildren(); if (!model) return;
-        for (const c of model.checks) {
-          const row = el('div', `check ${c.status}${activeCheck === c.id ? ' active open' : ''}`), head = el('div', 'check-head');
-          head.append(el('span', 'badge', c.status.toUpperCase()), el('span', 'check-label', c.label));
-          row.append(head, el('div', 'check-summary', c.summary));
-          if (c.details.length) { const ul = el('ul'); c.details.slice(0, 40).forEach(d => ul.append(el('li', '', d))); if (c.details.length > 40) ul.append(el('li', '', `… ${c.details.length - 40} more`)); row.append(ul); }
-          row.onclick = () => {
-            activeCheck = activeCheck === c.id ? null : c.id; focus = activeCheck && c.parts.length ? new Set(c.parts) : null;
-            renderChecks(); rebuild();
-          };
-          list.append(row);
-        }
-      }
-      function renderInventory() {
-        const body = $('inventory'); body.replaceChildren(); if (!model) return;
-        for (const r of model.inventory) {
-          const tr = el('tr', r.got !== r.expected ? 'off' : ''), name = el('td'), sw = el('span', 'sw');
-          sw.style.background = C.COLORS[r.color] || '#e033cc'; name.append(sw, document.createTextNode(r.name));
-          tr.append(el('td', '', r.element), name, el('td', '', String(r.expected)), el('td', '', String(r.got))); body.append(tr);
-        }
-      }
-      function render() {
-        try {
-          const next = C.parse($('json').value); model = next; selected = null; isolated = null; focus = null; activeCheck = null;
-          const min = [0, 1, 2].map(i => Math.min(...next.partBox.map(b => b.min[i]))), max = [0, 1, 2].map(i => Math.max(...next.partBox.map(b => b.max[i])));
-          center = min.map((v, i) => (v + max[i]) / 2); radius = Math.max(4, Math.hypot(...max.map((v, i) => v - min[i])) * .6); zoom = 1;
-          $('title').textContent = next.title; $('piece-count').textContent = `${next.parts.length} parts · ${next.conns.length} joints`;
-          const s = next.score, score = el('div', '', `${s.pass}/${s.total} `); score.id = 'score'; score.append(el('small', '', `checks pass · ${s.fail} fail · ${s.warn} warn`));
-          $('status').replaceChildren(score, el('div', 'small', 'Click a check to highlight its parts. Geometry of special parts is approximate.'));
-          $('error-banner').textContent = ''; visible.clear(); groups.forEach(g => visible.add(g)); syncGroups(); renderChecks(); renderInventory(); showInfo(); rebuild();
-        } catch (e) {
-          model = null; selected = null; renderer.upload([], [], [], []); draw(); renderChecks(); renderInventory(); showInfo();
-          $('title').textContent = 'No model loaded'; $('piece-count').textContent = ''; $('status').textContent = 'Cannot render: ' + e.message;
-        }
-      }
-      function syncGroups() { for (const g of groups) $('group-' + g).checked = visible.has(g); }
-      function download(name, data) { const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })), a = document.createElement('a'); a.href = url; a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
-
-      for (const g of groups) { const label = document.createElement('label'), input = document.createElement('input'); input.type = 'checkbox'; input.id = 'group-' + g; input.checked = true; input.onchange = () => { input.checked ? visible.add(g) : visible.delete(g); rebuild(); }; label.append(input, document.createTextNode(' ' + labels[g])); $('groups').append(label); }
-      try { renderer = initRenderer(); } catch (e) { $('error-banner').textContent = e.message; $('status').textContent = 'Rendering unavailable.'; return; }
-      $('render').onclick = render;
-      $('load').onclick = () => $('file').click();
-      $('file').onchange = () => {
-        const input = $('file'), file = input.files && input.files[0]; if (!file) return; input.value = '';
-        return file.text().then(text => { $('json').value = text; render(); }, e => { $('status').textContent = 'Cannot read ' + file.name + ': ' + e.message; });
+  function pick(clientX,clientY){
+    if(!model)return null;
+    const rect=canvas.getBoundingClientRect(),cam=camera(),S=cam.scale*Math.max(1,rect.height/rect.width),A=rect.width/rect.height;
+    const x=(clientX-rect.left)/rect.width*2-1,y=1-(clientY-rect.top)/rect.height*2;
+    const origin=C.add(C.add(C.add(cam.center,C.mul(cam.right,x*S*A)),C.mul(cam.up,y*S)),C.mul(cam.toward,cam.far)),dir=C.mul(cam.toward,-1);
+    let best=null,bestT=Infinity;
+    model.parts.forEach((p,i)=>{if(!shown(p))return;const o=C.sub(origin,offsets[i]||[0,0,0]);for(const poly of model.renderPolys[i]){const t=C.rayHit(poly,o,dir);if(t!==null&&t<bestT){bestT=t;best=p.id;}}});
+    return best;
+  }
+  function neighbours(id){const set=new Set([id]);for(const c of model.conns)if(c.a.part&&c.b.part&&(c.a.part.id===id||c.b.part.id===id)){set.add(c.a.part.id);set.add(c.b.part.id);}return set;}
+  function showInfo(){
+    const box=$('info');box.replaceChildren();if(!model||!selected)return;
+    const p=model.byId.get(selected),r2=n=>Math.round(n*100)/100;
+    box.append(el('h3','',`${p.id} · ${p.cat?p.cat.name:'unknown element'}`));
+    box.append(el('div','',`Element ${p.element} · ${p.color||'no colour'} · ${labels[p.subassembly]}`));
+    box.append(el('div','small',`position [${p.position.map(r2).join(', ')}]`));
+    const notes=model.partNotes.get(p.id)||[];
+    if(notes.length){box.append(el('strong','','Problems'));const ul=el('ul');notes.forEach(n=>ul.append(el('li','bad',n)));box.append(ul);}
+    const cs=model.conns.filter(c=>c.a.part?.id===p.id||c.b.part?.id===p.id);
+    box.append(el('strong','',`Joints (${cs.length})`));const ul=el('ul');
+    for(const c of cs){const msgs=[...c.ref,...c.geom,...c.compat,...c.warn];ul.append(el('li',c.state==='fail'?'bad':c.state==='warn'?'warnc':'ok',`${c.id}: ${c.a.text} ↔ ${c.b.text} · ${c.type}${c.motion?`, ${c.motion}`:''}${msgs.length?` — ${msgs.join('; ')}`:''}`));}
+    if(!cs.length)ul.append(el('li','bad','No joints: this part floats.'));box.append(ul);
+  }
+  function select(id){selected=id;showInfo();rebuild();}
+  function renderChecks(){
+    const list=$('checks');list.replaceChildren();if(!model)return;
+    for(const c of model.checks){
+      const row=el('div',`check ${c.status}${activeCheck===c.id?' active open':''}`),head=el('div','check-head');
+      head.append(el('span','badge',c.status.toUpperCase()),el('span','check-label',c.label));
+      row.append(head,el('div','check-summary',c.summary));
+      if(c.details.length){const ul=el('ul');c.details.slice(0,40).forEach(d=>ul.append(el('li','',d)));if(c.details.length>40)ul.append(el('li','',`… ${c.details.length-40} more`));row.append(ul);}
+      row.onclick=()=>{
+        activeCheck=activeCheck===c.id?null:c.id;focus=activeCheck&&c.parts.length?new Set(c.parts):null;
+        renderChecks();rebuild();
       };
-      $('report').onclick = () => {
-        if (!model) { $('status').textContent = 'Render valid JSON before saving a report.'; return; }
-        download('technic-backhoe-report.json', { title: model.title, parts: model.parts.length, joints: model.conns.length, score: model.score, checks: model.checks.map(({ id, label, status, summary, details, parts }) => ({ id, label, status, summary, details, parts })), inventory: model.inventory });
-      };
-      $('assembled').onclick = () => { isolated = null; focus = null; activeCheck = null; visible.clear(); groups.forEach(g => visible.add(g)); syncGroups(); renderChecks(); rebuild(); };
-      $('isolate').onclick = () => { if (!model) return; if (isolated || !selected) { isolated = null; } else isolated = neighbours(selected); rebuild(); };
-      $('front').onclick = () => { angle = Math.PI; elevation = .15; draw(); };
-      $('rear').onclick = () => { angle = 0; elevation = .15; draw(); };
-      $('side').onclick = () => { angle = Math.PI / 2; elevation = .15; draw(); };
-      $('top').onclick = () => { angle = Math.PI; elevation = Math.PI / 2; draw(); };
-      $('reset').onclick = () => { angle = Math.PI - .7; elevation = .45; zoom = 1; draw(); };
-      $('highlight').onchange = $('holes').onchange = $('joints').onchange = rebuild;
-      $('explode').oninput = rebuild;
-      let drag = null;
-      canvas.onpointerdown = e => { drag = { x: e.clientX, y: e.clientY, angle, elevation, moved: false }; canvas.setPointerCapture(e.pointerId); };
-      canvas.onpointermove = e => { if (!drag) return; if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) drag.moved = true; angle = drag.angle - (e.clientX - drag.x) * .008; elevation = Math.max(-.2, Math.min(Math.PI / 2, drag.elevation + (e.clientY - drag.y) * .008)); draw(); };
-      canvas.onpointerup = e => { if (drag && !drag.moved) select(pick(e.clientX, e.clientY)); drag = null; };
-      canvas.onpointercancel = () => { drag = null; };
-      canvas.addEventListener('wheel', e => { e.preventDefault(); zoom = Math.max(.3, Math.min(8, zoom * Math.exp(-e.deltaY * .001))); draw(); }, { passive: false });
-      canvas.addEventListener('keydown', e => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '-', 'Escape'].includes(e.key)) { e.preventDefault(); if (e.key === 'ArrowLeft') angle -= .1; if (e.key === 'ArrowRight') angle += .1; if (e.key === 'ArrowUp') elevation = Math.min(Math.PI / 2, elevation + .1); if (e.key === 'ArrowDown') elevation = Math.max(-.2, elevation - .1); if (e.key === '+') zoom = Math.min(8, zoom * 1.1); if (e.key === '-') zoom = Math.max(.3, zoom / 1.1); if (e.key === 'Escape') { select(null); return; } draw(); } });
-      canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); $('error-banner').textContent = 'Graphics context lost. Reload this page to restore the view.'; });
-      window.addEventListener('resize', draw);
-      $('json').value = JSON.stringify(createTechnicDemo(), null, 2); render();
-    })();
+      list.append(row);
+    }
+  }
+  function renderInventory(){
+    const body=$('inventory');body.replaceChildren();if(!model)return;
+    for(const r of model.inventory){
+      const tr=el('tr',r.got!==r.expected?'off':''),name=el('td'),sw=el('span','sw');
+      sw.style.background=C.COLORS[r.color]||'#e033cc';name.append(sw,document.createTextNode(r.name));
+      tr.append(el('td','',r.element),name,el('td','',String(r.expected)),el('td','',String(r.got)));body.append(tr);
+    }
+  }
+  function render(){
+    try{
+      const next=C.parse($('json').value);model=next;selected=null;isolated=null;focus=null;activeCheck=null;
+      const min=[0,1,2].map(i=>Math.min(...next.partBox.map(b=>b.min[i]))),max=[0,1,2].map(i=>Math.max(...next.partBox.map(b=>b.max[i])));
+      center=min.map((v,i)=>(v+max[i])/2);radius=Math.max(4,Math.hypot(...max.map((v,i)=>v-min[i]))*.6);zoom=1;
+      $('title').textContent=next.title;$('piece-count').textContent=`${next.parts.length} parts · ${next.conns.length} joints`;
+      const s=next.score,score=el('div','',`${s.pass}/${s.total} `);score.id='score';score.append(el('small','',`checks pass · ${s.fail} fail · ${s.warn} warn`));
+      $('status').replaceChildren(score,el('div','small','Click a check to highlight its parts. Geometry of special parts is approximate.'));
+      $('error-banner').textContent='';visible.clear();groups.forEach(g=>visible.add(g));syncGroups();renderChecks();renderInventory();showInfo();rebuild();
+    }catch(e){
+      model=null;selected=null;renderer.upload([],[],[],[]);draw();renderChecks();renderInventory();showInfo();
+      $('title').textContent='No model loaded';$('piece-count').textContent='';$('status').textContent='Cannot render: '+e.message;
+    }
+  }
+  function syncGroups(){for(const g of groups)$('group-'+g).checked=visible.has(g);}
+  function download(name,data){const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 
-  </script>
-</body>
+  for(const g of groups){const label=document.createElement('label'),input=document.createElement('input');input.type='checkbox';input.id='group-'+g;input.checked=true;input.onchange=()=>{input.checked?visible.add(g):visible.delete(g);rebuild();};label.append(input,document.createTextNode(' '+labels[g]));$('groups').append(label);}
+  try{renderer=initRenderer();}catch(e){$('error-banner').textContent=e.message;$('status').textContent='Rendering unavailable.';return;}
+  $('render').onclick=render;
+  $('load').onclick=()=>$('file').click();
+  $('file').onchange=()=>{
+    const input=$('file'),file=input.files&&input.files[0];if(!file)return;input.value='';
+    return file.text().then(text=>{$('json').value=text;render();},e=>{$('status').textContent='Cannot read '+file.name+': '+e.message;});
+  };
+  $('report').onclick=()=>{
+    if(!model){$('status').textContent='Render valid JSON before saving a report.';return;}
+    download('technic-backhoe-report.json',{title:model.title,parts:model.parts.length,joints:model.conns.length,score:model.score,checks:model.checks.map(({id,label,status,summary,details,parts})=>({id,label,status,summary,details,parts})),inventory:model.inventory});
+  };
+  $('assembled').onclick=()=>{isolated=null;focus=null;activeCheck=null;visible.clear();groups.forEach(g=>visible.add(g));syncGroups();renderChecks();rebuild();};
+  $('isolate').onclick=()=>{if(!model)return;if(isolated||!selected){isolated=null;}else isolated=neighbours(selected);rebuild();};
+  $('front').onclick=()=>{angle=Math.PI;elevation=.15;draw();};
+  $('rear').onclick=()=>{angle=0;elevation=.15;draw();};
+  $('side').onclick=()=>{angle=Math.PI/2;elevation=.15;draw();};
+  $('top').onclick=()=>{angle=Math.PI;elevation=Math.PI/2;draw();};
+  $('reset').onclick=()=>{angle=Math.PI-.7;elevation=.45;zoom=1;draw();};
+  $('highlight').onchange=$('holes').onchange=$('joints').onchange=rebuild;
+  $('explode').oninput=rebuild;
+  let drag=null;
+  canvas.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,angle,elevation,moved:false};canvas.setPointerCapture(e.pointerId);};
+  canvas.onpointermove=e=>{if(!drag)return;if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>4)drag.moved=true;angle=drag.angle-(e.clientX-drag.x)*.008;elevation=Math.max(-.2,Math.min(Math.PI/2,drag.elevation+(e.clientY-drag.y)*.008));draw();};
+  canvas.onpointerup=e=>{if(drag&&!drag.moved)select(pick(e.clientX,e.clientY));drag=null;};
+  canvas.onpointercancel=()=>{drag=null;};
+  canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.3,Math.min(8,zoom*Math.exp(-e.deltaY*.001)));draw();},{passive:false});
+  canvas.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','Escape'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')angle-=.1;if(e.key==='ArrowRight')angle+=.1;if(e.key==='ArrowUp')elevation=Math.min(Math.PI/2,elevation+.1);if(e.key==='ArrowDown')elevation=Math.max(-.2,elevation-.1);if(e.key==='+')zoom=Math.min(8,zoom*1.1);if(e.key==='-')zoom=Math.max(.3,zoom/1.1);if(e.key==='Escape'){select(null);return;}draw();}});
+  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();$('error-banner').textContent='Graphics context lost. Reload this page to restore the view.';});
+  window.addEventListener('resize',draw);
+  $('json').value=JSON.stringify(createTechnicDemo(),null,2);render();
+})();
 
-</html>
+</script><script>{let t;document.getElementById('json').addEventListener('input',()=>{clearTimeout(t);t=setTimeout(()=>document.getElementById('render').click(),600);});}</script></body></html>

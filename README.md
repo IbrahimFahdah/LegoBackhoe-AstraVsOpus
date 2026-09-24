@@ -74,7 +74,7 @@ To view a model in 3D, open its viewer page online ([GPT Astra](https://ibrahimf
 
 ## Human review
 
-The outputs from both models are very close and both are good, but Astra seems to produce the better output.
+The outputs from both models are very close and both are good, but **Astra seems to produce the better output.**
 
 ## Repository layout
 
