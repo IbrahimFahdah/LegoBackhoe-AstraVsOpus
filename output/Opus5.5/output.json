@@ -1,0 +1,4362 @@
+{
+ "title": "Technic Backhoe Loader 42197",
+ "units": {
+  "length": "module",
+  "module_mm": 8
+ },
+ "axes": {
+  "x": "right",
+  "y": "forward",
+  "z": "up"
+ },
+ "parts": [
+  {
+   "id": "p001",
+   "element": "6115616",
+   "color": "yellow",
+   "subassembly": "chassis",
+   "position": [
+    -2.0,
+    -4.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p002",
+   "element": "6115616",
+   "color": "yellow",
+   "subassembly": "chassis",
+   "position": [
+    2.0,
+    -4.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p003",
+   "element": "6321305",
+   "color": "tan",
+   "subassembly": "wheels",
+   "position": [
+    -1.5,
+    3.0,
+    1.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p004",
+   "element": "6109684",
+   "color": "light_bluish_gray",
+   "subassembly": "wheels",
+   "position": [
+    -3.5,
+    3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p005",
+   "element": "4619323",
+   "color": "black",
+   "subassembly": "wheels",
+   "position": [
+    -3.5,
+    3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p006",
+   "element": "6321305",
+   "color": "tan",
+   "subassembly": "wheels",
+   "position": [
+    -1.5,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p007",
+   "element": "6109684",
+   "color": "light_bluish_gray",
+   "subassembly": "wheels",
+   "position": [
+    -3.5,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p008",
+   "element": "4619323",
+   "color": "black",
+   "subassembly": "wheels",
+   "position": [
+    -3.5,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p009",
+   "element": "6321305",
+   "color": "tan",
+   "subassembly": "wheels",
+   "position": [
+    1.5,
+    3.0,
+    1.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p010",
+   "element": "6109684",
+   "color": "light_bluish_gray",
+   "subassembly": "wheels",
+   "position": [
+    3.5,
+    3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p011",
+   "element": "4619323",
+   "color": "black",
+   "subassembly": "wheels",
+   "position": [
+    3.5,
+    3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p012",
+   "element": "6321305",
+   "color": "tan",
+   "subassembly": "wheels",
+   "position": [
+    1.5,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p013",
+   "element": "6109684",
+   "color": "light_bluish_gray",
+   "subassembly": "wheels",
+   "position": [
+    3.5,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p014",
+   "element": "4619323",
+   "color": "black",
+   "subassembly": "wheels",
+   "position": [
+    3.5,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p015",
+   "element": "6271828",
+   "color": "yellow",
+   "subassembly": "chassis",
+   "position": [
+    -1.0,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "z_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p016",
+   "element": "6279875",
+   "color": "black",
+   "subassembly": "chassis",
+   "position": [
+    -2.5,
+    -4.0,
+    1.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p017",
+   "element": "6271828",
+   "color": "yellow",
+   "subassembly": "chassis",
+   "position": [
+    1.0,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "z_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p018",
+   "element": "6279875",
+   "color": "black",
+   "subassembly": "chassis",
+   "position": [
+    2.5,
+    -4.0,
+    1.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p019",
+   "element": "6130007",
+   "color": "yellow",
+   "subassembly": "chassis",
+   "position": [
+    -1.5,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p020",
+   "element": "6121485",
+   "color": "black",
+   "subassembly": "chassis",
+   "position": [
+    0.0,
+    -3.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p021",
+   "element": "6130007",
+   "color": "yellow",
+   "subassembly": "chassis",
+   "position": [
+    -1.5,
+    -6.0,
+    1.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p022",
+   "element": "6360824",
+   "color": "dark_bluish_gray",
+   "subassembly": "chassis",
+   "position": [
+    0.0,
+    -6.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p023",
+   "element": "6279875",
+   "color": "black",
+   "subassembly": "stabilizers",
+   "position": [
+    -2.5,
+    -6.0,
+    2.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p024",
+   "element": "4142133",
+   "color": "yellow",
+   "subassembly": "stabilizers",
+   "position": [
+    -2.0,
+    -6.0,
+    2.9
+   ],
+   "x_axis": [
+    0.0,
+    -0.8432,
+    -0.5375
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p025",
+   "element": "6279875",
+   "color": "black",
+   "subassembly": "stabilizers",
+   "position": [
+    2.5,
+    -6.0,
+    2.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p026",
+   "element": "4142133",
+   "color": "yellow",
+   "subassembly": "stabilizers",
+   "position": [
+    2.0,
+    -6.0,
+    2.9
+   ],
+   "x_axis": [
+    0.0,
+    -0.8432,
+    -0.5375
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p027",
+   "element": "4211639",
+   "color": "light_bluish_gray",
+   "subassembly": "chassis",
+   "position": [
+    -2.5,
+    4.0,
+    1.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p028",
+   "element": "6522621",
+   "color": "yellow",
+   "subassembly": "loader_gearbox",
+   "position": [
+    -0.75,
+    1.0186,
+    4.5667
+   ],
+   "x_axis": [
+    0.0,
+    0.7454,
+    -0.6667
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p029",
+   "element": "6522621",
+   "color": "yellow",
+   "subassembly": "loader_gearbox",
+   "position": [
+    0.75,
+    1.0186,
+    4.5667
+   ],
+   "x_axis": [
+    0.0,
+    0.7454,
+    -0.6667
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p030",
+   "element": "6261371",
+   "color": "black",
+   "subassembly": "loader_gearbox",
+   "position": [
+    0.0,
+    4.0,
+    1.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p031",
+   "element": "6159763",
+   "color": "reddish_brown",
+   "subassembly": "loader_gearbox",
+   "position": [
+    0.0,
+    -0.5,
+    2.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p032",
+   "element": "6284188",
+   "color": "black",
+   "subassembly": "loader_gearbox",
+   "position": [
+    0.0,
+    0.0,
+    2.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p033",
+   "element": "6185471",
+   "color": "light_bluish_gray",
+   "subassembly": "loader_gearbox",
+   "position": [
+    0.0,
+    0.7639,
+    2.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p034",
+   "element": "4211639",
+   "color": "light_bluish_gray",
+   "subassembly": "loader_gearbox",
+   "position": [
+    -2.5,
+    1.7639,
+    3.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p035",
+   "element": "6012451",
+   "color": "dark_bluish_gray",
+   "subassembly": "loader_gearbox",
+   "position": [
+    0.0,
+    1.7639,
+    3.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p036",
+   "element": "6271165",
+   "color": "light_bluish_gray",
+   "subassembly": "loader_gearbox",
+   "position": [
+    -1.25,
+    1.7639,
+    3.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p037",
+   "element": "6271165",
+   "color": "light_bluish_gray",
+   "subassembly": "loader_gearbox",
+   "position": [
+    1.25,
+    1.7639,
+    3.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p038",
+   "element": "6278131",
+   "color": "yellow",
+   "subassembly": "loader",
+   "position": [
+    -2.0,
+    1.7639,
+    3.9
+   ],
+   "x_axis": [
+    0.0,
+    0.9999,
+    -0.0119
+   ],
+   "z_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p039",
+   "element": "6278131",
+   "color": "yellow",
+   "subassembly": "loader",
+   "position": [
+    2.0,
+    1.7639,
+    3.9
+   ],
+   "x_axis": [
+    0.0,
+    0.9999,
+    -0.0119
+   ],
+   "z_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p040",
+   "element": "6130007",
+   "color": "yellow",
+   "subassembly": "loader_gearbox",
+   "position": [
+    -1.5,
+    5.3333,
+    3.3907
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p041",
+   "element": "6121485",
+   "color": "black",
+   "subassembly": "loader_gearbox",
+   "position": [
+    0.0,
+    5.3333,
+    3.3907
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p042",
+   "element": "6130007",
+   "color": "yellow",
+   "subassembly": "loader_gearbox",
+   "position": [
+    -1.5,
+    1.0186,
+    4.5667
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p043",
+   "element": "4211639",
+   "color": "light_bluish_gray",
+   "subassembly": "loader",
+   "position": [
+    -2.5,
+    5.9445,
+    2.25
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p044",
+   "element": "6121485",
+   "color": "black",
+   "subassembly": "loader",
+   "position": [
+    -1.0,
+    5.9445,
+    2.25
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p045",
+   "element": "6261371",
+   "color": "black",
+   "subassembly": "loader",
+   "position": [
+    0.0,
+    5.9445,
+    2.25
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p046",
+   "element": "6261371",
+   "color": "black",
+   "subassembly": "loader",
+   "position": [
+    1.0,
+    5.9445,
+    2.25
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p047",
+   "element": "6413107",
+   "color": "light_bluish_gray",
+   "subassembly": "loader",
+   "position": [
+    0.0,
+    6.9445,
+    2.25
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p048",
+   "element": "6311434",
+   "color": "black",
+   "subassembly": "loader",
+   "position": [
+    0.5,
+    7.9445,
+    3.0
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p049",
+   "element": "6083620",
+   "color": "dark_bluish_gray",
+   "subassembly": "drive_tower",
+   "position": [
+    0.0,
+    -1.0,
+    3.4
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p050",
+   "element": "6284188",
+   "color": "black",
+   "subassembly": "drive_tower",
+   "position": [
+    0.0,
+    -1.0,
+    3.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p051",
+   "element": "6344325",
+   "color": "yellow",
+   "subassembly": "drive_tower",
+   "position": [
+    0.0,
+    -1.0,
+    4.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p052",
+   "element": "6261371",
+   "color": "black",
+   "subassembly": "drive_tower",
+   "position": [
+    0.0,
+    -1.0,
+    5.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p053",
+   "element": "6391550",
+   "color": "dark_bluish_gray",
+   "subassembly": "drive_tower",
+   "position": [
+    0.0,
+    -1.0,
+    6.4
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p054",
+   "element": "6135494",
+   "color": "reddish_brown",
+   "subassembly": "drive_tower",
+   "position": [
+    0.0,
+    -1.0,
+    10.4
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p055",
+   "element": "6344325",
+   "color": "yellow",
+   "subassembly": "drive_tower",
+   "position": [
+    0.0,
+    -1.0,
+    8.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p056",
+   "element": "4177431",
+   "color": "black",
+   "subassembly": "drive_tower",
+   "position": [
+    0.0,
+    -1.0,
+    9.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p057",
+   "element": "6327162",
+   "color": "black",
+   "subassembly": "cab",
+   "position": [
+    -2.25,
+    -1.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p058",
+   "element": "6327028",
+   "color": "black",
+   "subassembly": "cab",
+   "position": [
+    -2.25,
+    1.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p059",
+   "element": "6344174",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    -2.75,
+    -1.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p060",
+   "element": "6371968",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    -1.75,
+    -3.0,
+    8.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p061",
+   "element": "6513879",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    -3.25,
+    -1.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p062",
+   "element": "6130007",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    -0.5,
+    -1.0,
+    4.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p063",
+   "element": "4142865",
+   "color": "red",
+   "subassembly": "cab",
+   "position": [
+    -0.5,
+    -1.0,
+    8.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p064",
+   "element": "6327162",
+   "color": "black",
+   "subassembly": "cab",
+   "position": [
+    2.25,
+    -1.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p065",
+   "element": "6327028",
+   "color": "black",
+   "subassembly": "cab",
+   "position": [
+    2.25,
+    1.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p066",
+   "element": "6344174",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    2.75,
+    -1.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p067",
+   "element": "6371968",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    1.75,
+    -3.0,
+    8.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p068",
+   "element": "6510995",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    3.25,
+    -1.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p069",
+   "element": "6130007",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    0.5,
+    -1.0,
+    4.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p070",
+   "element": "4142865",
+   "color": "red",
+   "subassembly": "cab",
+   "position": [
+    0.5,
+    -1.0,
+    8.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p071",
+   "element": "6334491",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    0.0,
+    1.0,
+    8.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p072",
+   "element": "6130007",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    -0.5,
+    1.0,
+    8.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p073",
+   "element": "6261371",
+   "color": "black",
+   "subassembly": "cab",
+   "position": [
+    -3.0,
+    1.0,
+    8.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p074",
+   "element": "4211483",
+   "color": "light_bluish_gray",
+   "subassembly": "cab",
+   "position": [
+    -3.0,
+    0.9,
+    9.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p075",
+   "element": "6514191",
+   "color": "trans_clear",
+   "subassembly": "cab",
+   "position": [
+    -3.0,
+    1.7,
+    9.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p076",
+   "element": "6130007",
+   "color": "yellow",
+   "subassembly": "cab",
+   "position": [
+    0.5,
+    1.0,
+    8.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p077",
+   "element": "6261371",
+   "color": "black",
+   "subassembly": "cab",
+   "position": [
+    3.0,
+    1.0,
+    8.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p078",
+   "element": "4211483",
+   "color": "light_bluish_gray",
+   "subassembly": "cab",
+   "position": [
+    3.0,
+    0.9,
+    9.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p079",
+   "element": "6514191",
+   "color": "trans_clear",
+   "subassembly": "cab",
+   "position": [
+    3.0,
+    1.7,
+    9.9
+   ],
+   "x_axis": [
+    0.0,
+    1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p080",
+   "element": "4211639",
+   "color": "light_bluish_gray",
+   "subassembly": "cab",
+   "position": [
+    -2.5,
+    -3.0,
+    8.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p081",
+   "element": "6261371",
+   "color": "black",
+   "subassembly": "cab",
+   "position": [
+    -0.5,
+    -3.0,
+    8.9
+   ],
+   "x_axis": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p082",
+   "element": "6261371",
+   "color": "black",
+   "subassembly": "cab",
+   "position": [
+    0.5,
+    -3.0,
+    8.9
+   ],
+   "x_axis": [
+    0.0,
+    -1.0,
+    0.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p083",
+   "element": "6338422",
+   "color": "dark_bluish_gray",
+   "subassembly": "cab",
+   "position": [
+    -0.5,
+    -4.0,
+    9.65
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p084",
+   "element": "6338422",
+   "color": "dark_bluish_gray",
+   "subassembly": "cab",
+   "position": [
+    -0.5,
+    -4.0,
+    10.15
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "p085",
+   "element": "4206482",
+   "color": "blue",
+   "subassembly": "cab",
+   "position": [
+    -0.5,
+    -4.0,
+    8.4
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p086",
+   "element": "4206482",
+   "color": "blue",
+   "subassembly": "cab",
+   "position": [
+    0.5,
+    -4.0,
+    8.4
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p087",
+   "element": "6331574",
+   "color": "light_bluish_gray",
+   "subassembly": "cab",
+   "position": [
+    -3.25,
+    0.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p088",
+   "element": "4206482",
+   "color": "blue",
+   "subassembly": "cab",
+   "position": [
+    -2.0,
+    0.0,
+    4.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p089",
+   "element": "6331574",
+   "color": "light_bluish_gray",
+   "subassembly": "cab",
+   "position": [
+    3.25,
+    0.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p090",
+   "element": "4206482",
+   "color": "blue",
+   "subassembly": "cab",
+   "position": [
+    2.0,
+    0.0,
+    4.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p091",
+   "element": "6299413",
+   "color": "blue",
+   "subassembly": "chassis",
+   "position": [
+    1.5,
+    0.0,
+    1.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p092",
+   "element": "6276984",
+   "color": "dark_bluish_gray",
+   "subassembly": "chassis",
+   "position": [
+    4.0,
+    0.0,
+    0.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p093",
+   "element": "4206482",
+   "color": "blue",
+   "subassembly": "chassis",
+   "position": [
+    -1.5,
+    0.0,
+    1.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p094",
+   "element": "4142865",
+   "color": "red",
+   "subassembly": "cab",
+   "position": [
+    -2.0,
+    1.0,
+    4.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p095",
+   "element": "4142865",
+   "color": "red",
+   "subassembly": "cab",
+   "position": [
+    2.0,
+    1.0,
+    4.9
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p096",
+   "element": "6331716",
+   "color": "black",
+   "subassembly": "cab",
+   "position": [
+    3.5,
+    1.0,
+    4.9
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p097",
+   "element": "6391550",
+   "color": "dark_bluish_gray",
+   "subassembly": "cab",
+   "position": [
+    -3.0,
+    1.0,
+    4.9
+   ],
+   "x_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p098",
+   "element": "6338171",
+   "color": "black",
+   "subassembly": "backhoe",
+   "position": [
+    0.0,
+    -7.2,
+    4.4
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p099",
+   "element": "4142865",
+   "color": "red",
+   "subassembly": "backhoe",
+   "position": [
+    -0.5,
+    -7.2,
+    4.4
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p100",
+   "element": "6278131",
+   "color": "yellow",
+   "subassembly": "backhoe",
+   "position": [
+    1.0,
+    -7.2,
+    4.4
+   ],
+   "x_axis": [
+    0.0,
+    -0.1736,
+    0.9848
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p101",
+   "element": "4206482",
+   "color": "blue",
+   "subassembly": "backhoe",
+   "position": [
+    0.5,
+    -9.505,
+    8.2584
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p102",
+   "element": "6278131",
+   "color": "yellow",
+   "subassembly": "backhoe",
+   "position": [
+    2.0,
+    -9.505,
+    8.2584
+   ],
+   "x_axis": [
+    0.0,
+    -0.1736,
+    0.9848
+   ],
+   "z_axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p103",
+   "element": "6099801",
+   "color": "black",
+   "subassembly": "backhoe",
+   "position": [
+    1.0,
+    -7.975,
+    13.4022
+   ],
+   "x_axis": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "z_axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "p104",
+   "element": "6331026",
+   "color": "black",
+   "subassembly": "backhoe",
+   "position": [
+    1.0,
+    -6.675,
+    14.4022
+   ],
+   "x_axis": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "z_axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  }
+ ],
+ "connections": [
+  {
+   "id": "c001",
+   "a": "p003.s0",
+   "b": "p001.h7",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    -2.0,
+    3.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c002",
+   "a": "p003.s1",
+   "b": "p004.h0",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    -3.5,
+    3.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c003",
+   "a": "p005.bore",
+   "b": "p004.seat",
+   "type": "tyre",
+   "motion": "fixed",
+   "at": [
+    -3.5,
+    3.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c004",
+   "a": "p006.s0",
+   "b": "p001.h1",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    -2.0,
+    -3.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c005",
+   "a": "p006.s1",
+   "b": "p007.h0",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    -3.5,
+    -3.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c006",
+   "a": "p008.bore",
+   "b": "p007.seat",
+   "type": "tyre",
+   "motion": "fixed",
+   "at": [
+    -3.5,
+    -3.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c007",
+   "a": "p009.s0",
+   "b": "p002.h7",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    2.0,
+    3.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c008",
+   "a": "p009.s1",
+   "b": "p010.h0",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    3.5,
+    3.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c009",
+   "a": "p011.bore",
+   "b": "p010.seat",
+   "type": "tyre",
+   "motion": "fixed",
+   "at": [
+    3.5,
+    3.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c010",
+   "a": "p012.s0",
+   "b": "p002.h1",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    2.0,
+    -3.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c011",
+   "a": "p012.s1",
+   "b": "p013.h0",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    3.5,
+    -3.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c012",
+   "a": "p014.bore",
+   "b": "p013.seat",
+   "type": "tyre",
+   "motion": "fixed",
+   "at": [
+    3.5,
+    -3.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c013",
+   "a": "p016.s0",
+   "b": "p001.h0",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    -2.0,
+    -4.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c014",
+   "a": "p016.s1",
+   "b": "p015.h1",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    -1.0,
+    -4.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c015",
+   "a": "p018.s0",
+   "b": "p002.h0",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    2.0,
+    -4.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c016",
+   "a": "p018.s1",
+   "b": "p017.h1",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    1.0,
+    -4.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c017",
+   "a": "p019.s0",
+   "b": "p015.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -1.0,
+    -3.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c018",
+   "a": "p019.s0",
+   "b": "p020.h0",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    0.0,
+    -3.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c019",
+   "a": "p019.s0",
+   "b": "p017.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    1.0,
+    -3.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c020",
+   "a": "p021.s0",
+   "b": "p015.h3",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    -1.0,
+    -6.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c021",
+   "a": "p021.s0",
+   "b": "p022.h1",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    -6.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c022",
+   "a": "p021.s0",
+   "b": "p017.h3",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    1.0,
+    -6.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c023",
+   "a": "p023.s0",
+   "b": "p024.h0",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    -2.0,
+    -6.0,
+    2.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c024",
+   "a": "p023.s1",
+   "b": "p015.h4",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    -1.0,
+    -6.0,
+    2.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c025",
+   "a": "p025.s0",
+   "b": "p026.h0",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    2.0,
+    -6.0,
+    2.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c026",
+   "a": "p025.s1",
+   "b": "p017.h4",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    1.0,
+    -6.0,
+    2.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c027",
+   "a": "p027.s0",
+   "b": "p001.h8",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    -2.0,
+    4.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c028",
+   "a": "p027.s0",
+   "b": "p028.h4",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -0.75,
+    4.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c029",
+   "a": "p027.s0",
+   "b": "p030.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    4.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c030",
+   "a": "p027.s0",
+   "b": "p029.h4",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.75,
+    4.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c031",
+   "a": "p027.s0",
+   "b": "p002.h8",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    2.0,
+    4.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c032",
+   "a": "p031.s0",
+   "b": "p032.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    0.0,
+    2.9
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c033",
+   "a": "p031.s0",
+   "b": "p033.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    1.7639,
+    2.9
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c034",
+   "a": "p031.s0",
+   "b": "p030.h1",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    0.0,
+    4.0,
+    2.9
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c035",
+   "a": "p034.s0",
+   "b": "p038.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -2.0,
+    1.7639,
+    3.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c036",
+   "a": "p034.s0",
+   "b": "p036.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -1.25,
+    1.7639,
+    3.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c037",
+   "a": "p034.s0",
+   "b": "p028.h1",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    -0.75,
+    1.7639,
+    3.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c038",
+   "a": "p034.s0",
+   "b": "p035.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    1.7639,
+    3.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c039",
+   "a": "p034.s0",
+   "b": "p029.h1",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    0.75,
+    1.7639,
+    3.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c040",
+   "a": "p034.s0",
+   "b": "p037.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    1.25,
+    1.7639,
+    3.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c041",
+   "a": "p034.s0",
+   "b": "p039.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    2.0,
+    1.7639,
+    3.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c042",
+   "a": "p040.s0",
+   "b": "p028.h6",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -0.75,
+    5.3333,
+    3.3907
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c043",
+   "a": "p040.s0",
+   "b": "p041.h0",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    0.0,
+    5.3333,
+    3.3907
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c044",
+   "a": "p040.s0",
+   "b": "p029.h6",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.75,
+    5.3333,
+    3.3907
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c045",
+   "a": "p042.s0",
+   "b": "p028.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -0.75,
+    1.0186,
+    4.5667
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c046",
+   "a": "p042.s0",
+   "b": "p029.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.75,
+    1.0186,
+    4.5667
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c047",
+   "a": "p043.s0",
+   "b": "p038.h5",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    -2.0,
+    5.9445,
+    2.25
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c048",
+   "a": "p043.s0",
+   "b": "p044.h0",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    -1.0,
+    5.9445,
+    2.25
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c049",
+   "a": "p043.s0",
+   "b": "p045.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    5.9445,
+    2.25
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c050",
+   "a": "p043.s0",
+   "b": "p046.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    1.0,
+    5.9445,
+    2.25
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c051",
+   "a": "p043.s0",
+   "b": "p039.h5",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    2.0,
+    5.9445,
+    2.25
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c052",
+   "a": "p047.pa",
+   "b": "p045.h1",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    0.0,
+    6.9445,
+    2.25
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c053",
+   "a": "p047.pb",
+   "b": "p046.h1",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    1.0,
+    6.9445,
+    2.25
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c054",
+   "a": "p047.mount",
+   "b": "p048.mount",
+   "type": "clip",
+   "motion": "fixed",
+   "at": [
+    0.5,
+    7.9445,
+    3.0
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c055",
+   "a": "p049.s0",
+   "b": "p050.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    -1.0,
+    3.9
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c056",
+   "a": "p049.s0",
+   "b": "p051.h0",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    0.0,
+    -1.0,
+    4.9
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c057",
+   "a": "p049.s0",
+   "b": "p052.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    -1.0,
+    5.9
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c058",
+   "a": "p049.s0",
+   "b": "p053.b0",
+   "type": "socket",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    -1.0,
+    6.9
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c059",
+   "a": "p054.s0",
+   "b": "p053.b1",
+   "type": "socket",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    -1.0,
+    7.9
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "id": "c060",
+   "a": "p054.s0",
+   "b": "p055.h0",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    0.0,
+    -1.0,
+    8.9
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "id": "c061",
+   "a": "p054.s0",
+   "b": "p056.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    -1.0,
+    9.9
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "id": "c062",
+   "a": "p062.s0",
+   "b": "p051.b0",
+   "type": "socket",
+   "motion": "fixed",
+   "at": [
+    -1.0,
+    -1.0,
+    4.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c063",
+   "a": "p062.s0",
+   "b": "p057.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -2.25,
+    -1.0,
+    4.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c064",
+   "a": "p062.s0",
+   "b": "p059.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -2.75,
+    -1.0,
+    4.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c065",
+   "a": "p062.s0",
+   "b": "p061.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -3.25,
+    -1.0,
+    4.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c066",
+   "a": "p063.s0",
+   "b": "p055.b0",
+   "type": "socket",
+   "motion": "fixed",
+   "at": [
+    -1.0,
+    -1.0,
+    8.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c067",
+   "a": "p063.s0",
+   "b": "p060.h2",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    -1.75,
+    -1.0,
+    8.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c068",
+   "a": "p063.s0",
+   "b": "p057.h4",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -2.25,
+    -1.0,
+    8.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c069",
+   "a": "p069.s0",
+   "b": "p051.b1",
+   "type": "socket",
+   "motion": "fixed",
+   "at": [
+    1.0,
+    -1.0,
+    4.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c070",
+   "a": "p069.s0",
+   "b": "p064.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    2.25,
+    -1.0,
+    4.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c071",
+   "a": "p069.s0",
+   "b": "p066.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    2.75,
+    -1.0,
+    4.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c072",
+   "a": "p069.s0",
+   "b": "p068.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    3.25,
+    -1.0,
+    4.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c073",
+   "a": "p070.s0",
+   "b": "p055.b1",
+   "type": "socket",
+   "motion": "fixed",
+   "at": [
+    1.0,
+    -1.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c074",
+   "a": "p070.s0",
+   "b": "p067.h2",
+   "type": "axle",
+   "motion": "rotates",
+   "at": [
+    1.75,
+    -1.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c075",
+   "a": "p070.s0",
+   "b": "p064.h4",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    2.25,
+    -1.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c076",
+   "a": "p072.s0",
+   "b": "p071.bore",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -1.0,
+    1.0,
+    8.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c077",
+   "a": "p072.s0",
+   "b": "p060.h4",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -1.75,
+    1.0,
+    8.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c078",
+   "a": "p072.s0",
+   "b": "p058.h4",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -2.25,
+    1.0,
+    8.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c079",
+   "a": "p072.s0",
+   "b": "p073.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -3.0,
+    1.0,
+    8.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c080",
+   "a": "p074.s0",
+   "b": "p073.h1",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    -3.0,
+    1.0,
+    9.9
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c081",
+   "a": "p074.stud",
+   "b": "p075.anti_stud",
+   "type": "stud",
+   "motion": "fixed",
+   "at": [
+    -3.0,
+    1.7,
+    9.9
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c082",
+   "a": "p076.s0",
+   "b": "p071.bore",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    1.0,
+    1.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c083",
+   "a": "p076.s0",
+   "b": "p067.h4",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    1.75,
+    1.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c084",
+   "a": "p076.s0",
+   "b": "p065.h4",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    2.25,
+    1.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c085",
+   "a": "p076.s0",
+   "b": "p077.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    3.0,
+    1.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c086",
+   "a": "p078.s0",
+   "b": "p077.h1",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    3.0,
+    1.0,
+    9.9
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c087",
+   "a": "p078.stud",
+   "b": "p079.anti_stud",
+   "type": "stud",
+   "motion": "fixed",
+   "at": [
+    3.0,
+    1.7,
+    9.9
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c088",
+   "a": "p080.s0",
+   "b": "p057.h6",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -2.25,
+    -3.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c089",
+   "a": "p080.s0",
+   "b": "p060.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -1.75,
+    -3.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c090",
+   "a": "p080.s0",
+   "b": "p081.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -0.5,
+    -3.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c091",
+   "a": "p080.s0",
+   "b": "p082.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.5,
+    -3.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c092",
+   "a": "p080.s0",
+   "b": "p067.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    1.75,
+    -3.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c093",
+   "a": "p080.s0",
+   "b": "p064.h6",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    2.25,
+    -3.0,
+    8.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c094",
+   "a": "p085.s0",
+   "b": "p081.h1",
+   "type": "axle_pin",
+   "motion": "rotates",
+   "at": [
+    -0.5,
+    -4.0,
+    8.9
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c095",
+   "a": "p085.s1",
+   "b": "p083.h0",
+   "type": "axle_pin",
+   "motion": "fixed",
+   "at": [
+    -0.5,
+    -4.0,
+    9.65
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c096",
+   "a": "p085.s1",
+   "b": "p084.h0",
+   "type": "axle_pin",
+   "motion": "fixed",
+   "at": [
+    -0.5,
+    -4.0,
+    10.15
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c097",
+   "a": "p086.s0",
+   "b": "p082.h1",
+   "type": "axle_pin",
+   "motion": "rotates",
+   "at": [
+    0.5,
+    -4.0,
+    8.9
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c098",
+   "a": "p086.s1",
+   "b": "p083.h1",
+   "type": "axle_pin",
+   "motion": "fixed",
+   "at": [
+    0.5,
+    -4.0,
+    9.65
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c099",
+   "a": "p086.s1",
+   "b": "p084.h1",
+   "type": "axle_pin",
+   "motion": "fixed",
+   "at": [
+    0.5,
+    -4.0,
+    10.15
+   ],
+   "axis": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "id": "c100",
+   "a": "p088.s0",
+   "b": "p059.h1",
+   "type": "axle_pin",
+   "motion": "rotates",
+   "at": [
+    -2.75,
+    0.0,
+    4.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c101",
+   "a": "p088.s1",
+   "b": "p087.h0",
+   "type": "axle_pin",
+   "motion": "fixed",
+   "at": [
+    -3.25,
+    0.0,
+    4.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c102",
+   "a": "p090.s0",
+   "b": "p066.h1",
+   "type": "axle_pin",
+   "motion": "rotates",
+   "at": [
+    2.75,
+    0.0,
+    4.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c103",
+   "a": "p090.s1",
+   "b": "p089.h0",
+   "type": "axle_pin",
+   "motion": "fixed",
+   "at": [
+    3.25,
+    0.0,
+    4.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c104",
+   "a": "p091.s0",
+   "b": "p002.h4",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    2.0,
+    0.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c105",
+   "a": "p091.s1",
+   "b": "p089.h3",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    3.25,
+    0.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c106",
+   "a": "p091.s1",
+   "b": "p092.h1",
+   "type": "pin",
+   "motion": "rotates",
+   "at": [
+    4.0,
+    0.0,
+    1.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c107",
+   "a": "p093.s0",
+   "b": "p001.h4",
+   "type": "axle_pin",
+   "motion": "rotates",
+   "at": [
+    -2.0,
+    0.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c108",
+   "a": "p093.s1",
+   "b": "p087.h3",
+   "type": "axle_pin",
+   "motion": "rotates",
+   "at": [
+    -3.25,
+    0.0,
+    1.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c109",
+   "a": "p095.s0",
+   "b": "p065.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    2.25,
+    1.0,
+    4.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c110",
+   "a": "p095.s0",
+   "b": "p066.h2",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    2.75,
+    1.0,
+    4.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c111",
+   "a": "p095.s0",
+   "b": "p096.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    3.5,
+    1.0,
+    4.9
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c112",
+   "a": "p094.s0",
+   "b": "p058.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -2.25,
+    1.0,
+    4.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c113",
+   "a": "p094.s0",
+   "b": "p059.h2",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    -2.75,
+    1.0,
+    4.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c114",
+   "a": "p094.s0",
+   "b": "p097.b0",
+   "type": "socket",
+   "motion": "fixed",
+   "at": [
+    -3.5,
+    1.0,
+    4.9
+   ],
+   "axis": [
+    -1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c115",
+   "a": "p098.ball",
+   "b": "p022.socket",
+   "type": "ball",
+   "motion": "swivels",
+   "at": [
+    0.0,
+    -7.2,
+    1.9
+   ],
+   "axis": [
+    0.0,
+    -1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c116",
+   "a": "p099.s0",
+   "b": "p098.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    0.0,
+    -7.2,
+    4.4
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c117",
+   "a": "p099.s0",
+   "b": "p100.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    1.0,
+    -7.2,
+    4.4
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c118",
+   "a": "p101.s0",
+   "b": "p100.h5",
+   "type": "axle_pin",
+   "motion": "rotates",
+   "at": [
+    1.0,
+    -9.505,
+    8.2584
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c119",
+   "a": "p101.s1",
+   "b": "p102.h0",
+   "type": "axle_pin",
+   "motion": "fixed",
+   "at": [
+    2.0,
+    -9.505,
+    8.2584
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c120",
+   "a": "p103.s0",
+   "b": "p102.h6",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    2.0,
+    -7.975,
+    13.4022
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c121",
+   "a": "p103.s1",
+   "b": "p104.h0",
+   "type": "axle",
+   "motion": "fixed",
+   "at": [
+    1.0,
+    -6.975,
+    13.4022
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c122",
+   "a": "p050.h0",
+   "b": "p032.h0",
+   "type": "mesh",
+   "motion": "rotates",
+   "at": [
+    0.0,
+    -0.5,
+    3.4
+   ],
+   "axis": [
+    0.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "id": "c123",
+   "a": "p033.h0",
+   "b": "p035.h0",
+   "type": "mesh",
+   "motion": "rotates",
+   "at": [
+    0.0,
+    1.7639,
+    3.4
+   ],
+   "axis": [
+    1.0,
+    0.0,
+    0.0
+   ]
+  }
+ ],
+ "mechanisms": [
+  {
+   "function": "F1",
+   "chain": [
+    "p056",
+    "p054",
+    "p053",
+    "p049",
+    "p050",
+    "p032",
+    "p031",
+    "p033",
+    "p035",
+    "p034",
+    "p038",
+    "p039"
+   ]
+  },
+  {
+   "function": "F2",
+   "chain": [
+    "p003",
+    "p004",
+    "p005",
+    "p006",
+    "p007",
+    "p008",
+    "p009",
+    "p010",
+    "p011",
+    "p012",
+    "p013",
+    "p014"
+   ]
+  },
+  {
+   "function": "F3",
+   "chain": [
+    "p022",
+    "p098",
+    "p099",
+    "p100",
+    "p101",
+    "p102",
+    "p103",
+    "p104"
+   ]
+  },
+  {
+   "function": "F4",
+   "chain": [
+    "p015",
+    "p023",
+    "p024",
+    "p017",
+    "p025",
+    "p026"
+   ]
+  },
+  {
+   "function": "F5",
+   "chain": [
+    "p038",
+    "p043",
+    "p045",
+    "p046",
+    "p047",
+    "p048"
+   ]
+  }
+ ]
+}

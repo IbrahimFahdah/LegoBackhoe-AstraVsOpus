@@ -14,9 +14,9 @@ details{margin-top:14px}summary{cursor:pointer;font-weight:600}table{width:100%;
 #info{position:absolute;right:20px;bottom:74px;width:330px;max-height:55%;overflow:auto;background:#ffffffee;border:1px solid #d9dcdf;border-radius:9px;padding:12px 14px;font-size:12px;box-shadow:0 4px 18px #0001}#info:empty{display:none}#info h3{margin:0 0 4px;font-size:14px}#info ul{margin:4px 0 8px;padding-left:16px}#info .bad{color:#c0392b}#info .ok{color:#2f9e5b}#info .warnc{color:#b07d00}.small{font-size:11px}
 @media(max-width:860px){main{height:auto;grid-template-columns:1fr}aside{overflow:visible}.stage{height:640px}.hint{display:none}#info{left:16px;right:16px;width:auto}}
 </style></head>
-<body><main><aside><div class="eyebrow">Local Technic benchmark · set 42197</div><h1>Backhoe <span>Studio</span></h1><p class="intro">Paste a model's JSON answer to render it and grade it against the parts list, joint geometry, and working functions.</p>
+<body><main><aside><div class="eyebrow">Local Technic benchmark · set 42197</div><h1>Backhoe <span>Studio</span></h1><p class="intro">Paste a model's JSON answer or load it from a file to render it and grade it against the parts list, joint geometry, and working functions.</p>
 <label for="json">Construction JSON</label><textarea id="json" spellcheck="false"></textarea>
-<div class="row"><button class="primary" id="render">Render &amp; check</button><button id="sample">Demo</button><button id="save">Save JSON</button><button id="report">Save report</button></div>
+<div class="row"><button class="primary" id="render">Render &amp; check</button><button id="load">Load JSON file</button><input id="file" type="file" accept=".json,application/json" hidden><button id="report">Save report</button></div>
 <div id="status" role="status">Loading demo…</div>
 <div id="checks"></div>
 <fieldset><legend>Subassemblies</legend><div id="groups"></div></fieldset>

@@ -56,10 +56,15 @@ test('camera presets, orbit and zoom update uniforms',()=>{
   const before=[...h.uniforms.uRight];view.onpointerdown({clientX:0,clientY:0,pointerId:1});view.onpointermove({clientX:60,clientY:10});view.onpointerup({clientX:60,clientY:10});assert.notDeepEqual(h.uniforms.uRight,before);
   const scale=h.uniforms.uScale;view.events.wheel({preventDefault(){},deltaY:-100});assert.ok(h.uniforms.uScale<scale);
 });
-test('invalid JSON clears the model; demo recovery, JSON and report downloads work',()=>{
+test('invalid JSON clears the model; loading a JSON file recovers and the report downloads',async()=>{
   const h=harness();h.get('json').value='{broken';h.get('render').click();
   assert.match(h.get('status').textContent,/Cannot render/);assert.equal(h.get('checks').children.length,0);
-  h.get('save').click();assert.equal(h.getDownload(),null);
-  h.get('sample').click();h.get('save').click();assert.equal(h.getDownload(),'technic-backhoe.json');
+  h.get('report').click();assert.equal(h.getDownload(),null);
+  const file=h.get('file');file.files=[{name:'model.json',text:async()=>JSON.stringify(demo())}];await file.onchange();
+  assert.equal(file.value,'');assert.match(h.text(h.get('status')),/12\/17/);
   h.get('report').click();assert.equal(h.getDownload(),'technic-backhoe-report.json');
+});
+test('an unreadable file reports the error',async()=>{
+  const h=harness(),file=h.get('file');file.files=[{name:'bad.json',text:async()=>{throw Error('denied');}}];await file.onchange();
+  assert.match(h.get('status').textContent,/Cannot read bad\.json: denied/);
 });

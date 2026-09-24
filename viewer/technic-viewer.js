@@ -158,8 +158,11 @@
   for(const g of groups){const label=document.createElement('label'),input=document.createElement('input');input.type='checkbox';input.id='group-'+g;input.checked=true;input.onchange=()=>{input.checked?visible.add(g):visible.delete(g);rebuild();};label.append(input,document.createTextNode(' '+labels[g]));$('groups').append(label);}
   try{renderer=initRenderer();}catch(e){$('error-banner').textContent=e.message;$('status').textContent='Rendering unavailable.';return;}
   $('render').onclick=render;
-  $('sample').onclick=()=>{$('json').value=JSON.stringify(createTechnicDemo(),null,2);render();};
-  $('save').onclick=()=>{if(!model){$('status').textContent='Render valid JSON before saving.';return;}download('technic-backhoe.json',model.data);};
+  $('load').onclick=()=>$('file').click();
+  $('file').onchange=()=>{
+    const input=$('file'),file=input.files&&input.files[0];if(!file)return;input.value='';
+    return file.text().then(text=>{$('json').value=text;render();},e=>{$('status').textContent='Cannot read '+file.name+': '+e.message;});
+  };
   $('report').onclick=()=>{
     if(!model){$('status').textContent='Render valid JSON before saving a report.';return;}
     download('technic-backhoe-report.json',{title:model.title,parts:model.parts.length,joints:model.conns.length,score:model.score,checks:model.checks.map(({id,label,status,summary,details,parts})=>({id,label,status,summary,details,parts})),inventory:model.inventory});
@@ -182,5 +185,5 @@
   canvas.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','+','-','Escape'].includes(e.key)){e.preventDefault();if(e.key==='ArrowLeft')angle-=.1;if(e.key==='ArrowRight')angle+=.1;if(e.key==='ArrowUp')elevation=Math.min(Math.PI/2,elevation+.1);if(e.key==='ArrowDown')elevation=Math.max(-.2,elevation-.1);if(e.key==='+')zoom=Math.min(8,zoom*1.1);if(e.key==='-')zoom=Math.max(.3,zoom/1.1);if(e.key==='Escape'){select(null);return;}draw();}});
   canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();$('error-banner').textContent='Graphics context lost. Reload this page to restore the view.';});
   window.addEventListener('resize',draw);
-  $('sample').click();
+  $('json').value=JSON.stringify(createTechnicDemo(),null,2);render();
 })();
